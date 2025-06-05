@@ -15,3 +15,8 @@
 - Quản lý thành viên
 
 ## Module User:
+
+1. Task: Viết giao diện đăng nhập hệ thống:
+
+- Chuẩn hóa dữ liệu nhập vào khi đăng nhập với React hook form + Yup validator bao gồm email + password + term
+- Chức năng: Reset form khi người dùng click vào icon close, chức năng show + hidden mật khẩu, đang ngôn ngữ với i18n + react-i18next + giao diện dark mode với Shadcn UI

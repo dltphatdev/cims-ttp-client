@@ -1,0 +1,22 @@
+{
+  "Manager login": "Quản lý đăng nhập",
+  "Password": "Mật khẩu",
+  "Enter your password": "Nhập mật khẩu",
+  "Enter your email": "Nhập email",
+  "Customer Information Management System": "Hệ thống quản lý thông tin khách hàng",
+  "Login": "Đăng nhập",
+  "Email is required": "Email là bắt buộc",
+  "Email min length": "Email bắt buộc phải có tối thiểu 5 ký tự",
+  "Email max length": "Email chỉ cho phép nhập tối đa 160 ký tự",
+  "Email invalid": "Email chưa đúng định dạng",
+  "Password is required": "Mật khẩu là bắt buộc",
+  "Password min length": "Mật khẩu phải nhập tối thiểu 6 ký tự",
+  "Password max length": "Mật khẩu chỉ cho phép nhập tối đa 160 ký tự",
+  "No results found": "Không tìm thấy kết quả",
+  "Back to home": "Quay lại trang chủ",
+  "Sorry, we couldn’t find the page you’re looking for": "Rất tiếc, chúng tôi không tìm thấy trang bạn đang tìm kiếm",
+  "You must accept the terms and conditions": "Bạn phải chấp nhận các điều khoản và điều kiện",
+  "I have read and accept": "Tôi đã đọc và chấp nhận",
+  "terms of service": "điều khoản dịch vụ",
+  "privacy policy": "chính sách quyền riêng tư"
+}

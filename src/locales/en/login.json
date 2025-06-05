@@ -1,0 +1,22 @@
+{
+  "Manager login": "Manage login",
+  "Password": "Password",
+  "Enter your password": "Enter your password",
+  "Enter your email": "Enter your email",
+  "Customer Information Management System": "Customer Information Management System",
+  "Login": "Login",
+  "Email is required": "Email is required",
+  "Email min length": "Email must be at least 5 characters long",
+  "Email max length": "Email only allows up to 160 characters",
+  "Email invalid": "Email invalid",
+  "Password is required": "Password is required",
+  "Password min length": "Password must be at least 6 characters",
+  "Password max length": "Password only allows up to 160 characters",
+  "No results found": "No results found",
+  "Back to home": "Back to home",
+  "Sorry, we couldn’t find the page you’re looking for": "Sorry, we couldn’t find the page you’re looking for",
+  "You must accept the terms and conditions": "You must accept the terms and conditions",
+  "I have read and accept": "I have read and accept",
+  "terms of service": "terms of service",
+  "privacy policy": "privacy policy"
+}

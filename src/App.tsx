@@ -1,5 +1,13 @@
+import Router from './router'
+import { ThemeProvider } from '@/components/theme-provider'
+
 function App() {
-  return <div>Init Project</div>
+  const router = Router()
+  return (
+    <div>
+      <ThemeProvider>{router}</ThemeProvider>
+    </div>
+  )
 }
 
 export default App
