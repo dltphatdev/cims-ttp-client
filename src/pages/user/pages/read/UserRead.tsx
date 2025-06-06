@@ -1,0 +1,70 @@
+import SearchFilterBar from '@/components/search-filter-bar'
+import TableMain from '@/components/table-main'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { TableCell, TableRow } from '@/components/ui/table'
+import PATH from '@/constants/path'
+import { Ellipsis } from 'lucide-react'
+
+const data = [
+  {
+    fullname: 'Nguyen Van A',
+    email: 'ttp@gmail.com',
+    role: 'Super admin',
+    phone: '0987654321',
+    created_at: '14:17:00 12/12/2024'
+  }
+]
+
+export default function UserRead() {
+  return (
+    <div className='@container/main'>
+      <div className='py-4 md:gap-6 md:py-6'>
+        <div className='px-4 lg:px-6'>
+          <SearchFilterBar path={PATH.USER_CREATE} />
+          <TableMain
+            headers={['STT', 'Họ và tên', 'Email', 'Quyền', 'Số điện thoại', 'Ngày tạo']}
+            data={data}
+            renderRow={(item, index) => (
+              <TableRow key={index}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{item.fullname}</TableCell>
+                <TableCell>{item.email}</TableCell>
+                <TableCell>{item.role}</TableCell>
+                <TableCell>{item.phone}</TableCell>
+                <TableCell>{item.created_at}</TableCell>
+                <TableCell>
+                  <Select value='abc'>
+                    <SelectTrigger className='w-[150px] border-0 shadow-none focus:hidden text-(--color-green-custom)'>
+                      <SelectValue className=''>Đã xác minh</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='Chưa xác minh'>Chưa xác minh</SelectItem>
+                      <SelectItem value='Đã xác minh'>Đã xác minh</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell className='ml-auto text-end'>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                        <Ellipsis className='w-4 h-4' />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                      <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+                      <DropdownMenuItem>Phân bổ</DropdownMenuItem>
+                      <DropdownMenuItem>Thu hồi</DropdownMenuItem>
+                      <DropdownMenuItem>Xác minh</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}

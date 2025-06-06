@@ -42,7 +42,7 @@ const AuthInput = ({
   }
   return (
     <div className='space-y-2'>
-      <Label htmlFor='password' className='text-sm font-medium light:text-gray-700'>
+      <Label htmlFor={name} className='text-sm font-medium light:text-gray-700'>
         {labelValue} <span className='text-red-500'>*</span>
       </Label>
       <div className='relative z-2'>

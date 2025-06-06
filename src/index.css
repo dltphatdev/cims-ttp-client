@@ -81,6 +81,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --color-org: #ffb01b;
   --color-green-custom: #066738;
+  --color-green-custom: rgba(82, 196, 26, 1);
+  --color-green: rgba(24, 144, 255, 1);
 }
 
 .dark {
@@ -124,4 +126,15 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.sidebar-btn:hover {
+  background-color: rgba(230, 247, 255, 1);
+}
+.sidebar-btn:hover * {
+  color: rgba(24, 144, 255, 1);
+}
+.sidebar-btn.active {
+  color: rgba(24, 144, 255, 1);
+  background-color: rgba(230, 247, 255, 1);
 }

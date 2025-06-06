@@ -6,7 +6,7 @@ const AuthSidebar = () => {
     <div className='flex-1 bg-(--color-green-custom) mn:hidden lg:flex flex-col justify-between p-8 text-white relative'>
       {/* Logo */}
       <div className='flex items-center'>
-        <img src='/images/logo-login.svg' alt='' />
+        <img src='/images/logo-login.svg' alt='Logo' />
       </div>
 
       {/* Main Content */}

@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { X, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function SearchMain() {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState('')
   const [tags, setTags] = useState<string[]>(['Nguyễn văn A', '096776123'])
   const handleAddTag = () => {
@@ -29,7 +31,7 @@ export default function SearchMain() {
       <div className='flex items-center border rounded-md overflow-hidden'>
         <Input
           type='text'
-          placeholder='Search'
+          placeholder={t('Search')}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
