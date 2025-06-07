@@ -7,11 +7,18 @@ const MainLayout = lazy(() => import('@/layouts/main'))
 const Login = lazy(() => import('@/pages/login'))
 const Dashboard = lazy(() => import('@/pages/dashboard'))
 const NotFound = lazy(() => import('@/pages/not-found'))
-const Customer = lazy(() => import('@/pages/customer'))
-const Effective = lazy(() => import('@/pages/effective'))
-const Activities = lazy(() => import('@/pages/activities'))
+const CustomerRead = lazy(() => import('@/pages/customer/pages/read'))
+const CustomerCreate = lazy(() => import('@/pages/customer/pages/create'))
+const CustomerUpdate = lazy(() => import('@/pages/customer/pages/update'))
+const EffectiveRead = lazy(() => import('@/pages/effective/pages/read'))
+const EffectiveCreate = lazy(() => import('@/pages/effective/pages/create'))
+const EffectiveUpdate = lazy(() => import('@/pages/effective/pages/update'))
+const ActivitiesRead = lazy(() => import('@/pages/activities/pages/read'))
+const ActivitiesCreate = lazy(() => import('@/pages/activities/pages/create'))
+const ActivitiesUpdate = lazy(() => import('@/pages/activities/pages/update'))
 const UserRead = lazy(() => import('@/pages/user/pages/read'))
 const UserCreate = lazy(() => import('@/pages/user/pages/create'))
+const UserUpdate = lazy(() => import('@/pages/user/pages/update'))
 
 const Router = () => {
   return useRoutes([
@@ -46,7 +53,23 @@ const Router = () => {
           path: PATH.ACTIVITIES,
           element: (
             <Suspense>
-              <Activities />
+              <ActivitiesRead />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.ACTIVITIES_CREATE,
+          element: (
+            <Suspense>
+              <ActivitiesCreate />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.ACTIVITIES_UPDATE,
+          element: (
+            <Suspense>
+              <ActivitiesUpdate />
             </Suspense>
           )
         },
@@ -54,7 +77,23 @@ const Router = () => {
           path: PATH.CUSTOMER,
           element: (
             <Suspense>
-              <Customer />
+              <CustomerRead />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.CUSTOMER_CREATE,
+          element: (
+            <Suspense>
+              <CustomerCreate />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.CUSTOMER_UPDATE,
+          element: (
+            <Suspense>
+              <CustomerUpdate />
             </Suspense>
           )
         },
@@ -62,7 +101,23 @@ const Router = () => {
           path: PATH.EFFECTIVE,
           element: (
             <Suspense>
-              <Effective />
+              <EffectiveRead />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.EFFECTIVE_CREATE,
+          element: (
+            <Suspense>
+              <EffectiveCreate />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.EFFECTIVE_UPDATE,
+          element: (
+            <Suspense>
+              <EffectiveUpdate />
             </Suspense>
           )
         },
@@ -79,6 +134,14 @@ const Router = () => {
           element: (
             <Suspense>
               <UserCreate />
+            </Suspense>
+          )
+        },
+        {
+          path: PATH.USER_UPDATE,
+          element: (
+            <Suspense>
+              <UserUpdate />
             </Suspense>
           )
         }

@@ -23,7 +23,7 @@ export default function NavItem({ data, sideBarLabel }: Props) {
   const { pathname } = useLocation()
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className='text-[rgba(22,14,77,0.25)]'>{t(sideBarLabel)}</SidebarGroupLabel>
+      <SidebarGroupLabel>{t(sideBarLabel)}</SidebarGroupLabel>
       <SidebarMenu>
         {data.map((item) => (
           <SidebarMenuItem key={item.title}>
@@ -33,7 +33,7 @@ export default function NavItem({ data, sideBarLabel }: Props) {
               })}
               asChild
             >
-              <Link to={item.url} className='text-[rgba(0,39,102,0.88)]' title={t(item.title)}>
+              <Link to={item.url} state={{ navTitle: t(item.title) }} title={t(item.title)}>
                 {item.icon}
                 <span>{t(item.title)}</span>
               </Link>

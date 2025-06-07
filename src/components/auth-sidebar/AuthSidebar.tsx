@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 const AuthSidebar = () => {
   const { t } = useTranslation()
   return (
-    <div className='flex-1 bg-(--color-green-custom) mn:hidden lg:flex flex-col justify-between p-8 text-white relative'>
+    <div className='flex-1 bg-(--color-dark-green-custom) mn:hidden lg:flex flex-col justify-between p-8 text-white relative'>
       {/* Logo */}
       <div className='flex items-center'>
         <img src='/images/logo-login.svg' alt='Logo' />

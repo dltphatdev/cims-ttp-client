@@ -1,10 +1,21 @@
-import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 import { Link } from 'react-router-dom'
 import NavItem from '@/components/nav-item'
 import PATH from '@/constants/path'
-import { CircleDollarSign, FileCheck2, UserRound, UsersRound } from 'lucide-react'
+import { CircleDollarSign, FileCheck2, UserRound, UsersRound, Gauge } from 'lucide-react'
+import { NavUser } from '@/components/nav-user'
 
 const data = [
+  {
+    label: 'Platform',
+    items: [
+      {
+        title: 'Dashboard',
+        url: PATH.HOME,
+        icon: <Gauge />
+      }
+    ]
+  },
   {
     label: 'Operate',
     items: [
@@ -37,6 +48,12 @@ const data = [
   }
 ]
 
+const user = {
+  name: 'TTP Telecom',
+  email: 'ttp@ttptelecom.vn',
+  avatar: '/avatars/shadcn.jpg'
+}
+
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' {...props}>
@@ -50,6 +67,9 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
           <NavItem key={index} data={nav.items} sideBarLabel={nav.label} />
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

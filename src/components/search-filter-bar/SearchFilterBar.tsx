@@ -6,7 +6,7 @@ interface Props {
 }
 export default function SearchFilterBar({ path }: Props) {
   return (
-    <div className='flex items-start flex-wrap justify-between mb-4'>
+    <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
       <SearchMain />
       <CreateAction path={path} />
     </div>

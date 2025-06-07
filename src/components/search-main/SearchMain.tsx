@@ -26,7 +26,7 @@ export default function SearchMain() {
     setTags(tags.filter((t) => t !== tag))
   }
   return (
-    <div className='max-w-md space-y-3'>
+    <div className='mn:w-100 lg:w-[400px] space-y-3'>
       {/* Input search with icon */}
       <div className='flex items-center border rounded-md overflow-hidden'>
         <Input

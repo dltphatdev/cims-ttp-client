@@ -48,7 +48,7 @@ export default function DateSelect({ errorMessage, onChange, value, labelValue }
             <select
               name='date'
               onChange={handleChange}
-              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border border-black/10 px-3'
+              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border foreground:text-black dark:bg-black light:bg-white px-3'
               value={value?.getDate() || date.date}
             >
               <option disabled>{t('Day')}</option>
@@ -61,7 +61,7 @@ export default function DateSelect({ errorMessage, onChange, value, labelValue }
             <select
               name='month'
               onChange={handleChange}
-              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border border-black/10 px-3'
+              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border foreground:text-black dark:bg-black light:bg-white px-3'
               value={value?.getMonth() || date.month}
             >
               <option disabled>{t('Month')}</option>
@@ -74,7 +74,7 @@ export default function DateSelect({ errorMessage, onChange, value, labelValue }
             <select
               name='year'
               onChange={handleChange}
-              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border border-black/10 px-3'
+              className='h-12 mn:col-span-12 lg:col-span-4 rounded-sm border foreground:text-black dark:bg-black light:bg-white px-3'
               value={value?.getFullYear() || date.year}
             >
               <option disabled>{t('Year')}</option>

@@ -9,33 +9,31 @@ import { Ellipsis } from 'lucide-react'
 
 const data = [
   {
-    fullname: 'NGUYỄN VĂN A',
-    cccd: '072096002490',
-    phone: '0967763096',
-    address: '297 Gò Dầu, Tân Phú, HCM',
-    type: 'Ca nhan',
+    title: 'HQ Digiworld',
+    customer: 'DGW Group',
+    revenue: '2.544.400.000 đ',
+    profit: '2.544.400.000 đ',
+    profit_ratio: '14,96%',
     creator: 'Nguyễn Nhược Phi',
-    sale: 'Anh Minh',
-    created_at: '14:17:00 12/12/2024',
-    status: 'Đã xác minh'
+    created_at: '14:17:00 12/12/2024'
   }
 ]
 
-export default function Customer() {
+export default function EffectiveRead() {
   return (
     <div className='@container/main'>
       <div className='py-4 md:gap-6 md:py-6'>
         <div className='px-4 lg:px-6'>
-          <SearchFilterBar path={PATH.CUSTOMER_CREATE} />
+          <SearchFilterBar path={PATH.EFFECTIVE_CREATE} />
           <TableMain
             headers={[
               'STT',
-              'Họ và tên',
-              'CCCD/MST',
-              'Liên lạc',
-              'Loại',
+              'Tiêu đề',
+              'Khách hàng',
+              'Doanh thu',
+              'Lợi nhuận',
+              'Tỉ lệ lợi nhuận',
               'Người tạo',
-              'Kinh doanh',
               'Ngày tạo',
               'Trạng thái',
               'Hành động'
@@ -44,16 +42,12 @@ export default function Customer() {
             renderRow={(item, index) => (
               <TableRow key={index}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{item.fullname}</TableCell>
-                <TableCell>{item.cccd}</TableCell>
-                <TableCell>
-                  <span>{item.phone}</span>
-                  <br />
-                  <span>{item.address}</span>
-                </TableCell>
-                <TableCell>{item.type}</TableCell>
+                <TableCell>{item.title}</TableCell>
+                <TableCell>{item.customer}</TableCell>
+                <TableCell>{item.revenue}</TableCell>
+                <TableCell>{item.profit}</TableCell>
+                <TableCell>{item.profit_ratio}</TableCell>
                 <TableCell>{item.creator}</TableCell>
-                <TableCell>{item.sale}</TableCell>
                 <TableCell>{item.created_at}</TableCell>
                 <TableCell>
                   <Select value='abc'>

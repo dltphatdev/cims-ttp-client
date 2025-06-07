@@ -1,5 +1,6 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination'
+import { useTranslation } from 'react-i18next'
 
 interface Props<T> {
   headers: string[]
@@ -8,15 +9,14 @@ interface Props<T> {
 }
 
 export default function TableMain<T>({ data, headers, renderRow }: Props<T>) {
+  const { t } = useTranslation()
   return (
     <div className='p-4'>
       <Table>
         <TableHeader>
           <TableRow>
             {headers.map((header, index) => (
-              <TableHead className='text-[rgba(0,39,102,0.88)]' key={index}>
-                {header}
-              </TableHead>
+              <TableHead key={index}>{t(header)}</TableHead>
             ))}
           </TableRow>
         </TableHeader>
