@@ -60,5 +60,6 @@
   "Maximum size 1 MB": "Dung lượng tối đa 1 MB",
   "Format: .JPG, .JPEG, .PNG": "Định dạng: .JPG, .JPEG, .PNG",
   "Profile": "Hồ sơ",
-  "Create user": "Thêm mới thành viên"
+  "Create user": "Thêm mới thành viên",
+  "Logout": "Đăng xuất"
 }

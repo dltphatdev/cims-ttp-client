@@ -1,11 +1,15 @@
-import SearchFilterBar from '@/components/search-filter-bar'
+import CreateAction from '@/components/create-action'
+import SearchMain from '@/components/search-main'
 import TableMain from '@/components/table-main'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TableCell, TableRow } from '@/components/ui/table'
 import PATH from '@/constants/path'
+import { AppContext } from '@/contexts/app-context'
+import { useQueryParams } from '@/hooks/use-query-params'
 import { Ellipsis } from 'lucide-react'
+import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
 
@@ -20,6 +24,13 @@ const data = [
 ]
 
 export default function UserRead() {
+  const queryParams: { page?: string; limit?: string; fullname?: string } = useQueryParams()
+  const { profile } = useContext(AppContext)
+  const checkActionCreateUser = () => {
+    if (profile?.role === 'SuperAdmin' || profile?.role === 'Admin') {
+      return <CreateAction path={PATH.USER_CREATE} />
+    }
+  }
   return (
     <Fragment>
       <Helmet>
@@ -30,7 +41,10 @@ export default function UserRead() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
-            <SearchFilterBar path={PATH.USER_CREATE} />
+            <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
+              <SearchMain />
+              {checkActionCreateUser()}
+            </div>
             <TableMain
               headers={['STT', 'Fullname', 'Email', 'Role', 'Phone', 'Created at', 'Status', 'Action']}
               data={data}

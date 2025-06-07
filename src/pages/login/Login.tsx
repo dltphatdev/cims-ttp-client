@@ -10,13 +10,26 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { getSchema } from '@/utils/validation'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ModeToggle } from '@/components/mode-toggle'
-import { Fragment } from 'react'
+import { Fragment, useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { useMutation } from '@tanstack/react-query'
+import userApi from '@/apis/user.api'
+import { AppContext } from '@/contexts/app-context'
+import PATH from '@/constants/path'
+import { isAxiosUnprocessableEntityError } from '@/utils/common'
+import type { ErrorResponseApi } from '@/types/common.type'
 
+interface FormData {
+  email: string
+  password: string
+}
+type TypeIsAxiosUnprocessableEntity = ErrorResponseApi<FormData>
 export default function Login() {
-  const { t } = useTranslation('login')
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
+  const { t } = useTranslation()
   const schema = getSchema(t)
   const formData = schema.pick(['email', 'password', 'terms'])
   const {
@@ -24,6 +37,7 @@ export default function Login() {
     handleSubmit,
     setValue,
     control,
+    setError,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(formData),
@@ -33,9 +47,31 @@ export default function Login() {
       terms: false
     }
   })
+  const loginMutation = useMutation({
+    mutationFn: (body: FormData) => userApi.login(body)
+  })
 
   const handleSubmitForm = handleSubmit((data) => {
-    console.log(data)
+    loginMutation.mutate(data, {
+      onSuccess: (data) => {
+        setIsAuthenticated(true)
+        setProfile(data.data.data.user)
+        navigate(PATH.HOME)
+      },
+      onError: (error) => {
+        if (isAxiosUnprocessableEntityError<TypeIsAxiosUnprocessableEntity>(error)) {
+          const formError = error.response?.data?.data
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof FormData, {
+                message: formError[key as keyof FormData],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
+    })
   })
 
   return (
@@ -87,7 +123,9 @@ export default function Login() {
                       setValue={setValue}
                     />
                     {/* Login Button */}
-                    <AuthButton>{t('Login')}</AuthButton>
+                    <AuthButton isLoading={loginMutation.isPending} disabled={loginMutation.isPending}>
+                      {t('Login')}
+                    </AuthButton>
                     {/* Terms Checkbox */}
                     <div className='flex items-start space-x-1 mb-3'>
                       <Controller

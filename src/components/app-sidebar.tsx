@@ -48,12 +48,6 @@ const data = [
   }
 ]
 
-const user = {
-  name: 'TTP Telecom',
-  email: 'ttp@ttptelecom.vn',
-  avatar: '/avatars/shadcn.jpg'
-}
-
 export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' {...props}>
@@ -68,7 +62,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -1,8 +1,8 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import clsx from 'clsx'
-import type { LucideProps } from 'lucide-react'
-import type { ForwardRefExoticComponent, InputHTMLAttributes } from 'react'
+import { Eye, EyeOff, type LucideProps } from 'lucide-react'
+import { useState, type ForwardRefExoticComponent, type InputHTMLAttributes } from 'react'
 import type { RegisterOptions, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
@@ -23,12 +23,16 @@ export default function InputMain({
   classNameErrorMessage = 'text-red-600 text-sm',
   register,
   rules,
+  type,
   name,
   errorMessage,
   disabled,
   ...rest
 }: Props) {
+  const [openEye, setOpenEye] = useState<boolean>(false)
   const registerResult = register && name ? register(name, rules) : null
+  const handleToggleEye = () => setOpenEye((prevState) => !prevState)
+  const handleType = () => (type === 'password' && openEye ? 'text' : type)
   return (
     <div className='space-y-2 mn:mb-2 lg:mb-4'>
       <Label htmlFor={name} className='text-sm font-medium light:text-gray-700'>
@@ -36,6 +40,7 @@ export default function InputMain({
       </Label>
       <div className='relative z-2'>
         <Input
+          type={handleType()}
           className={clsx('h-12 border-gray-200', {
             'bg-gray-100 cursor-not-allowed focus:outline-none': disabled
           })}
@@ -43,6 +48,14 @@ export default function InputMain({
           {...registerResult}
           {...rest}
         />
+        <button
+          type='button'
+          onClick={handleToggleEye}
+          className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
+        >
+          {type === 'password' && openEye && <EyeOff className='h-4 w-4' />}
+          {type === 'password' && !openEye && <Eye className='h-4 w-4' />}
+        </button>
       </div>
       {errorMessage && <span className={classNameErrorMessage}>{errorMessage}</span>}
     </div>

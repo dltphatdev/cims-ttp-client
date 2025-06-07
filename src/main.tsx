@@ -7,6 +7,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 import App from './App.tsx'
 import '@/i18n/i18n.ts'
+import { AppProvider } from '@/contexts/app-context.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <AppProvider>
+            <App />
+          </AppProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </HelmetProvider>

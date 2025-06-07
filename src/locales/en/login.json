@@ -60,5 +60,6 @@
   "Maximum size 1 MB": "Maximum size 1 MB",
   "Format: .JPG, .JPEG, .PNG": "Format: .JPG, .JPEG, .PNG",
   "Profile": "Profile",
-  "Create user": "Create user"
+  "Create user": "Create user",
+  "Logout": "Logout"
 }
