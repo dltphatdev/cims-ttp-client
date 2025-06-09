@@ -1,7 +1,10 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LOGIN_VI from '@/locales/vi/login.json'
+import ADMIN_VI from '@/locales/vi/admin.json'
 import LOGIN_EN from '@/locales/en/login.json'
+import ADMIN_EN from '@/locales/en/admin.json'
+
 import MSG from '@/constants/msg'
 
 export const locales = {
@@ -11,10 +14,12 @@ export const locales = {
 
 export const resources = {
   en: {
-    login: LOGIN_EN
+    login: LOGIN_EN,
+    admin: ADMIN_EN
   },
   vi: {
-    login: LOGIN_VI
+    login: LOGIN_VI,
+    admin: ADMIN_VI
   }
 }
 export const defaultNS = 'login'

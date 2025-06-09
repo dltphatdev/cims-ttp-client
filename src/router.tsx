@@ -19,6 +19,7 @@ const ActivitiesCreate = lazy(() => import('@/pages/activities/pages/create'))
 const ActivitiesUpdate = lazy(() => import('@/pages/activities/pages/update'))
 const UserRead = lazy(() => import('@/pages/user/pages/read'))
 const UserCreate = lazy(() => import('@/pages/user/pages/create'))
+const UserProfile = lazy(() => import('@/pages/user/pages/profile'))
 const UserUpdate = lazy(() => import('@/pages/user/pages/update'))
 
 const ProtectedRoute = () => {
@@ -160,6 +161,14 @@ const Router = () => {
             },
             {
               path: PATH.USER_UPDATE,
+              element: (
+                <Suspense>
+                  <UserProfile />
+                </Suspense>
+              )
+            },
+            {
+              path: PATH.USER_DETAIL,
               element: (
                 <Suspense>
                   <UserUpdate />

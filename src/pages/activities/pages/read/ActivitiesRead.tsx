@@ -1,43 +1,43 @@
 import SearchFilterBar from '@/components/search-filter-bar'
-import TableMain from '@/components/table-main'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { TableCell, TableRow } from '@/components/ui/table'
 import PATH from '@/constants/path'
-import { Ellipsis } from 'lucide-react'
+// import TableMain from '@/components/table-main'
+// import { Button } from '@/components/ui/button'
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// import { TableCell, TableRow } from '@/components/ui/table'
+// import { Ellipsis } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
 
-const data = [
-  {
-    title: 'Hẹn tư vấn demo',
-    customer: 'Công ty TNHH ABC',
-    creator: 'Nguyễn Nhược Phi',
-    created_at: '14:17:00 12/12/2024',
-    start: '14:17:00 12/12/2024',
-    end: '14:17:00 12/12/2024',
-    status: 'Hoàn thành'
-  },
-  {
-    title: 'Hẹn tư vấn demo',
-    customer: 'Công ty TNHH ABC',
-    creator: 'Nguyễn Nhược Phi',
-    created_at: '14:17:00 12/12/2024',
-    start: '14:17:00 12/12/2024',
-    end: '14:17:00 12/12/2024',
-    status: 'Đang thực hiện'
-  },
-  {
-    title: 'Hẹn tư vấn demo',
-    customer: 'Công ty TNHH ABC',
-    creator: 'Nguyễn Nhược Phi',
-    created_at: '14:17:00 12/12/2024',
-    start: '14:17:00 12/12/2024',
-    end: '14:17:00 12/12/2024',
-    status: 'Hủy'
-  }
-]
+// const data = [
+//   {
+//     title: 'Hẹn tư vấn demo',
+//     customer: 'Công ty TNHH ABC',
+//     creator: 'Nguyễn Nhược Phi',
+//     created_at: '14:17:00 12/12/2024',
+//     start: '14:17:00 12/12/2024',
+//     end: '14:17:00 12/12/2024',
+//     status: 'Hoàn thành'
+//   },
+//   {
+//     title: 'Hẹn tư vấn demo',
+//     customer: 'Công ty TNHH ABC',
+//     creator: 'Nguyễn Nhược Phi',
+//     created_at: '14:17:00 12/12/2024',
+//     start: '14:17:00 12/12/2024',
+//     end: '14:17:00 12/12/2024',
+//     status: 'Đang thực hiện'
+//   },
+//   {
+//     title: 'Hẹn tư vấn demo',
+//     customer: 'Công ty TNHH ABC',
+//     creator: 'Nguyễn Nhược Phi',
+//     created_at: '14:17:00 12/12/2024',
+//     start: '14:17:00 12/12/2024',
+//     end: '14:17:00 12/12/2024',
+//     status: 'Hủy'
+//   }
+// ]
 
 export default function ActivitiesRead() {
   return (
@@ -51,7 +51,7 @@ export default function ActivitiesRead() {
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
             <SearchFilterBar path={PATH.ACTIVITIES_CREATE} />
-            <TableMain
+            {/* <TableMain
               headers={[
                 'STT',
                 'Tiêu đề',
@@ -101,7 +101,7 @@ export default function ActivitiesRead() {
                   </TableCell>
                 </TableRow>
               )}
-            />
+            /> */}
           </div>
         </div>
       </div>

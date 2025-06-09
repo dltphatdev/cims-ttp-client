@@ -1,23 +1,23 @@
 import SearchFilterBar from '@/components/search-filter-bar'
-import TableMain from '@/components/table-main'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { TableCell, TableRow } from '@/components/ui/table'
+// import TableMain from '@/components/table-main'
+// import { Button } from '@/components/ui/button'
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// import { TableCell, TableRow } from '@/components/ui/table'
+// import { Ellipsis } from 'lucide-react'
 import PATH from '@/constants/path'
-import { Ellipsis } from 'lucide-react'
 
-const data = [
-  {
-    title: 'HQ Digiworld',
-    customer: 'DGW Group',
-    revenue: '2.544.400.000 đ',
-    profit: '2.544.400.000 đ',
-    profit_ratio: '14,96%',
-    creator: 'Nguyễn Nhược Phi',
-    created_at: '14:17:00 12/12/2024'
-  }
-]
+// const data = [
+//   {
+//     title: 'HQ Digiworld',
+//     customer: 'DGW Group',
+//     revenue: '2.544.400.000 đ',
+//     profit: '2.544.400.000 đ',
+//     profit_ratio: '14,96%',
+//     creator: 'Nguyễn Nhược Phi',
+//     created_at: '14:17:00 12/12/2024'
+//   }
+// ]
 
 export default function EffectiveRead() {
   return (
@@ -25,7 +25,7 @@ export default function EffectiveRead() {
       <div className='py-4 md:gap-6 md:py-6'>
         <div className='px-4 lg:px-6'>
           <SearchFilterBar path={PATH.EFFECTIVE_CREATE} />
-          <TableMain
+          {/* <TableMain
             headers={[
               'STT',
               'Tiêu đề',
@@ -77,7 +77,7 @@ export default function EffectiveRead() {
                 </TableCell>
               </TableRow>
             )}
-          />
+          /> */}
         </div>
       </div>
     </div>

@@ -5,20 +5,16 @@ import { useTranslation } from 'react-i18next'
 
 interface Props {
   labelValue: string
-  roles: {
-    role_type: string
-    role_value: string
-  }[]
   onChange?: (value: string) => void
   value?: string
   errorMessage?: string
 }
 
-export default function SelectRole({ labelValue, roles, onChange, value, errorMessage }: Props) {
+const SelectVerify = ({ labelValue, errorMessage, onChange, value }: Props) => {
   const { t } = useTranslation()
-  const [role, setRole] = useState<string>('')
+  const [verify, setVerify] = useState<string>('')
   const handleChange = (value: string) => {
-    setRole(value)
+    setVerify(value)
     onChange?.(value)
   }
   return (
@@ -26,17 +22,15 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
       <Label className='text-sm font-medium'>
         {labelValue} <span className='text-red-500'>*</span>
       </Label>
-      <Select value={value || role} onValueChange={handleChange}>
+      <Select value={value || verify} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select role')} />
+          <SelectValue placeholder={t('Verified user')} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {roles.map((item) => (
-              <SelectItem key={item.role_type} value={item.role_type}>
-                {item.role_value}
-              </SelectItem>
-            ))}
+            <SelectItem value='Verified'>{t('Verified')}</SelectItem>
+            <SelectItem value='Unverified'>{t('Unverified')}</SelectItem>
+            <SelectItem value='Banned'>{t('Banned')}</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -44,3 +38,5 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
     </div>
   )
 }
+
+export default SelectVerify

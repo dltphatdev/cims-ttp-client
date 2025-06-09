@@ -19,7 +19,7 @@ interface Props {
   sideBarLabel: string
 }
 export default function NavItem({ data, sideBarLabel }: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const { pathname } = useLocation()
   return (
     <SidebarGroup>

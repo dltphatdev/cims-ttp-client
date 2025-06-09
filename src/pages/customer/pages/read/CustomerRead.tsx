@@ -1,27 +1,27 @@
 import SearchFilterBar from '@/components/search-filter-bar'
-import TableMain from '@/components/table-main'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { TableCell, TableRow } from '@/components/ui/table'
+// import TableMain from '@/components/table-main'
+// import { Button } from '@/components/ui/button'
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// import { TableCell, TableRow } from '@/components/ui/table'
 import PATH from '@/constants/path'
-import { Ellipsis } from 'lucide-react'
+// import { Ellipsis } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
 
-const data = [
-  {
-    fullname: 'NGUYỄN VĂN A',
-    cccd: '072096002490',
-    phone: '0967763096',
-    address: '297 Gò Dầu, Tân Phú, HCM',
-    type: 'Ca nhan',
-    creator: 'Nguyễn Nhược Phi',
-    sale: 'Anh Minh',
-    created_at: '14:17:00 12/12/2024',
-    status: 'Đã xác minh'
-  }
-]
+// const data = [
+//   {
+//     fullname: 'NGUYỄN VĂN A',
+//     cccd: '072096002490',
+//     phone: '0967763096',
+//     address: '297 Gò Dầu, Tân Phú, HCM',
+//     type: 'Ca nhan',
+//     creator: 'Nguyễn Nhược Phi',
+//     sale: 'Anh Minh',
+//     created_at: '14:17:00 12/12/2024',
+//     status: 'Đã xác minh'
+//   }
+// ]
 
 export default function CustomerRead() {
   return (
@@ -35,7 +35,7 @@ export default function CustomerRead() {
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
             <SearchFilterBar path={PATH.CUSTOMER_CREATE} />
-            <TableMain
+            {/* <TableMain
               headers={[
                 'STT',
                 'Họ và tên',
@@ -91,7 +91,7 @@ export default function CustomerRead() {
                   </TableCell>
                 </TableRow>
               )}
-            />
+            /> */}
           </div>
         </div>
       </div>

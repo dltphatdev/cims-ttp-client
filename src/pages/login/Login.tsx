@@ -18,18 +18,16 @@ import { useMutation } from '@tanstack/react-query'
 import userApi from '@/apis/user.api'
 import { AppContext } from '@/contexts/app-context'
 import PATH from '@/constants/path'
-import { isAxiosUnprocessableEntityError } from '@/utils/common'
-import type { ErrorResponseApi } from '@/types/common.type'
+import httpStatusCode from '@/constants/httpStatusCode'
 
 interface FormData {
   email: string
   password: string
 }
-type TypeIsAxiosUnprocessableEntity = ErrorResponseApi<FormData>
 export default function Login() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t } = useTranslation('login')
   const schema = getSchema(t)
   const formData = schema.pick(['email', 'password', 'terms'])
   const {
@@ -58,13 +56,14 @@ export default function Login() {
         setProfile(data.data.data.user)
         navigate(PATH.HOME)
       },
-      onError: (error) => {
-        if (isAxiosUnprocessableEntityError<TypeIsAxiosUnprocessableEntity>(error)) {
-          const formError = error.response?.data?.data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        if (error.status === httpStatusCode.UnprocessableEntity) {
+          const formError = error.response?.data?.errors
           if (formError) {
             Object.keys(formError).forEach((key) => {
               setError(key as keyof FormData, {
-                message: formError[key as keyof FormData],
+                message: formError[key as keyof FormData]['msg']['message'],
                 type: 'Server'
               })
             })

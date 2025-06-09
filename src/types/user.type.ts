@@ -13,14 +13,14 @@ export interface User {
   email: string
   fullname: string
   verify: UserVerifyStatus
-  avatar: string | null
-  address: string | null
-  phone: string | null
-  code: string | null
+  avatar?: string
+  address?: string
+  phone?: string
+  code?: string
   role: UserRole
-  date_of_birth: string | null
-  created_at: string | null
-  updated_at: string | null
+  date_of_birth?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface GetListUser {

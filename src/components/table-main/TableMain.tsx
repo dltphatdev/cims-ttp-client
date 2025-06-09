@@ -1,15 +1,17 @@
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination'
+import PaginationMain from '@/components/pagination-main'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useTranslation } from 'react-i18next'
 
 interface Props<T> {
   headers: string[]
-  data: T[]
+  data: T[] | undefined
   renderRow: (item: T, index: number) => React.ReactNode
+  page: number
+  page_size: number
 }
 
-export default function TableMain<T>({ data, headers, renderRow }: Props<T>) {
-  const { t } = useTranslation()
+export default function TableMain<T>({ data, headers, renderRow, page, page_size }: Props<T>) {
+  const { t } = useTranslation('admin')
   return (
     <div className='p-4'>
       <Table>
@@ -20,31 +22,18 @@ export default function TableMain<T>({ data, headers, renderRow }: Props<T>) {
             ))}
           </TableRow>
         </TableHeader>
-        <TableBody>{data.map((item, index) => renderRow(item, index))}</TableBody>
+        <TableBody>
+          {data && data?.length > 0 ? (
+            data.map((item, index) => renderRow(item, index))
+          ) : (
+            <TableRow>
+              <TableCell>{t('No data available')}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
-
       {/* Pagination */}
-      <Pagination className='mt-4'>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationLink href='#' isActive={false}>
-              &lt;
-            </PaginationLink>
-          </PaginationItem>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink href='#' isActive={page === 2}>
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationLink href='#' isActive={false}>
-              &gt;
-            </PaginationLink>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <PaginationMain page={page} page_size={page_size} />
     </div>
   )
 }

@@ -22,3 +22,7 @@
 - Chức năng: Reset form khi người dùng click vào icon close, chức năng show + hidden mật khẩu, đang ngôn ngữ với i18n + react-i18next + giao diện dark mode với Shadcn UI
 
 2: Task: Viết UI danh sách user + thêm mới user + phân trang + sidebar admin + update profile user (6/6/2025)
+
+3: Task: Xử lý lỗi toast sonner + update version package nodejs (7/6/2025)
+
+4: Task: Xử lý cập nhật trang edit user + khắc phục các lỗi liên quan tới typescript ở các component table và user list + xử lý phân trang và search cho api user (9/6/2025)
