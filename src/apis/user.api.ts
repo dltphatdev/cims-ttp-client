@@ -1,14 +1,11 @@
 import type { TQueryConfig } from '@/hooks/use-query-config'
 import type { SuccessResponseApi } from '@/types/common.type'
-import type { GetListUser, User, UserCreateReqBody, UserSuccessResponeApi } from '@/types/user.type'
+import type { BodyUpdateProfile, GetListUser, User, UserCreateReqBody, UserSuccessResponeApi } from '@/types/user.type'
 import http from '@/utils/http'
 
 export const URL_LOGIN = 'user/login'
 export const URL_LOGOUT = 'user/logout'
 export const URL_REFRESH_TOKEN = 'user/refresh-token'
-export interface BodyUpdateProfile extends Omit<User, 'created_at' | 'updated_at' | 'email'> {
-  password?: string
-}
 
 const userApi = {
   login(body: { email: string; password: string }) {

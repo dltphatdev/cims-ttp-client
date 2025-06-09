@@ -5,32 +5,36 @@ import InputMain from '@/components/input-main'
 import SelectRole from '@/components/select-role'
 import SelectVerify from '@/components/select-verify'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, SALE, SUPERADMIN } from '@/constants/role'
+import { ADMIN, SALE } from '@/constants/role'
 import { UNVERIFIED } from '@/constants/verify'
 import { formatedDate, formatedTime } from '@/utils/common'
-import { getUserSchema } from '@/utils/validation'
+import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
+import * as yup from 'yup'
 
-interface FormData {
-  fullname?: string
-  phone?: string
-  address?: string
-  code?: string
-  date_of_birth?: Date
-  role?: 'SuperAdmin' | 'Admin' | 'Sale'
-  verify?: 'Verified' | 'Unverified' | 'Banned'
-  password?: string
-}
+const formData = userSchema.pick([
+  'fullname',
+  'address',
+  'code',
+  'date_of_birth',
+  'role',
+  'password',
+  'phone',
+  'verify'
+])
+
+type FormData = yup.InferType<typeof formData>
 
 export default function UserUpdate() {
+  const { t } = useTranslation('admin')
   const roles = [
     {
       role_type: ADMIN,
@@ -41,18 +45,6 @@ export default function UserUpdate() {
       role_value: 'Sale'
     }
   ]
-  const { t } = useTranslation()
-  const schema = getUserSchema(t)
-  const userUpdateSchema = schema.pick([
-    'fullname',
-    'address',
-    'code',
-    'date_of_birth',
-    'role',
-    'password',
-    'phone',
-    'verify'
-  ])
   const {
     register,
     control,
@@ -60,7 +52,7 @@ export default function UserUpdate() {
     handleSubmit,
     setError,
     setValue
-  } = useForm({
+  } = useForm<FormData>({
     defaultValues: {
       fullname: '',
       address: '',
@@ -71,58 +63,59 @@ export default function UserUpdate() {
       phone: '',
       date_of_birth: new Date(1990, 0, 1)
     },
-    resolver: yupResolver(userUpdateSchema)
+    resolver: yupResolver(formData) as Resolver<FormData>
   })
   const { userId } = useParams()
   const { data: userData } = useQuery({
     queryKey: ['user', userId],
     queryFn: () => userApi.getUserDetail(userId as string)
   })
+
   const updateUser = useMutation({
     mutationFn: userApi.updateUser
   })
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      const body = {
+      const payload = {
         ...data,
         date_of_birth: data.date_of_birth?.toISOString(),
         id: Number(userId)
       }
-
-      const payload = Object.fromEntries(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        Object.entries(body).filter(([_, value]) => value !== '' && value !== undefined)
+      for (const key in payload) {
+        if (payload[key as keyof typeof payload] === undefined || payload[key as keyof typeof payload] === '') {
+          delete payload[key as keyof typeof payload]
+        }
+      }
+      const res = await updateUser.mutateAsync(payload, {
+        onSuccess: (data) => {
+          toast.success('Alert', {
+            description: data.data.message,
+            action: {
+              label: 'Đóng',
+              onClick: () => true
+            },
+            duration: 4000,
+            position: 'top-right'
+          })
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ) as any
-      console.log(payload)
-      // const res = await updateUser.mutateAsync(payload, {
-      //   onSuccess: (data) => {
-      //     toast.success('Alert', {
-      //       description: data.data.message,
-      //       action: {
-      //         label: 'Đóng',
-      //         onClick: () => true
-      //       },
-      //       duration: 4000,
-      //       position: 'top-right'
-      //     })
-      //   },
-      //   onError: (error: any) => {
-      //     if (error.status === httpStatusCode.UnprocessableEntity) {
-      //       const formError = error.response?.data?.errors
-      //       if (formError) {
-      //         Object.keys(formError).forEach((key) => {
-      //           setError(key as keyof FormData, {
-      //             message: formError[key as keyof FormData]['msg'],
-      //             type: 'Server'
-      //           })
-      //         })
-      //       }
-      //     }
-      //   }
-      // })
-      // toast.success(res.data.message)
+        onError: (error: any) => {
+          if (error.status === httpStatusCode.UnprocessableEntity) {
+            const formError = error.response?.data?.errors
+            if (formError) {
+              Object.keys(formError).forEach((key) => {
+                setError(key as keyof FormData, {
+                  message: formError[key as keyof FormData]['msg'],
+                  type: 'Server'
+                })
+              })
+            }
+          }
+        }
+      })
+      toast.success(res.data.message)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const formError = error.response?.data?.errors
       if (formError) {
@@ -233,6 +226,7 @@ export default function UserUpdate() {
                   type='number'
                   placeholder={t('Phone')}
                   name='phone'
+                  errorMessage={errors.phone?.message as string}
                 />
                 <Controller
                   control={control}

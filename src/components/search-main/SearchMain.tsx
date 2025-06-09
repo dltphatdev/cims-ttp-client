@@ -21,13 +21,6 @@ export default function SearchMain() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAddTag()
-    }
-  }
-
   const removeTag = (tag: string) => {
     const isNumber = /^\d+$/.test(tag)
     if (tag) {
@@ -79,22 +72,18 @@ export default function SearchMain() {
 
   return (
     <form className='mn:w-100 lg:w-[400px] space-y-3' onSubmit={handleSubmitForm}>
-      {/* Input search with icon */}
       <div className='flex items-center border rounded-md overflow-hidden'>
         <Input
           type='text'
           placeholder={t('Search')}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
           className='border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
         />
         <Button type='submit' variant='ghost' className='rounded-none border-l' onClick={handleAddTag}>
           <Search className='h-4 w-4 text-muted-foreground' />
         </Button>
       </div>
-
-      {/* Tags */}
       <div className='flex flex-wrap gap-2'>
         {tags.map((tag) => (
           <div

@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, type Resolver } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Lock, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +9,6 @@ import SelectLang from '@/components/select-lang'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { getSchema } from '@/utils/validation'
 import { Link, useNavigate } from 'react-router-dom'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Fragment, useContext } from 'react'
@@ -19,17 +18,16 @@ import userApi from '@/apis/user.api'
 import { AppContext } from '@/contexts/app-context'
 import PATH from '@/constants/path'
 import httpStatusCode from '@/constants/httpStatusCode'
+import * as yup from 'yup'
+import { schema } from '@/utils/validation'
 
-interface FormData {
-  email: string
-  password: string
-}
+const formData = schema.pick(['email', 'password', 'terms'])
+type FormData = yup.InferType<typeof formData>
+
 export default function Login() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
   const { t } = useTranslation('login')
-  const schema = getSchema(t)
-  const formData = schema.pick(['email', 'password', 'terms'])
   const {
     register,
     handleSubmit,
@@ -37,13 +35,13 @@ export default function Login() {
     control,
     setError,
     formState: { errors }
-  } = useForm({
-    resolver: yupResolver(formData),
+  } = useForm<FormData>({
     defaultValues: {
       email: '',
       password: '',
       terms: false
-    }
+    },
+    resolver: yupResolver(formData) as Resolver<FormData>
   })
   const loginMutation = useMutation({
     mutationFn: (body: FormData) => userApi.login(body)
