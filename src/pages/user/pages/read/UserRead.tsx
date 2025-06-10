@@ -55,7 +55,7 @@ export default function UserRead() {
           <div className='px-4 lg:px-6'>
             <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
               <SearchMain />
-              {checkRoleUser(profile?.role as string) && <CreateAction path={PATH.USER_CREATE} />}
+              <CreateAction path={PATH.USER_CREATE} />
             </div>
             <TableMain
               page={pagination?.page || PAGE}
@@ -74,30 +74,29 @@ export default function UserRead() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className={clsx('text-red-500 w-[150px] border-0 shadow-none focus:hidden', {
-                        'text-(--color-green-custom)': item.verify === STATUS.VERIFIED
+                      className={clsx('w-[150px] border-0 shadow-none focus:hidden', {
+                        'text-(--color-green-custom)': item.verify === STATUS.VERIFIED,
+                        'text-red-500': item.verify === STATUS.UNVERIFIED
                       })}
                     >
                       {checkVerifyStatus({ statusVerify: item.verify, t: t })}
                     </span>
                   </TableCell>
-                  {checkRoleUser(profile?.role as string) && (
-                    <TableCell className='ml-auto text-end'>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
-                            <Ellipsis className='w-4 h-4' />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>Chỉnh sửa</DropdownMenuItem>
-                          <DropdownMenuItem>Phân bổ</DropdownMenuItem>
-                          <DropdownMenuItem>Thu hồi</DropdownMenuItem>
-                          <DropdownMenuItem>Xác minh</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  )}
+                  <TableCell className='ml-auto text-end'>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                          <Ellipsis className='w-4 h-4' />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align='end'>
+                        <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>Chỉnh sửa</DropdownMenuItem>
+                        <DropdownMenuItem>Phân bổ</DropdownMenuItem>
+                        <DropdownMenuItem>Thu hồi</DropdownMenuItem>
+                        <DropdownMenuItem>Xác minh</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               )}
             />

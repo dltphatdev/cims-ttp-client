@@ -54,5 +54,7 @@
   "Maximum length is 1000 characters": "Maximum length is 1000 characters",
   "Please select a date in the past": "Please select a date in the past",
   "Maximum length is 6 characters": "Maximum length is 6 characters",
-  "Invalid role": "Invalid role"
+  "Invalid role": "Invalid role",
+  "is verified": "is verified",
+  "is not verified": "is not verified"
 }

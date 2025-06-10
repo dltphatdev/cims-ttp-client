@@ -2,7 +2,7 @@ import userApi from '@/apis/user.api'
 import ButtonMain from '@/components/button-main'
 import InputMain from '@/components/input-main/InputMain'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { getSchema } from '@/utils/validation'
+import { schema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
@@ -10,16 +10,13 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
+import * as yup from 'yup'
 
-interface FormData {
-  email: string
-  password: string
-}
+const formData = schema.pick(['email', 'password'])
+type FormData = yup.InferType<typeof formData>
 
 export default function UserCreate() {
-  const { t } = useTranslation()
-  const schema = getSchema(t)
-  const formData = schema.pick(['email', 'password'])
+  const { t } = useTranslation('admin')
   const {
     register,
     handleSubmit,
@@ -39,14 +36,7 @@ export default function UserCreate() {
   const handleSubmitForm = handleSubmit((data) => {
     createUserMutation.mutateAsync(data, {
       onSuccess: (data) => {
-        toast.success('Alert', {
-          description: data.data.message,
-          action: {
-            label: 'Close',
-            onClick: () => true
-          },
-          duration: 4000
-        })
+        toast.success(data.data.message)
         reset()
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,7 +84,13 @@ export default function UserCreate() {
                   placeholder={t('Password')}
                 />
               </div>
-              <ButtonMain classNameWrapper='mt-4'>{t('Save')}</ButtonMain>
+              <ButtonMain
+                isLoading={createUserMutation.isPending}
+                disabled={createUserMutation.isPending}
+                classNameWrapper='mt-4'
+              >
+                {t('Save')}
+              </ButtonMain>
             </form>
           </div>
         </div>

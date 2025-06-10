@@ -16,7 +16,7 @@ function App() {
   }, [reset])
   return (
     <div>
-      <Toaster />
+      <Toaster position='top-right' />
       <ThemeProvider>{router}</ThemeProvider>
     </div>
   )

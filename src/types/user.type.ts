@@ -1,6 +1,6 @@
 import type { SuccessResponseApi } from '@/types/common.type'
 
-export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale'
+export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale' | 'None'
 export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'
 
 export interface UserCreateReqBody {
@@ -10,7 +10,7 @@ export interface UserCreateReqBody {
 
 export interface User {
   id: number
-  email?: string
+  email: string
   fullname?: string
   verify: UserVerifyStatus
   avatar?: string
@@ -54,4 +54,7 @@ export interface BodyUpdateProfile {
   password?: string
   role?: UserRole
   verify?: UserVerifyStatus
+}
+export interface BodyUserProfile extends Omit<BodyUpdateProfile, 'password' | 'verify' | 'role' | 'id'> {
+  avatar?: string
 }

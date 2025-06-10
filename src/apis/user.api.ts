@@ -1,6 +1,13 @@
 import type { TQueryConfig } from '@/hooks/use-query-config'
 import type { SuccessResponseApi } from '@/types/common.type'
-import type { BodyUpdateProfile, GetListUser, User, UserCreateReqBody, UserSuccessResponeApi } from '@/types/user.type'
+import type {
+  BodyUpdateProfile,
+  BodyUserProfile,
+  GetListUser,
+  User,
+  UserCreateReqBody,
+  UserSuccessResponeApi
+} from '@/types/user.type'
 import http from '@/utils/http'
 
 export const URL_LOGIN = 'user/login'
@@ -25,6 +32,25 @@ const userApi = {
   },
   updateUser(body: BodyUpdateProfile) {
     return http.patch<SuccessResponseApi<User>>('user/update', body)
+  },
+  updateProfile(body: BodyUserProfile) {
+    return http.patch<SuccessResponseApi<User>>('user/profile', body)
+  },
+  getProfile() {
+    return http.get<SuccessResponseApi<User>>('user/me')
+  },
+  uploadAvatar(body: FormData) {
+    return http.post<
+      SuccessResponseApi<{
+        url: string
+        filename: string
+        type: 'image' | 'video'
+      }>
+    >('user/upload-avatar', body, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 

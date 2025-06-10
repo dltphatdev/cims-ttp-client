@@ -1,3 +1,4 @@
+import CONFIG from '@/constants/config'
 import httpStatusCode from '@/constants/httpStatusCode'
 import STATUS from '@/constants/status'
 import type { ErrorResponseApi } from '@/types/common.type'
@@ -63,3 +64,6 @@ export default function checkRoleUser(role: string) {
   }
   return false
 }
+
+export const getAvatarUrl = (nameAvatar?: string) =>
+  nameAvatar ? `${CONFIG.SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'

@@ -70,15 +70,7 @@ class Http {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const data: any | undefined = error.response?.data
           const message = data?.message || error.message
-          toast.error('Alert Error', {
-            description: message,
-            action: {
-              label: 'Close',
-              onClick: () => true
-            },
-            duration: 4000,
-            position: 'top-right'
-          })
+          toast.error(message)
         }
         if (isAxiosUnauthorizedError<ErrorResponseApi<{ name: string; message: string }>>(error)) {
           const config = error.response?.config
@@ -103,15 +95,7 @@ class Http {
           clearLS()
           this.accessToken = ''
           this.refreshToken = ''
-          toast.error('Alert Error', {
-            description: error.response?.data.data?.message || error.response?.data.message,
-            action: {
-              label: 'Đóng',
-              onClick: () => true
-            },
-            duration: 4000,
-            position: 'top-right'
-          })
+          toast.error(error.response?.data.data?.message || error.response?.data.message)
         }
         return Promise.reject(error)
       }

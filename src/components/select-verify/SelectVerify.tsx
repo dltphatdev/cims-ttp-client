@@ -24,7 +24,7 @@ const SelectVerify = ({ labelValue, errorMessage, onChange, value }: Props) => {
       </Label>
       <Select value={value || verify} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Verified user')} />
+          <SelectValue placeholder={t('Verified user')}>{value || verify}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

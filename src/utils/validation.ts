@@ -1,4 +1,4 @@
-import { ADMIN, SALE, SUPERADMIN } from '@/constants/role'
+import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
 import { BANNED, UNVERIFIED, VERIFIED } from '@/constants/verify'
 import * as yup from 'yup'
 
@@ -23,8 +23,8 @@ export const userSchema = yup.object({
   address: yup.string().max(160, 'Address maximum length is 160 characters').optional(),
   avatar: yup.string().max(1000, 'Avatar maximum length is 1000 characters').optional(),
   code: yup.string().max(1000, 'Code maximum length is 6 characters').optional(),
-  date_of_birth: yup.date().optional().max(new Date(), 'Please select a date in the past').nullable(),
+  date_of_birth: yup.date().optional().max(new Date(), 'Please select a date in the past').optional(),
   verify: yup.string().oneOf([VERIFIED, UNVERIFIED, BANNED], 'Invalid verify account').optional(),
-  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE], 'Invalid role account').optional(),
+  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
 })

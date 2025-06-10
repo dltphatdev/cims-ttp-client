@@ -5,7 +5,7 @@ import InputMain from '@/components/input-main'
 import SelectRole from '@/components/select-role'
 import SelectVerify from '@/components/select-verify'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, SALE } from '@/constants/role'
+import { ADMIN, NONE, SALE } from '@/constants/role'
 import { UNVERIFIED } from '@/constants/verify'
 import { formatedDate, formatedTime } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
@@ -58,7 +58,7 @@ export default function UserUpdate() {
       address: '',
       code: '',
       verify: UNVERIFIED,
-      role: SALE,
+      role: NONE,
       password: '',
       phone: '',
       date_of_birth: new Date(1990, 0, 1)
@@ -71,7 +71,7 @@ export default function UserUpdate() {
     queryFn: () => userApi.getUserDetail(userId as string)
   })
 
-  const updateUser = useMutation({
+  const updateUserMutation = useMutation({
     mutationFn: userApi.updateUser
   })
 
@@ -87,18 +87,8 @@ export default function UserUpdate() {
           delete payload[key as keyof typeof payload]
         }
       }
-      const res = await updateUser.mutateAsync(payload, {
-        onSuccess: (data) => {
-          toast.success('Alert', {
-            description: data.data.message,
-            action: {
-              label: 'Đóng',
-              onClick: () => true
-            },
-            duration: 4000,
-            position: 'top-right'
-          })
-        },
+      updateUserMutation.mutate(payload, {
+        onSuccess: (data) => toast.success(data.data.message),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
           if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -106,7 +96,7 @@ export default function UserUpdate() {
             if (formError) {
               Object.keys(formError).forEach((key) => {
                 setError(key as keyof FormData, {
-                  message: formError[key as keyof FormData]['msg'],
+                  message: formError[key as keyof FormData]['msg']['message'],
                   type: 'Server'
                 })
               })
@@ -114,7 +104,6 @@ export default function UserUpdate() {
           }
         }
       })
-      toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const formError = error.response?.data?.errors
@@ -137,11 +126,12 @@ export default function UserUpdate() {
       setValue('phone', user.phone || '')
       setValue('address', user.address || '')
       setValue('code', user.code || '')
-      setValue('role', user.role || SALE)
-      setValue('verify', user.verify || UNVERIFIED)
+      setValue('role', user.role)
+      setValue('verify', user.verify)
       setValue('date_of_birth', user.date_of_birth ? new Date(user.date_of_birth) : new Date(1990, 0, 1))
     }
   }, [user, setValue])
+
   return (
     <Fragment>
       <Helmet>
@@ -216,7 +206,7 @@ export default function UserUpdate() {
                       {...field}
                       onChange={field.onChange}
                       labelValue={t('Verified user')}
-                      errorMessage={errors.role?.message as string}
+                      errorMessage={errors.verify?.message as string}
                     />
                   )}
                 />
@@ -241,7 +231,12 @@ export default function UserUpdate() {
                   )}
                 />
               </div>
-              <ButtonMain type='submit' classNameWrapper='mt-4'>
+              <ButtonMain
+                isLoading={updateUserMutation.isPending}
+                disabled={updateUserMutation.isPending}
+                type='submit'
+                classNameWrapper='mt-4'
+              >
                 {t('Save')}
               </ButtonMain>
             </form>

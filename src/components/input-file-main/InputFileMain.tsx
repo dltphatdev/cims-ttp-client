@@ -8,20 +8,12 @@ interface Props {
 }
 
 export default function InputFileMain({ onChange }: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = e.target.files?.[0]
     if (fileFromLocal && (fileFromLocal.size >= CONFIG.MAX_FILE_SIZE_UPLOAD || !fileFromLocal.type.includes('image'))) {
-      toast.error('Error', {
-        description: t('Maximum file size 1MB. Format: .JPG, .JPEG, .PNG'),
-        action: {
-          label: t('Close'),
-          onClick: () => true
-        },
-        duration: 5000,
-        position: 'top-right'
-      })
+      toast.error(t('Maximum file size 1MB. Format: .JPG, .JPEG, .PNG'))
     } else {
       onChange?.(fileFromLocal)
     }

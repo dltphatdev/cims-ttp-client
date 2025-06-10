@@ -15,8 +15,8 @@ interface Props {
 }
 
 export default function SelectRole({ labelValue, roles, onChange, value, errorMessage }: Props) {
-  const { t } = useTranslation()
-  const [role, setRole] = useState<string>('')
+  const { t } = useTranslation('admin')
+  const [role, setRole] = useState<string>(value || '')
   const handleChange = (value: string) => {
     setRole(value)
     onChange?.(value)
@@ -28,7 +28,7 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
       </Label>
       <Select value={value || role} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select role')} />
+          <SelectValue placeholder={t('Select role')}>{value || role}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

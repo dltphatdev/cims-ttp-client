@@ -26,3 +26,5 @@
 3: Task: Xử lý lỗi toast sonner + update version package nodejs (7/6/2025)
 
 4: Task: Xử lý cập nhật trang edit user + khắc phục các lỗi liên quan tới typescript ở các component table và user list + xử lý phân trang và search cho api user (9/6/2025)
+
+5: Task: Xử lý việc gọi API get me và API cập nhật trang profile của user (10/6/2025)

@@ -54,5 +54,7 @@
   "Maximum length is 1000 characters": "Độ dài tối đa là 1000 ký tự",
   "Please select a date in the past": "Hãy chọn một ngày trong quá khứ",
   "Maximum length is 6 characters": "Độ dài tối đa là 6 ký tự",
-  "Invalid role": "Vai trò không hợp lệ"
+  "Invalid role": "Vai trò không hợp lệ",
+  "is verified": "đã xác thực",
+  "is not verified": "chưa xác thực"
 }
