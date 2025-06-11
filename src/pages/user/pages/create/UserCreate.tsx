@@ -65,6 +65,7 @@ export default function UserCreate() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
+            <h1 className='mb-2 font-bold text-2xl'>{t('Create member')}</h1>
             <form onSubmit={handleSubmitForm}>
               <div>
                 <InputMain

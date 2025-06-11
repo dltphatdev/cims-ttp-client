@@ -1,29 +1,50 @@
+import customerApi from '@/apis/customer.api'
 import SearchFilterBar from '@/components/search-filter-bar'
-// import TableMain from '@/components/table-main'
-// import { Button } from '@/components/ui/button'
-// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-// import { TableCell, TableRow } from '@/components/ui/table'
+import TableMain from '@/components/table-main'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { TableCell, TableRow } from '@/components/ui/table'
 import PATH from '@/constants/path'
-// import { Ellipsis } from 'lucide-react'
+import { CUSTOMER_HEADER_TABLE } from '@/constants/table'
+import { useQueryParams } from '@/hooks/use-query-params'
+import type { GetCustomersParams } from '@/types/customer'
+import { useQuery } from '@tanstack/react-query'
+import { isUndefined, omitBy } from 'lodash'
+import { Ellipsis } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
 
-// const data = [
-//   {
-//     fullname: 'NGUYỄN VĂN A',
-//     cccd: '072096002490',
-//     phone: '0967763096',
-//     address: '297 Gò Dầu, Tân Phú, HCM',
-//     type: 'Ca nhan',
-//     creator: 'Nguyễn Nhược Phi',
-//     sale: 'Anh Minh',
-//     created_at: '14:17:00 12/12/2024',
-//     status: 'Đã xác minh'
-//   }
-// ]
+const data = [
+  {
+    fullname: 'NGUYỄN VĂN A',
+    cccd: '072096002490',
+    phone: '0967763096',
+    address: '297 Gò Dầu, Tân Phú, HCM',
+    type: 'Ca nhan',
+    creator: 'Nguyễn Nhược Phi',
+    sale: 'Anh Minh',
+    created_at: '14:17:00 12/12/2024',
+    status: 'Đã xác minh'
+  }
+]
 
 export default function CustomerRead() {
+  const queryParams: GetCustomersParams = useQueryParams()
+  const queryConfig: GetCustomersParams = omitBy(
+    {
+      page: queryParams.page || '1',
+      limit: queryParams.limit || '10',
+      fullname: queryParams.name as string[],
+      phone: queryParams.phone as string[]
+    },
+    isUndefined
+  )
+  const { data: customerData } = useQuery({
+    queryKey: ['users', queryConfig],
+    queryFn: () => customerApi.getCustomers(queryConfig)
+  })
+  console.log(customerData)
   return (
     <Fragment>
       <Helmet>
@@ -35,19 +56,8 @@ export default function CustomerRead() {
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
             <SearchFilterBar path={PATH.CUSTOMER_CREATE} />
-            {/* <TableMain
-              headers={[
-                'STT',
-                'Họ và tên',
-                'CCCD/MST',
-                'Liên lạc',
-                'Loại',
-                'Người tạo',
-                'Kinh doanh',
-                'Ngày tạo',
-                'Trạng thái',
-                'Hành động'
-              ]}
+            <TableMain
+              headers={CUSTOMER_HEADER_TABLE}
               data={data}
               renderRow={(item, index) => (
                 <TableRow key={index}>
@@ -91,7 +101,7 @@ export default function CustomerRead() {
                   </TableCell>
                 </TableRow>
               )}
-            /> */}
+            />
           </div>
         </div>
       </div>

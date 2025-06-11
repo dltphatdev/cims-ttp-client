@@ -1,4 +1,4 @@
-import type { User } from '@/types/user.type'
+import type { User } from '@/types/user'
 
 export const eventTargetLS = new EventTarget()
 

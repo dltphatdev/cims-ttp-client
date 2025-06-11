@@ -39,10 +39,7 @@ export default function UserRead() {
     }
     return USER_HEADER_TABLE
   }
-  const handleNavigateEditUser = (id: number) =>
-    navigate(`${PATH.USER}/${id}`, {
-      state: { navTitle: t('Update user') }
-    })
+  const handleNavigateEditUser = (id: number) => navigate(`${PATH.USER}/${id}`)
   return (
     <Fragment>
       <Helmet>
@@ -58,8 +55,8 @@ export default function UserRead() {
               <CreateAction path={PATH.USER_CREATE} />
             </div>
             <TableMain
-              page={pagination?.page || PAGE}
-              page_size={pagination?.limit || LIMIT}
+              page={pagination?.page.toString() || PAGE}
+              page_size={pagination?.limit.toString() || LIMIT}
               headers={renderHeaderForRuleUser()}
               data={users}
               renderRow={(item, index) => (

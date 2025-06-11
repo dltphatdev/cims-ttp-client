@@ -56,5 +56,7 @@
   "Maximum length is 6 characters": "Maximum length is 6 characters",
   "Invalid role": "Invalid role",
   "is verified": "is verified",
-  "is not verified": "is not verified"
+  "is not verified": "is not verified",
+  "Create member": "Create member",
+  "Contact": "Contact"
 }

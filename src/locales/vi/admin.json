@@ -39,7 +39,7 @@
   "Create new": "Tạo mới",
   "Maximum size 1 MB": "Dung lượng tối đa 1 MB",
   "Format: .JPG, .JPEG, .PNG": "Định dạng: .JPG, .JPEG, .PNG",
-  "Profile": "Hồ sơ",
+  "Profile": "Hồ sơ cá nhân",
   "Create user": "Thêm mới thành viên",
   "Logout": "Đăng xuất",
   "No data available": "Không có dữ liệu",
@@ -56,5 +56,7 @@
   "Maximum length is 6 characters": "Độ dài tối đa là 6 ký tự",
   "Invalid role": "Vai trò không hợp lệ",
   "is verified": "đã xác thực",
-  "is not verified": "chưa xác thực"
+  "is not verified": "chưa xác thực",
+  "Create member": "Thêm mới thành viên",
+  "Contact": "Liên lạc"
 }

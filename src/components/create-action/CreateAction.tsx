@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function CreateAction({ path }: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   return (
     <div className=' py-2 px-3 bg-(--color-org) hover:bg-orange-500 light:text-white font-medium text-base rounded-lg'>
       <Link

@@ -7,12 +7,14 @@ import type {
   User,
   UserCreateReqBody,
   UserSuccessResponeApi
-} from '@/types/user.type'
+} from '@/types/user'
 import http from '@/utils/http'
 
 export const URL_LOGIN = 'user/login'
 export const URL_LOGOUT = 'user/logout'
 export const URL_REFRESH_TOKEN = 'user/refresh-token'
+
+type GetUsersParams = Pick<TQueryConfig, 'fullname' | 'limit' | 'page' | 'phone'>
 
 const userApi = {
   login(body: { email: string; password: string }) {
@@ -21,7 +23,7 @@ const userApi = {
   logout(body: { refresh_token: string }) {
     return http.post<{ message: string }>(URL_LOGOUT, body)
   },
-  getUsers(params: TQueryConfig) {
+  getUsers(params: GetUsersParams) {
     return http.get<SuccessResponseApi<GetListUser>>('user', { params })
   },
   createUser(body: UserCreateReqBody) {
@@ -44,7 +46,7 @@ const userApi = {
       SuccessResponseApi<{
         url: string
         filename: string
-        type: 'image' | 'video'
+        type: 'image' | 'video' | 'file'
       }>
     >('user/upload-avatar', body, {
       headers: {

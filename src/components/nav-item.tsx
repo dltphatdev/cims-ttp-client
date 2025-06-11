@@ -33,7 +33,7 @@ export default function NavItem({ data, sideBarLabel }: Props) {
               })}
               asChild
             >
-              <Link to={item.url} state={{ navTitle: t(item.title) }} title={t(item.title)}>
+              <Link to={item.url} title={t(item.title)}>
                 {item.icon}
                 <span>{t(item.title)}</span>
               </Link>
