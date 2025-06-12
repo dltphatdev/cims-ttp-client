@@ -1,4 +1,4 @@
-import type { SuccessResponseApi } from '@/types/common.type'
+import type { SuccessResponseApi } from '@/types/common'
 import type { GetCustomersParams, GetListCustomer } from '@/types/customer'
 import http from '@/utils/http'
 

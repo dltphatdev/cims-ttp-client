@@ -11,6 +11,7 @@ const PATH = {
   EFFECTIVE_CREATE: '/effective/create',
   EFFECTIVE_UPDATE: '/effective/update',
   USER: '/user',
+  USER_CHANGE_PASSWORD: '/user/change-password',
   USER_DETAIL: '/user/:userId',
   USER_CREATE: '/user/create',
   USER_UPDATE: '/user/profile'

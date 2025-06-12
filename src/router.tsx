@@ -21,6 +21,7 @@ const UserRead = lazy(() => import('@/pages/user/pages/read'))
 const UserCreate = lazy(() => import('@/pages/user/pages/create'))
 const UserProfile = lazy(() => import('@/pages/user/pages/profile'))
 const UserUpdate = lazy(() => import('@/pages/user/pages/update'))
+const ChangePassword = lazy(() => import('@/pages/user/pages/change-password'))
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -172,6 +173,14 @@ const Router = () => {
               element: (
                 <Suspense>
                   <UserUpdate />
+                </Suspense>
+              )
+            },
+            {
+              path: PATH.USER_CHANGE_PASSWORD,
+              element: (
+                <Suspense>
+                  <ChangePassword />
                 </Suspense>
               )
             }

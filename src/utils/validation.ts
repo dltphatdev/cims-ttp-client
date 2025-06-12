@@ -2,6 +2,15 @@ import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
 import { BANNED, UNVERIFIED, VERIFIED } from '@/constants/verify'
 import * as yup from 'yup'
 
+function handleConfirmPasswordYup(field: string) {
+  return yup
+    .string()
+    .required('Password is required')
+    .min(6, 'Password min length is 6 characters')
+    .max(160, 'Password max length is 160 characters')
+    .oneOf([yup.ref(field)], 'Confirm password not match')
+}
+
 export const schema = yup.object({
   email: yup
     .string()
@@ -27,4 +36,14 @@ export const userSchema = yup.object({
   verify: yup.string().oneOf([VERIFIED, UNVERIFIED, BANNED], 'Invalid verify account').optional(),
   role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
+})
+
+export const changePasswordSchema = yup.object({
+  old_password: yup
+    .string()
+    .required('Old password is required')
+    .min(6, 'Old password min length is 6 characters')
+    .max(160, 'Old password max length is 160 characters'),
+  password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
+  confirm_password: handleConfirmPasswordYup('password')
 })

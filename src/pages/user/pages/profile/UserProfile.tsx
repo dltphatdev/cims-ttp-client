@@ -103,7 +103,7 @@ export default function UserProfile() {
         if (formError) {
           Object.keys(formError).forEach((key) => {
             setError(key as keyof FormData, {
-              message: formError[key as keyof FormData]['msg']['message'],
+              message: formError[key as keyof FormData]['msg'],
               type: 'Server'
             })
           })

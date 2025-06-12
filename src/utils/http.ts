@@ -1,7 +1,7 @@
 import { URL_LOGIN, URL_LOGOUT, URL_REFRESH_TOKEN } from '@/apis/user.api'
 import CONFIG from '@/constants/config'
 import httpStatusCode from '@/constants/httpStatusCode'
-import type { ErrorResponseApi } from '@/types/common.type'
+import type { ErrorResponseApi } from '@/types/common'
 import type { RefreshTokenReponse, UserSuccessResponeApi } from '@/types/user'
 import {
   clearLS,

@@ -1,8 +1,9 @@
 import type { TQueryConfig } from '@/hooks/use-query-config'
-import type { SuccessResponseApi } from '@/types/common.type'
+import type { SuccessResponseApi } from '@/types/common'
 import type {
   BodyUpdateProfile,
   BodyUserProfile,
+  ChangePasswordUserReqBody,
   GetListUser,
   User,
   UserCreateReqBody,
@@ -53,6 +54,9 @@ const userApi = {
         'Content-Type': 'multipart/form-data'
       }
     })
+  },
+  changePasswordUser(body: ChangePasswordUserReqBody) {
+    return http.put<{ message: string }>('user/change-password', body)
   }
 }
 

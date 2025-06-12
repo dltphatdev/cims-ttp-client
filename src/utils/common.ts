@@ -1,7 +1,7 @@
 import CONFIG from '@/constants/config'
 import httpStatusCode from '@/constants/httpStatusCode'
 import STATUS from '@/constants/status'
-import type { ErrorResponseApi } from '@/types/common.type'
+import type { ErrorResponseApi } from '@/types/common'
 import axios, { AxiosError } from 'axios'
 import type { TFunction } from 'i18next'
 

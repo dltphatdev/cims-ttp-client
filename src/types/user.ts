@@ -1,4 +1,4 @@
-import type { SuccessResponseApi } from '@/types/common.type'
+import type { SuccessResponseApi } from '@/types/common'
 
 export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale' | 'None'
 export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'
@@ -57,4 +57,9 @@ export interface BodyUpdateProfile {
 }
 export interface BodyUserProfile extends Omit<BodyUpdateProfile, 'password' | 'verify' | 'role' | 'id'> {
   avatar?: string
+}
+
+export interface ChangePasswordUserReqBody {
+  old_password?: string
+  password?: string
 }

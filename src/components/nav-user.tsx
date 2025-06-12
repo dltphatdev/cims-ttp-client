@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronsUpDown, LogOut, Plus } from 'lucide-react'
+import { BadgeCheck, ChevronsUpDown, LogOut, Plus, KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -80,7 +80,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
-                <Link to={PATH.USER_UPDATE} state={{ navTitle: t('Profile') }}>
+                <Link to={PATH.USER_UPDATE}>
                   {t('Profile')} {profile?.verify === VERIFIED ? t('is verified') : t('is not verified')}
                 </Link>
               </DropdownMenuItem>
@@ -89,12 +89,16 @@ export function NavUser() {
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <Plus />
-                  <Link to={PATH.USER_CREATE} state={{ navTitle: t('Create new') }}>
-                    {t('Create new')}
-                  </Link>
+                  <Link to={PATH.USER_CREATE}>{t('Create new')}</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             )}
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <KeyRound />
+                <Link to={PATH.USER_CHANGE_PASSWORD}>{t('Change password')}</Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
