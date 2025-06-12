@@ -1,5 +1,4 @@
 import userApi from '@/apis/user.api'
-import CreateAction from '@/components/create-action'
 import FormattedDate from '@/components/formatted-date'
 import SearchMain from '@/components/search-main'
 import TableMain from '@/components/table-main'
@@ -17,7 +16,7 @@ import checkRoleUser, { checkVerifyStatus } from '@/utils/common'
 import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
-import { Ellipsis } from 'lucide-react'
+import { Ellipsis, Plus } from 'lucide-react'
 import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
@@ -69,7 +68,9 @@ export default function UserRead() {
                   number: 'phone'
                 }}
               />
-              <CreateAction path={PATH.USER_CREATE} />
+              <Button variant='outline' onClick={() => navigate(PATH.USER_CREATE)}>
+                <Plus /> {t('Create user')}
+              </Button>
             </div>
             <TableMain
               page={pagination?.page.toString() || PAGE}

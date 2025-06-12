@@ -1,5 +1,3 @@
-import SearchFilterBar from '@/components/search-filter-bar'
-import PATH from '@/constants/path'
 // import TableMain from '@/components/table-main'
 // import { Button } from '@/components/ui/button'
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -50,7 +48,6 @@ export default function ActivitiesRead() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
-            <SearchFilterBar path={PATH.ACTIVITIES_CREATE} />
             {/* <TableMain
               headers={[
                 'STT',

@@ -1,11 +1,9 @@
-import SearchFilterBar from '@/components/search-filter-bar'
 // import TableMain from '@/components/table-main'
 // import { Button } from '@/components/ui/button'
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 // import { TableCell, TableRow } from '@/components/ui/table'
 // import { Ellipsis } from 'lucide-react'
-import PATH from '@/constants/path'
 
 // const data = [
 //   {
@@ -24,7 +22,6 @@ export default function EffectiveRead() {
     <div className='@container/main'>
       <div className='py-4 md:gap-6 md:py-6'>
         <div className='px-4 lg:px-6'>
-          <SearchFilterBar path={PATH.EFFECTIVE_CREATE} />
           {/* <TableMain
             headers={[
               'STT',
