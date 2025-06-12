@@ -177,13 +177,15 @@ export default function UserUpdate() {
                   placeholder={t('Password')}
                   errorMessage={errors.password?.message}
                 />
-                <InputMain
-                  value={`${formatedTime(user?.created_at as string)} ${formatedDate(user?.created_at as string)}`}
-                  register={register}
-                  labelValue={t('Created at')}
-                  type='text'
-                  disabled={true}
-                />
+                <div className='select-none'>
+                  <InputMain
+                    value={`${formatedTime(user?.created_at as string)} ${formatedDate(user?.created_at as string)}`}
+                    register={register}
+                    labelValue={t('Created at')}
+                    type='text'
+                    disabled={true}
+                  />
+                </div>
                 <Controller
                   control={control}
                   name='role'

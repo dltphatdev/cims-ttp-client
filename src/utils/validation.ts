@@ -1,6 +1,10 @@
+import * as yup from 'yup'
+import { ACTIVE, DEACTIVATED } from '@/constants/customerStatus'
+import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
 import { BANNED, UNVERIFIED, VERIFIED } from '@/constants/verify'
-import * as yup from 'yup'
+import { UNVERIFIED as UNVERIFIED_CUSTOMER, VERIFIED as VERIFIED_CUSTOMER } from '@/constants/customerVerify'
+import { FEMALE, MALE } from '@/constants/gender'
 
 function handleConfirmPasswordYup(field: string) {
   return yup
@@ -28,11 +32,11 @@ export const schema = yup.object({
 
 export const userSchema = yup.object({
   fullname: yup.string().max(160, 'Fullname maximum length is 160 characters').optional(),
-  phone: yup.string().max(20, 'Phone maximum length is 20 characters').optional(),
+  phone: yup.string().max(10, 'Phone maximum length is 10 characters').optional(),
   address: yup.string().max(160, 'Address maximum length is 160 characters').optional(),
   avatar: yup.string().max(1000, 'Avatar maximum length is 1000 characters').optional(),
   code: yup.string().max(1000, 'Code maximum length is 6 characters').optional(),
-  date_of_birth: yup.date().optional().max(new Date(), 'Please select a date in the past').optional(),
+  date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
   verify: yup.string().oneOf([VERIFIED, UNVERIFIED, BANNED], 'Invalid verify account').optional(),
   role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
@@ -46,4 +50,29 @@ export const changePasswordSchema = yup.object({
     .max(160, 'Old password max length is 160 characters'),
   password: schema.fields['password'] as yup.StringSchema<string | undefined, yup.AnyObject, undefined, ''>,
   confirm_password: handleConfirmPasswordYup('password')
+})
+
+export const customerSchema = yup.object({
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(4, 'Name min length is 4 characters')
+    .max(160, 'Name maximum length is 160 characters'),
+  type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
+  consultantor_id: yup.string().optional(),
+  tax_code: yup.string().max(13, 'Tax code maximum length is 13 characters').optional(),
+  website: yup.string().max(50, 'Website maximum length is 50 characters').optional(),
+  surrogate: yup.string().max(160, 'Surrogate maximum length is 160 characters').optional(),
+  address_company: yup.string().max(160, 'Address company maximum length is 160 characters').optional(),
+  address_personal: yup.string().max(160, 'Address personal maximum length is 160 characters').optional(),
+  phone: yup.string().max(10, 'Phone maximum length is 10 characters').optional(),
+  email: yup.string().max(160, 'Email max length 160 characters').email('Email invalid').optional(),
+  contact_name: yup.string().max(10, 'Contact name maximum length is 10 characters').optional(),
+  status: yup.string().oneOf([DEACTIVATED, ACTIVE], 'Invalid customer status').optional(),
+  verify: yup.string().oneOf([UNVERIFIED_CUSTOMER, VERIFIED_CUSTOMER], 'Invalid verify customer').optional(),
+  attachment: yup.string().max(255, 'Attachment maximum length is 255 characters').optional(),
+  note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
+  assign_at: yup.string().optional(),
+  date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
+  gender: yup.string().oneOf([MALE, FEMALE], 'Gender invalid').optional()
 })

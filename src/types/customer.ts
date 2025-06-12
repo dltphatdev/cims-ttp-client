@@ -66,3 +66,24 @@ export interface GetListCustomer {
   limit: number
   totalPages: number
 }
+
+export interface CreateCustomerReqBody {
+  name: string
+  type: CustomerType
+  consultantor_id?: number
+  tax_code?: string
+  website?: string
+  surrogate?: string
+  address_company?: string
+  address_personal?: string
+  phone?: string
+  email?: string
+  contact_name?: string
+  status?: CustomerStatus
+  verify?: CustomerVerify
+  attachment?: string
+  note?: string
+  assign_at?: string
+  date_of_birth?: string
+  gender?: CustomerGender
+}

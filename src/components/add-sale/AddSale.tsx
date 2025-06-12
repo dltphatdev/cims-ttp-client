@@ -7,15 +7,13 @@ import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function AddSale() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const consultants = ['Anh Minh', 'Chị Lan', 'Anh Dũng', 'Chị Huyền']
   const [selectedList, setSelectedList] = useState<string[]>([])
   const [open, setOpen] = useState<boolean>(false)
 
   const handleSelect = (name: string) => {
-    if (!selectedList.includes(name)) {
-      setSelectedList([...selectedList, name])
-    }
+    setSelectedList([name])
     setOpen(false)
   }
 

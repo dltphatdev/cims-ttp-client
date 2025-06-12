@@ -62,5 +62,14 @@
   "Change password": "Thay đổi mật khẩu",
   "Confirm password": "Xác nhận mật khẩu",
   "Password": "Mật khẩu",
-  "Old Password": "Mật khẩu cũ"
+  "Old Password": "Mật khẩu cũ",
+  "Company": "Doanh nghiệp",
+  "Personal": "Cá nhân",
+  "Name customer": "Tên khách hàng",
+  "Tax code": "Mã số thuế",
+  "Surrogate": "Người đại diện",
+  "Address company": "Địa chỉ công ty",
+  "no require": "không bắt buộc",
+  "Note": "Ghi chú",
+  "Select file": "Chọn tệp"
 }

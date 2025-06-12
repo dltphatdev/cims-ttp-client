@@ -34,7 +34,7 @@ export default function InputMain({
   const handleToggleEye = () => setOpenEye((prevState) => !prevState)
   const handleType = () => (type === 'password' && openEye ? 'text' : type)
   return (
-    <div className='space-y-2 mn:mb-2 lg:mb-4'>
+    <div className='space-y-2 mn:mb-2 lg:mb-3'>
       <Label htmlFor={name} className='text-sm font-medium light:text-gray-700'>
         {labelValue} <span className='text-red-500'>*</span>
       </Label>
