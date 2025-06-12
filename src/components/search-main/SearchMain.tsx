@@ -4,60 +4,50 @@ import { Button } from '@/components/ui/button'
 import { X, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { createSearchParams, useNavigate } from 'react-router-dom'
-import useQueryConfig from '@/hooks/use-query-config'
-import { omit } from 'lodash'
+import type { TQueryConfig } from '@/types/query-config'
 
-export default function SearchMain() {
+interface Props {
+  queryConfig?: TQueryConfig
+  value?: string
+  payloadField?: {
+    text: string // field cho text, ví dụ: "name"
+    number: string // field cho số, ví dụ: "phone"
+  }
+}
+
+export default function SearchMain({ queryConfig, value, payloadField }: Props) {
   const navigate = useNavigate()
-  const queryConfig = useQueryConfig()
   const { t } = useTranslation()
-  const [inputValue, setInputValue] = useState('')
+  const [localValue, setLocalValue] = useState<string>(value || '')
   const [tags, setTags] = useState<string[]>([])
 
   const handleAddTag = () => {
-    if (inputValue.trim() && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue.trim()])
-      setInputValue('')
+    const _value = value || localValue
+    if (!_value) return
+    const isNumber = /^\d+$/.test(_value)
+
+    let updatedTags = [...tags]
+
+    // Nếu là số -> thay hoặc thêm tag số
+    if (isNumber) {
+      updatedTags = updatedTags.filter((tag) => !/^\d+$/.test(tag)) // xoá tag số cũ
+      updatedTags.push(_value)
+    } else {
+      // Nếu là text -> thay hoặc thêm tag text
+      updatedTags = updatedTags.filter((tag) => /^\d+$/.test(tag)) // xoá tag text cũ
+      updatedTags.push(_value)
     }
-  }
 
-  const removeTag = (tag: string) => {
-    const isNumber = /^\d+$/.test(tag)
-    if (tag) {
-      setTags(tags.filter((t) => t !== tag))
-      if (isNumber) {
-        navigate({
-          pathname: '',
-          search: createSearchParams(omit(queryConfig, ['phone'])).toString()
-        })
-      } else {
-        navigate({
-          pathname: '',
-          search: createSearchParams(omit(queryConfig, ['fullname'])).toString()
-        })
-      }
-    }
-  }
+    setTags(updatedTags)
+    setLocalValue('')
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    e.preventDefault()
-    setInputValue(value)
-  }
-
-  const handleSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const fullname: string[] = []
-    const phone: string[] = []
+    // Điều hướng ngay khi add tag
     const payload: { [key: string]: string } = {}
-    tags.forEach((tag) => {
-      const isNumber = /^\d+$/.test(tag)
-      if (isNumber) {
-        phone.push(tag)
-        payload.phone = phone.join(',')
-      } else {
-        fullname.push(tag)
-        payload.fullname = fullname.join(',')
+    updatedTags.forEach((tag) => {
+      if (/^\d+$/.test(tag) && payloadField?.number) {
+        payload[payloadField.number] = tag
+      } else if (payloadField?.text) {
+        payload[payloadField.text] = tag
       }
     })
 
@@ -68,6 +58,80 @@ export default function SearchMain() {
         ...payload
       }).toString()
     })
+
+    // if (_value.trim() && !tags.includes(_value)) {
+    //   setTags([...tags, _value.trim()])
+    //   setLocalValue('')
+    // }
+  }
+
+  const removeTag = (tag: string) => {
+    const updatedTags = tags.filter((t) => t !== tag)
+    setTags(updatedTags)
+    const textList: string[] = []
+    const numberList: string[] = []
+    const payload: { [key: string]: string } = {}
+    updatedTags.forEach((item) => {
+      const isNum = /^\d+$/.test(item)
+      if (isNum) {
+        numberList.push(item)
+      } else {
+        textList.push(item)
+      }
+    })
+
+    if (payloadField?.text) {
+      payload[payloadField.text] = textList.join(',')
+    }
+    if (payloadField?.number) {
+      payload[payloadField.number] = numberList.join(',')
+    }
+
+    navigate({
+      pathname: '',
+      search: createSearchParams({
+        ...queryConfig,
+        ...payload
+      }).toString()
+    })
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const _value = e.target.value
+    e.preventDefault()
+    setLocalValue(_value)
+  }
+
+  const handleSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleAddTag()
+    // const textList: string[] = []
+    // const numberList: string[] = []
+    // const payload: { [key: string]: string } = {}
+    // tags.forEach((tag) => {
+    //   const isNumber = /^\d+$/.test(tag)
+    //   if (isNumber) {
+    //     numberList.push(tag)
+    //   } else {
+    //     textList.push(tag)
+    //   }
+    // })
+
+    // if (payloadField?.number) {
+    //   payload[payloadField.number] = numberList.join(',')
+    // }
+
+    // if (payloadField?.text) {
+    //   payload[payloadField.text] = textList.join(',')
+    // }
+
+    // navigate({
+    //   pathname: '',
+    //   search: createSearchParams({
+    //     ...queryConfig,
+    //     ...payload
+    //   }).toString()
+    // })
   }
 
   return (
@@ -76,7 +140,7 @@ export default function SearchMain() {
         <Input
           type='text'
           placeholder={t('Search')}
-          value={inputValue}
+          value={value || localValue}
           onChange={handleInputChange}
           className='border-0 focus-visible:ring-0 focus-visible:ring-offset-0'
         />

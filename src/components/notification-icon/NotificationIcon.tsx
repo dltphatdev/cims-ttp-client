@@ -20,7 +20,7 @@ export default function NotificationIcon() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className='relative cursor-pointer'>
-          <Bell className='w-5 h-5 text-black' />
+          <Bell className='w-5 h-5 dark:text-white light:text-black' />
           <span className='absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1'>
             {notifications.length}
           </span>

@@ -1,12 +1,13 @@
-import type { TQueryConfig } from '@/hooks/use-query-config'
+import type { TQueryConfig } from '@/types/query-config'
 
 type CustomerType = 'Personal' | 'Company'
 type CustomerVerify = 'Unverified' | 'Verified'
 type CustomerStatus = 'Active' | 'Deactivated'
 type CustomerGender = 'Male' | 'Female'
 
-export interface GetCustomersParams extends Pick<TQueryConfig, 'limit' | 'page' | 'phone'> {
+export interface GetCustomersParams extends Pick<TQueryConfig, 'limit' | 'page'> {
   name?: string | string[] | undefined
+  phone?: string[]
 }
 
 export interface Customer {
@@ -55,6 +56,8 @@ type Customers = Pick<
   | 'created_at'
   | 'creator'
   | 'consultantor'
+  | 'address_company'
+  | 'address_personal'
 >[]
 
 export interface GetListCustomer {

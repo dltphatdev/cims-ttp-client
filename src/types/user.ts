@@ -1,4 +1,10 @@
 import type { SuccessResponseApi } from '@/types/common'
+import type { TQueryConfig } from '@/types/query-config'
+
+export interface GetUsersParams extends Pick<TQueryConfig, 'limit' | 'page'> {
+  fullname?: string[]
+  phone?: string[]
+}
 
 export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale' | 'None'
 export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'

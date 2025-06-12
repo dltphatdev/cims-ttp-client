@@ -1,5 +1,5 @@
 import { ModeToggle } from '@/components/mode-toggle'
-import NotificationIcon from '@/components/notification-icon'
+// import NotificationIcon from '@/components/notification-icon'
 import SelectLang from '@/components/select-lang'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -12,7 +12,7 @@ const Header = () => {
         <Separator orientation='vertical' className='mx-2 data-[orientation=vertical]:h-4' />
         <div className='ml-auto flex items-center gap-2'>
           <div className='flex items-center justify-end'>
-            <NotificationIcon />
+            {/* <NotificationIcon /> */}
             <div className='ml-4'>
               <SelectLang />
             </div>

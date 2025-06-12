@@ -1,10 +1,10 @@
-import type { TQueryConfig } from '@/hooks/use-query-config'
 import type { SuccessResponseApi } from '@/types/common'
 import type {
   BodyUpdateProfile,
   BodyUserProfile,
   ChangePasswordUserReqBody,
   GetListUser,
+  GetUsersParams,
   User,
   UserCreateReqBody,
   UserSuccessResponeApi
@@ -14,8 +14,6 @@ import http from '@/utils/http'
 export const URL_LOGIN = 'user/login'
 export const URL_LOGOUT = 'user/logout'
 export const URL_REFRESH_TOKEN = 'user/refresh-token'
-
-type GetUsersParams = Pick<TQueryConfig, 'fullname' | 'limit' | 'page' | 'phone'>
 
 const userApi = {
   login(body: { email: string; password: string }) {

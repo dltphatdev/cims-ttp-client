@@ -11,10 +11,12 @@ import PATH from '@/constants/path'
 import STATUS from '@/constants/status'
 import { USER_HEADER_TABLE } from '@/constants/table'
 import { AppContext } from '@/contexts/app-context'
-import useQueryConfig from '@/hooks/use-query-config'
+import { useQueryParams } from '@/hooks/use-query-params'
+import type { GetUsersParams } from '@/types/user'
 import checkRoleUser, { checkVerifyStatus } from '@/utils/common'
 import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
+import { isUndefined, omitBy } from 'lodash'
 import { Ellipsis } from 'lucide-react'
 import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
@@ -25,7 +27,16 @@ import { Fragment } from 'react/jsx-runtime'
 export default function UserRead() {
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
-  const queryConfig = useQueryConfig()
+  const queryParams: GetUsersParams = useQueryParams()
+  const queryConfig: GetUsersParams = omitBy(
+    {
+      page: queryParams.page || PAGE,
+      limit: queryParams.limit || LIMIT,
+      fullname: queryParams.fullname as string[],
+      phone: queryParams.phone as string[]
+    },
+    isUndefined
+  )
   const { data: userData } = useQuery({
     queryKey: ['users', queryConfig],
     queryFn: () => userApi.getUsers(queryConfig)
@@ -51,7 +62,13 @@ export default function UserRead() {
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
             <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
-              <SearchMain />
+              <SearchMain
+                queryConfig={queryConfig}
+                payloadField={{
+                  text: 'fullname',
+                  number: 'phone'
+                }}
+              />
               <CreateAction path={PATH.USER_CREATE} />
             </div>
             <TableMain
