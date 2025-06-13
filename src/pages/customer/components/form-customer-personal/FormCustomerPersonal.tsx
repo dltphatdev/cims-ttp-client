@@ -1,3 +1,4 @@
+import customerApi from '@/apis/customer.api'
 import AddTagUser from '@/components/add-tag-user'
 import DateSelect from '@/components/date-select'
 import FileAttachment from '@/components/file-attachment'
@@ -9,15 +10,18 @@ import { Label } from '@/components/ui/label'
 import { TabsContent } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { DEACTIVATED } from '@/constants/customerStatus'
-import { COMPANY } from '@/constants/customerType'
+import { PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
+import httpStatusCode from '@/constants/httpStatusCode'
 import { AppContext } from '@/contexts/app-context'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation } from '@tanstack/react-query'
 import { useContext, useMemo, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 
 const genders = [
@@ -54,6 +58,7 @@ const formData = customerSchema.pick([
 
 type FormData = yup.InferType<typeof formData>
 const FormCustomerPersonal = () => {
+  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const [file, setFile] = useState<File>()
   const { profile } = useContext(AppContext)
@@ -61,12 +66,16 @@ const FormCustomerPersonal = () => {
   const {
     register,
     handleSubmit,
+    setError,
+    watch,
+    setValue,
     control,
+    reset,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
       name: '',
-      type: COMPANY,
+      type: PERSONAL,
       consultantor_id: '',
       tax_code: '',
       website: '',
@@ -87,11 +96,71 @@ const FormCustomerPersonal = () => {
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
-  const handleSubmitForm = handleSubmit((data) => {
-    console.log(data)
+  const fileAttachment = watch('attachment')
+  const consultantorId = watch('consultantor_id')
+
+  const createCustomerMutation = useMutation({
+    mutationFn: customerApi.createCustomerPersonal
+  })
+  const uploadFileAttachmentMutation = useMutation({
+    mutationFn: customerApi.uploadFile
+  })
+  const handleSubmitForm = handleSubmit(async (data) => {
+    try {
+      let attachmentName = fileAttachment
+
+      if (file) {
+        const form = new FormData()
+        form.append('file', file)
+        const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
+        attachmentName = uploadRes.data.data.filename
+        setValue('attachment', attachmentName)
+      }
+
+      const payload = consultantorId
+        ? {
+            ...data,
+            date_of_birth: data.date_of_birth?.toISOString(),
+            attachment: attachmentName,
+            consultantor_id: Number(consultantorId),
+            assign_at: new Date()?.toISOString()
+          }
+        : {
+            ...data,
+            date_of_birth: data.date_of_birth?.toISOString(),
+            attachment: attachmentName
+          }
+      for (const key in payload) {
+        if (
+          payload[key as keyof typeof payload] === undefined ||
+          payload[key as keyof typeof payload] === '' ||
+          payload[key as keyof typeof payload] === null
+        ) {
+          delete payload[key as keyof typeof payload]
+        }
+      }
+      const res = await createCustomerMutation.mutateAsync(payload)
+      const idCustomerCreated = res.data.id
+      navigate(`/customer/update-personal/${idCustomerCreated}`)
+      reset()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.status === httpStatusCode.UnprocessableEntity) {
+        const formError = error.response?.data?.errors
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            setError(key as keyof FormData, {
+              message: formError[key as keyof FormData]['msg'],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
   })
 
   const handleChangeFile = (file?: File) => setFile(file)
+
   return (
     <form onSubmit={handleSubmitForm} noValidate>
       <TabsContent value='Personal'>
@@ -117,7 +186,7 @@ const FormCustomerPersonal = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <AddTagUser />
+              <AddTagUser onExportId={(id) => setValue('consultantor_id', id.toString())} />
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>
@@ -143,7 +212,6 @@ const FormCustomerPersonal = () => {
                 </div>
               </div>
             </div>
-
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>
                 <div className='mn:col-span-12 lg:col-span-6'>
@@ -173,7 +241,6 @@ const FormCustomerPersonal = () => {
                 </div>
               </div>
             </div>
-
             <Controller
               control={control}
               name='date_of_birth'

@@ -56,7 +56,7 @@ export const customerSchema = yup.object({
   name: yup
     .string()
     .required('Name is required')
-    .min(4, 'Name min length is 4 characters')
+    .min(3, 'Name min length is 4 characters')
     .max(160, 'Name maximum length is 160 characters'),
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
   consultantor_id: yup.string().optional(),

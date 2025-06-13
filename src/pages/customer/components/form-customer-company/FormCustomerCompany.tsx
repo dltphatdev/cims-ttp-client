@@ -56,6 +56,7 @@ const FormCustomerCompany = () => {
     handleSubmit,
     setError,
     watch,
+    reset,
     setValue,
     formState: { errors }
   } = useForm<FormData>({
@@ -86,7 +87,7 @@ const FormCustomerCompany = () => {
   const consultantorId = watch('consultantor_id')
 
   const createCustomerMutation = useMutation({
-    mutationFn: customerApi.createCustomer
+    mutationFn: customerApi.createCustomerCompany
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFile
@@ -97,17 +98,22 @@ const FormCustomerCompany = () => {
       let attachmentName = fileAttachment
       if (file) {
         const form = new FormData()
-        form.append('file', file)
+        form.append('files', file)
         const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
         attachmentName = uploadRes.data.data.filename
         setValue('attachment', attachmentName)
       }
-      const payload = {
-        ...data,
-        date_of_birth: data.date_of_birth?.toISOString(),
-        attachment: attachmentName,
-        consultantor_id: Number(consultantorId)
-      }
+      const payload = consultantorId
+        ? {
+            ...data,
+            attachment: attachmentName,
+            consultantor_id: Number(consultantorId),
+            assign_at: new Date()?.toISOString()
+          }
+        : {
+            ...data,
+            attachment: attachmentName
+          }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -120,6 +126,7 @@ const FormCustomerCompany = () => {
       const res = await createCustomerMutation.mutateAsync(payload)
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-company/${idCustomerCreated}`)
+      reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -170,11 +177,11 @@ const FormCustomerCompany = () => {
                 <div className='mn:col-span-12 lg:col-span-6'>
                   <InputMain
                     register={register}
-                    name='email'
-                    labelValue={t('Email')}
-                    type='email'
-                    placeholder={t('Email')}
-                    errorMessage={errors.email?.message}
+                    name='tax_code'
+                    labelValue={t('Tax code')}
+                    type='text'
+                    placeholder={t('Tax code')}
+                    errorMessage={errors.tax_code?.message}
                   />
                 </div>
                 <div className='mn:col-span-12 lg:col-span-6'>
@@ -204,11 +211,11 @@ const FormCustomerCompany = () => {
                 <div className='mn:col-span-12 lg:col-span-6'>
                   <InputMain
                     register={register}
-                    name='tax_code'
-                    labelValue={t('Tax code')}
-                    type='text'
-                    placeholder={t('Tax code')}
-                    errorMessage={errors.tax_code?.message}
+                    name='email'
+                    labelValue={t('Email')}
+                    type='email'
+                    placeholder={t('Email')}
+                    errorMessage={errors.email?.message}
                   />
                 </div>
               </div>

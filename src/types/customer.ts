@@ -67,7 +67,7 @@ export interface GetListCustomer {
   totalPages: number
 }
 
-export interface CreateCustomerReqBody {
+export interface CreateCustomerCompanyReqBody {
   name: string
   type?: CustomerType
   consultantor_id?: string | number
@@ -75,7 +75,6 @@ export interface CreateCustomerReqBody {
   website?: string
   surrogate?: string
   address_company?: string
-  address_personal?: string
   phone?: string
   email?: string
   contact_name?: string
@@ -83,7 +82,62 @@ export interface CreateCustomerReqBody {
   verify?: CustomerVerify
   attachment?: string
   note?: string
-  assign_at?: string
-  date_of_birth?: string
+  assign_at?: Date | string
+}
+export interface CreateCustomerPersonalReqBody {
+  name: string
+  type?: CustomerType
+  consultantor_id?: string | number
+  address_personal?: string
+  phone?: string
+  email?: string
+  status?: CustomerStatus
+  verify?: CustomerVerify
+  attachment?: string
+  note?: string
+  assign_at?: Date | string
+  date_of_birth?: Date | string
   gender?: CustomerGender
+}
+
+export interface UpdateCustomerCompanyReqBody
+  extends Pick<
+    CreateCustomerCompanyReqBody,
+    | 'type'
+    | 'consultantor_id'
+    | 'tax_code'
+    | 'website'
+    | 'surrogate'
+    | 'address_company'
+    | 'phone'
+    | 'email'
+    | 'contact_name'
+    | 'status'
+    | 'verify'
+    | 'attachment'
+    | 'note'
+    | 'assign_at'
+  > {
+  id: number
+  name?: string
+}
+
+export interface UpdateCustomerPersonalReqBody
+  extends Pick<
+    CreateCustomerPersonalReqBody,
+    | 'type'
+    | 'consultantor_id'
+    | 'address_personal'
+    | 'phone'
+    | 'email'
+    | 'status'
+    | 'verify'
+    | 'attachment'
+    | 'note'
+    | 'assign_at'
+    | 'date_of_birth'
+    | 'gender'
+  > {
+  id: number
+  name?: string
 }
