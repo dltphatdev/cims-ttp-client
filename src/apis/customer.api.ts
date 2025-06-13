@@ -7,7 +7,20 @@ const customerApi = {
     return http.get<SuccessResponseApi<GetListCustomer>>('customer', { params })
   },
   createCustomer(body: CreateCustomerReqBody) {
-    return http.post<SuccessResponseApi<{ id: number }>>('customer/create', body)
+    return http.post<{ id: number; message: string }>('customer/create', body)
+  },
+  uploadFile(body: FormData) {
+    return http.post<
+      SuccessResponseApi<{
+        url: string
+        filename: string
+        type: 'image' | 'video' | 'file'
+      }>
+    >('customer/upload-file', body, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 

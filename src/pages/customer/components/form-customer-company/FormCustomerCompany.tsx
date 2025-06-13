@@ -12,11 +12,15 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type Resolver } from 'react-hook-form'
 import { useContext, useMemo, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
-import AddSale from '@/components/add-sale'
+import AddTagUser from '@/components/add-tag-user'
 import FileAttachment from '@/components/file-attachment'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { useMutation } from '@tanstack/react-query'
+import customerApi from '@/apis/customer.api'
+import httpStatusCode from '@/constants/httpStatusCode'
+import { useNavigate } from 'react-router-dom'
 
 const formData = customerSchema.pick([
   'name',
@@ -42,6 +46,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const FormCustomerCompany = () => {
+  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const [file, setFile] = useState<File>()
   const { profile } = useContext(AppContext)
@@ -49,6 +54,9 @@ const FormCustomerCompany = () => {
   const {
     register,
     handleSubmit,
+    setError,
+    watch,
+    setValue,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
@@ -74,8 +82,62 @@ const FormCustomerCompany = () => {
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
-  const handleSubmitForm = handleSubmit((data) => console.log(data))
+  const fileAttachment = watch('attachment')
+  const consultantorId = watch('consultantor_id')
+
+  const createCustomerMutation = useMutation({
+    mutationFn: customerApi.createCustomer
+  })
+  const uploadFileAttachmentMutation = useMutation({
+    mutationFn: customerApi.uploadFile
+  })
+
+  const handleSubmitForm = handleSubmit(async (data) => {
+    try {
+      let attachmentName = fileAttachment
+      if (file) {
+        const form = new FormData()
+        form.append('file', file)
+        const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
+        attachmentName = uploadRes.data.data.filename
+        setValue('attachment', attachmentName)
+      }
+      const payload = {
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        attachment: attachmentName,
+        consultantor_id: Number(consultantorId)
+      }
+      for (const key in payload) {
+        if (
+          payload[key as keyof typeof payload] === undefined ||
+          payload[key as keyof typeof payload] === '' ||
+          payload[key as keyof typeof payload] === null
+        ) {
+          delete payload[key as keyof typeof payload]
+        }
+      }
+      const res = await createCustomerMutation.mutateAsync(payload)
+      const idCustomerCreated = res.data.id
+      navigate(`/customer/update-personal/${idCustomerCreated}`)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.status === httpStatusCode.UnprocessableEntity) {
+        const formError = error.response?.data?.errors
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            setError(key as keyof FormData, {
+              message: formError[key as keyof FormData]['msg'],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
+  })
+
   const handleChangeFile = (file?: File) => setFile(file)
+
   return (
     <form onSubmit={handleSubmitForm} noValidate>
       <TabsContent value='Company'>
@@ -101,7 +163,7 @@ const FormCustomerCompany = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <AddSale />
+              <AddTagUser onExportId={(id) => setValue('consultantor_id', id.toString())} />
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>

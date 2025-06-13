@@ -1,4 +1,4 @@
-import AddSale from '@/components/add-sale'
+import AddTagUser from '@/components/add-tag-user'
 import DateSelect from '@/components/date-select'
 import FileAttachment from '@/components/file-attachment'
 import GenderSelect from '@/components/gender-select'
@@ -117,7 +117,7 @@ const FormCustomerPersonal = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <AddSale />
+              <AddTagUser />
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>

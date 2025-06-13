@@ -5,21 +5,46 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import type { GetUsersParams } from '@/types/user'
+import { useQueryParams } from '@/hooks/use-query-params'
+import { isUndefined, omitBy } from 'lodash'
+import userApi from '@/apis/user.api'
+import { useQuery } from '@tanstack/react-query'
 
-export default function AddSale() {
+interface Props {
+  onExportId?: (value: number) => void
+}
+
+export default function AddTagUser({ onExportId }: Props) {
   const { t } = useTranslation('admin')
-  const consultants = ['Anh Minh', 'Chị Lan', 'Anh Dũng', 'Chị Huyền']
   const [selectedList, setSelectedList] = useState<string[]>([])
   const [open, setOpen] = useState<boolean>(false)
+  const queryParams: GetUsersParams = useQueryParams()
+  const queryConfig: GetUsersParams = omitBy(
+    {
+      page: queryParams.page,
+      limit: queryParams.limit,
+      fullname: queryParams.fullname as string[],
+      phone: queryParams.phone as string[]
+    },
+    isUndefined
+  )
+  const { data: userData } = useQuery({
+    queryKey: ['users', queryConfig],
+    queryFn: () => userApi.getUsers(queryConfig)
+  })
 
-  const handleSelect = (name: string) => {
+  const handleSelect = ({ name, id }: { name: string; id: number }) => {
     setSelectedList([name])
     setOpen(false)
+    onExportId?.(id)
   }
 
   const handleRemove = (name: string) => {
-    setSelectedList((prev) => prev.filter((n) => n !== name))
+    setSelectedList((prev) => prev.filter((item) => item !== name))
   }
+
+  const users = userData?.data?.data?.users
   return (
     <div className='space-y-2'>
       <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
@@ -60,17 +85,18 @@ export default function AddSale() {
             </DialogHeader>
             <ScrollArea className='h-40'>
               <div className='grid gap-2'>
-                {consultants.map((name) => (
-                  <Button
-                    key={name}
-                    variant='outline'
-                    className='justify-start'
-                    onClick={() => handleSelect(name)}
-                    disabled={selectedList.includes(name)}
-                  >
-                    {name}
-                  </Button>
-                ))}
+                {users &&
+                  users.map((user) => (
+                    <Button
+                      key={user.id}
+                      variant='outline'
+                      className='justify-start'
+                      onClick={() => handleSelect({ id: user.id, name: user.fullname as string })}
+                      disabled={selectedList.includes(user.fullname as string)}
+                    >
+                      {user.fullname}
+                    </Button>
+                  ))}
               </div>
             </ScrollArea>
           </DialogContent>

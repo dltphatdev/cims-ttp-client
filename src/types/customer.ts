@@ -69,8 +69,8 @@ export interface GetListCustomer {
 
 export interface CreateCustomerReqBody {
   name: string
-  type: CustomerType
-  consultantor_id?: number
+  type?: CustomerType
+  consultantor_id?: string | number
   tax_code?: string
   website?: string
   surrogate?: string
