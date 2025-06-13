@@ -1,11 +1,17 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import CONFIG from '@/constants/config'
 import { UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
-const FileAttachment = () => {
+interface Props {
+  onChange?: (file?: File) => void
+}
+
+const FileAttachment = ({ onChange }: Props) => {
   const { t } = useTranslation('admin')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -14,21 +20,34 @@ const FileAttachment = () => {
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      setFile(selectedFile)
-    }
-  }
-
   const handleRemove = () => {
     setFile(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
+
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileFromLocal = e.target.files?.[0]
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ]
+    if (
+      fileFromLocal &&
+      (fileFromLocal.size >= CONFIG.MAX_FILE_ATTACHMENT || !allowedTypes.includes(fileFromLocal.type))
+    ) {
+      toast.error(t('Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx'))
+    } else {
+      onChange?.(fileFromLocal)
+    }
+  }
+
   return (
-    <div className='flex flex-col space-y-4 w-fit'>
+    <div className='flex flex-col space-y-4 w-fit mb-2'>
       <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
         File upload <span className='text-red-500'>*</span>
       </Label>
@@ -46,7 +65,11 @@ const FileAttachment = () => {
         </Button>
       )}
 
-      <Input type='file' ref={fileInputRef} onChange={handleFileChange} className='hidden' />
+      <Input type='file' ref={fileInputRef} onChange={handleChangeFile} className='hidden' />
+      <div className='mb-1'>
+        {t('Maximum file size upload:')} <strong className='text-red-500'>15 MB</strong>
+      </div>
+      <strong>{t('Allow file: .docs | .pp | .pdf | .xlsx')}</strong>
     </div>
   )
 }

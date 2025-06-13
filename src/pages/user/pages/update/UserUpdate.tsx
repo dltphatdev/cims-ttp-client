@@ -33,18 +33,19 @@ const formData = userSchema.pick([
 
 type FormData = yup.InferType<typeof formData>
 
+const roles = [
+  {
+    role_type: ADMIN,
+    role_value: 'Admin'
+  },
+  {
+    role_type: SALE,
+    role_value: 'Sale'
+  }
+]
+
 export default function UserUpdate() {
   const { t } = useTranslation('admin')
-  const roles = [
-    {
-      role_type: ADMIN,
-      role_value: 'Admin'
-    },
-    {
-      role_type: SALE,
-      role_value: 'Sale'
-    }
-  ]
   const {
     register,
     control,

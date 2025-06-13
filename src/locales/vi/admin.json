@@ -71,5 +71,14 @@
   "Address company": "Địa chỉ công ty",
   "no require": "không bắt buộc",
   "Note": "Ghi chú",
-  "Select file": "Chọn tệp"
+  "Select file": "Chọn tệp",
+  "Create customer": "Thêm mới khách hàng",
+  "Male": "Nam",
+  "Female": "Nữ",
+  "Select gender": "Giới tính",
+  "Address personal": "Địa chỉ cá nhân",
+  "Update customer": "Cập nhật khách hàng",
+  "Maximum file size upload:": "Kích thước tệp tải lên tối đa:",
+  "Allow file: .docs | .pp | .pdf | .xlsx": "File cho phép upload: .docs | .pp | .pdf | .xlsx",
+  "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Kích thước tệp tối đa 15MB. Định dạng: .docs | .pp | .pdf | .xlsx"
 }

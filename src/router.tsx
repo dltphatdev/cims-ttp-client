@@ -10,7 +10,6 @@ const Dashboard = lazy(() => import('@/pages/dashboard'))
 const NotFound = lazy(() => import('@/pages/not-found'))
 const CustomerRead = lazy(() => import('@/pages/customer/pages/read'))
 const CustomerCreate = lazy(() => import('@/pages/customer/pages/create'))
-const CustomerUpdate = lazy(() => import('@/pages/customer/pages/update'))
 const EffectiveRead = lazy(() => import('@/pages/effective/pages/read'))
 const EffectiveCreate = lazy(() => import('@/pages/effective/pages/create'))
 const EffectiveUpdate = lazy(() => import('@/pages/effective/pages/update'))
@@ -22,6 +21,8 @@ const UserCreate = lazy(() => import('@/pages/user/pages/create'))
 const UserProfile = lazy(() => import('@/pages/user/pages/profile'))
 const UserUpdate = lazy(() => import('@/pages/user/pages/update'))
 const ChangePassword = lazy(() => import('@/pages/user/pages/change-password'))
+const CustomerUpdateCompany = lazy(() => import('@/pages/customer/pages/update/pages/CustomerUpdateCompany'))
+const CustomerUpdatePersonal = lazy(() => import('@/pages/customer/pages/update/pages/CustomerUpdatePersonal'))
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -113,10 +114,18 @@ const Router = () => {
               )
             },
             {
-              path: PATH.CUSTOMER_UPDATE,
+              path: PATH.CUSTOMER_UPDATE_COMPANY,
               element: (
                 <Suspense>
-                  <CustomerUpdate />
+                  <CustomerUpdateCompany />
+                </Suspense>
+              )
+            },
+            {
+              path: PATH.CUSTOMER_UPDATE_PERSONAL,
+              element: (
+                <Suspense>
+                  <CustomerUpdatePersonal />
                 </Suspense>
               )
             },

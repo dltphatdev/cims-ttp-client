@@ -6,8 +6,10 @@ import { useState, type ForwardRefExoticComponent, type InputHTMLAttributes } fr
 import type { RegisterOptions, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
+  classNameWrapper?: string
   errorMessage?: string
   classNameErrorMessage?: string
+  classNameLabel?: string
   labelValue?: string
   labelIcon?: ForwardRefExoticComponent<LucideProps>
   labelIconClassname?: string
@@ -20,7 +22,10 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function InputMain({
   labelValue,
+  classNameWrapper = 'space-y-2 mn:mb-2 lg:mb-3',
+  classNameLabel = 'text-sm font-medium light:text-gray-700',
   classNameErrorMessage = 'text-red-600 text-sm',
+  className = 'h-12 border-gray-200',
   register,
   rules,
   type,
@@ -34,14 +39,14 @@ export default function InputMain({
   const handleToggleEye = () => setOpenEye((prevState) => !prevState)
   const handleType = () => (type === 'password' && openEye ? 'text' : type)
   return (
-    <div className='space-y-2 mn:mb-2 lg:mb-3'>
-      <Label htmlFor={name} className='text-sm font-medium light:text-gray-700'>
+    <div className={classNameWrapper}>
+      <Label htmlFor={name} className={classNameLabel}>
         {labelValue} <span className='text-red-500'>*</span>
       </Label>
       <div className='relative z-2'>
         <Input
           type={handleType()}
-          className={clsx('h-12 border-gray-200', {
+          className={clsx(className, {
             'bg-gray-100 cursor-not-allowed focus:outline-none': disabled
           })}
           disabled={disabled}

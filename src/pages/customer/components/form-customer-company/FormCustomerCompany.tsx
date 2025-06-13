@@ -10,7 +10,7 @@ import { UNVERIFIED } from '@/constants/customerVerify'
 import { MALE } from '@/constants/gender'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, type Resolver } from 'react-hook-form'
-import { useContext } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
 import AddSale from '@/components/add-sale'
 import FileAttachment from '@/components/file-attachment'
@@ -42,8 +42,10 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const FormCustomerCompany = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
+  const [file, setFile] = useState<File>()
   const { profile } = useContext(AppContext)
+  const fileNameUpload = useMemo(() => (file ? file.name : ''), [file])
   const {
     register,
     handleSubmit,
@@ -73,7 +75,7 @@ const FormCustomerCompany = () => {
   })
 
   const handleSubmitForm = handleSubmit((data) => console.log(data))
-
+  const handleChangeFile = (file?: File) => setFile(file)
   return (
     <form onSubmit={handleSubmitForm} noValidate>
       <TabsContent value='Company'>
@@ -174,7 +176,12 @@ const FormCustomerCompany = () => {
               </div>
             </div>
             <div className='grid gap-3'>
-              <FileAttachment />
+              <FileAttachment onChange={handleChangeFile} />
+              {fileNameUpload && (
+                <div>
+                  <strong>File name choosen:</strong> <span className='underline'>{fileNameUpload}</span>
+                </div>
+              )}
             </div>
             <div className='grid gap-3'>
               <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
@@ -185,7 +192,7 @@ const FormCustomerCompany = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button>Save changes</Button>
+            <Button>{t('Save')}</Button>
           </CardFooter>
         </Card>
       </TabsContent>

@@ -71,5 +71,14 @@
   "Address company": "Address company",
   "no require": "no require",
   "Note": "Note",
-  "Select file": "Select file"
+  "Select file": "Select file",
+  "Create customer": "Create customer",
+  "Male": "Male",
+  "Female": "Female",
+  "Select gender": "Select gender",
+  "Address personal": "Address personal",
+  "Update customer": "Update customer",
+  "Maximum file size upload:": "Maximum file size upload:",
+  "Allow file: .docs | .pp | .pdf | .xlsx": "Allow file: .docs | .pp | .pdf | .xlsx",
+  "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx"
 }
