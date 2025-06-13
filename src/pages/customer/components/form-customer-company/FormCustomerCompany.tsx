@@ -119,7 +119,7 @@ const FormCustomerCompany = () => {
       }
       const res = await createCustomerMutation.mutateAsync(payload)
       const idCustomerCreated = res.data.id
-      navigate(`/customer/update-personal/${idCustomerCreated}`)
+      navigate(`/customer/update-company/${idCustomerCreated}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
