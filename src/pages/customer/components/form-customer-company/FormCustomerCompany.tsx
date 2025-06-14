@@ -13,7 +13,6 @@ import { useForm, type Resolver } from 'react-hook-form'
 import { useContext, useMemo, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
 import AddTagUser from '@/components/add-tag-user'
-import FileAttachment from '@/components/file-attachment'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -21,6 +20,7 @@ import { useMutation } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { useNavigate } from 'react-router-dom'
+import FileUploadMultiple from '@/components/file-upload-multiple'
 
 const formData = customerSchema.pick([
   'name',
@@ -48,9 +48,10 @@ type FormData = yup.InferType<typeof formData>
 const FormCustomerCompany = () => {
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
-  const [file, setFile] = useState<File>()
+  const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
-  const fileNameUpload = useMemo(() => (file ? file.name : ''), [file])
+  const fileNameUpload = useMemo(() => (files ? Array.from(files).map((file) => file.name) : []), [files])
+  console.log(fileNameUpload)
   const {
     register,
     handleSubmit,
@@ -96,12 +97,12 @@ const FormCustomerCompany = () => {
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
       let attachmentName = fileAttachment
-      if (file) {
-        const form = new FormData()
-        form.append('files', file)
-        const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
-        attachmentName = uploadRes.data.data.filename
-        setValue('attachment', attachmentName)
+      if (files) {
+        // const form = new FormData()
+        // form.append('files', file)
+        // const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
+        // attachmentName = uploadRes.data.data.filename
+        // setValue('attachment', attachmentName)
       }
       const payload = consultantorId
         ? {
@@ -143,7 +144,7 @@ const FormCustomerCompany = () => {
     }
   })
 
-  const handleChangeFile = (file?: File) => setFile(file)
+  const handleChangeFile = (file?: File[]) => setFiles(file)
 
   return (
     <form onSubmit={handleSubmitForm} noValidate>
@@ -245,12 +246,13 @@ const FormCustomerCompany = () => {
               </div>
             </div>
             <div className='grid gap-3'>
-              <FileAttachment onChange={handleChangeFile} />
+              {/* <FileAttachment onChange={handleChangeFile} />
               {fileNameUpload && (
                 <div>
                   <strong>File name choosen:</strong> <span className='underline'>{fileNameUpload}</span>
                 </div>
-              )}
+              )} */}
+              <FileUploadMultiple onChange={handleChangeFile} />
             </div>
             <div className='grid gap-3'>
               <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
