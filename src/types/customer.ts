@@ -72,6 +72,7 @@ export interface CreateCustomerCompanyReqBody {
   type?: CustomerType
   consultantor_id?: string | number
   tax_code?: string
+  cccd?: string
   website?: string
   surrogate?: string
   address_company?: string
@@ -80,7 +81,7 @@ export interface CreateCustomerCompanyReqBody {
   contact_name?: string
   status?: CustomerStatus
   verify?: CustomerVerify
-  attachment?: string
+  attachments?: string[]
   note?: string
   assign_at?: Date | string
 }
@@ -93,11 +94,12 @@ export interface CreateCustomerPersonalReqBody {
   email?: string
   status?: CustomerStatus
   verify?: CustomerVerify
-  attachment?: string
+  attachments?: string[]
   note?: string
   assign_at?: Date | string
   date_of_birth?: Date | string
   gender?: CustomerGender
+  cccd?: string
 }
 
 export interface UpdateCustomerCompanyReqBody
@@ -114,7 +116,7 @@ export interface UpdateCustomerCompanyReqBody
     | 'contact_name'
     | 'status'
     | 'verify'
-    | 'attachment'
+    | 'attachments'
     | 'note'
     | 'assign_at'
   > {
@@ -132,7 +134,7 @@ export interface UpdateCustomerPersonalReqBody
     | 'email'
     | 'status'
     | 'verify'
-    | 'attachment'
+    | 'attachments'
     | 'note'
     | 'assign_at'
     | 'date_of_birth'

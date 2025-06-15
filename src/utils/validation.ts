@@ -61,6 +61,7 @@ export const customerSchema = yup.object({
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
   consultantor_id: yup.string().optional(),
   tax_code: yup.string().max(13, 'Tax code maximum length is 13 characters').optional(),
+  cccd: yup.string().max(12, 'Citizen identification card maximum length is 12 characters').optional(),
   website: yup.string().max(50, 'Website maximum length is 50 characters').optional(),
   surrogate: yup.string().max(160, 'Surrogate maximum length is 160 characters').optional(),
   address_company: yup.string().max(160, 'Address company maximum length is 160 characters').optional(),
@@ -70,7 +71,10 @@ export const customerSchema = yup.object({
   contact_name: yup.string().max(10, 'Contact name maximum length is 10 characters').optional(),
   status: yup.string().oneOf([DEACTIVATED, ACTIVE], 'Invalid customer status').optional(),
   verify: yup.string().oneOf([UNVERIFIED_CUSTOMER, VERIFIED_CUSTOMER], 'Invalid verify customer').optional(),
-  attachment: yup.string().max(255, 'Attachment maximum length is 255 characters').optional(),
+  attachments: yup
+    .array()
+    .of(yup.string().max(255, 'Each file maximum 255 characters').max(5, 'Only attach up to 5 files'))
+    .optional(),
   note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
   assign_at: yup.string().optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),

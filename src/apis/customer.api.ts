@@ -17,20 +17,7 @@ const customerApi = {
   createCustomerPersonal(body: CreateCustomerPersonalReqBody) {
     return http.post<{ id: number; message: string }>('customer/create', body)
   },
-  uploadFile(body: FormData) {
-    return http.post<
-      SuccessResponseApi<{
-        url: string
-        filename: string
-        type: 'image' | 'video' | 'file'
-      }>
-    >('customer/upload-file', body, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-  },
-  uploadFiles(body: { files: File[]; id: number }) {
+  uploadFiles(body: FormData) {
     return http.post<
       SuccessResponseApi<
         {

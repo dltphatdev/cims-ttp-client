@@ -83,10 +83,6 @@ export default function FileUploadMultiple({ onChange }: Props) {
     }
 
     if (validFiles.length > 0) {
-      // console.log(
-      //   'Valid files:',
-      //   validFiles.map((f) => f.name)
-      // )
       onChange?.(validFiles)
       setOpen(true)
       setFiles(validFiles)

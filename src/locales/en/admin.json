@@ -80,5 +80,6 @@
   "Update customer": "Update customer",
   "Maximum file size upload:": "Maximum file size upload:",
   "Allow file: .docs | .pp | .pdf | .xlsx": "Allow file: .docs | .pp | .pdf | .xlsx",
-  "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx"
+  "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx",
+  "CCCD": "Citizen identification card"
 }

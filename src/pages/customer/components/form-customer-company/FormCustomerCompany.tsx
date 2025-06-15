@@ -9,8 +9,8 @@ import { DEACTIVATED } from '@/constants/customerStatus'
 import { UNVERIFIED } from '@/constants/customerVerify'
 import { MALE } from '@/constants/gender'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm, type Resolver } from 'react-hook-form'
-import { useContext, useMemo, useState } from 'react'
+import { Controller, useForm, type Resolver } from 'react-hook-form'
+import { useContext, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
 import AddTagUser from '@/components/add-tag-user'
 import { Label } from '@/components/ui/label'
@@ -21,6 +21,7 @@ import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { useNavigate } from 'react-router-dom'
 import FileUploadMultiple from '@/components/file-upload-multiple'
+import InputNumber from '@/components/input-number'
 
 const formData = customerSchema.pick([
   'name',
@@ -36,11 +37,12 @@ const formData = customerSchema.pick([
   'contact_name',
   'status',
   'verify',
-  'attachment',
+  'attachments',
   'note',
   'assign_at',
   'date_of_birth',
-  'gender'
+  'gender',
+  'cccd'
 ])
 
 type FormData = yup.InferType<typeof formData>
@@ -50,8 +52,6 @@ const FormCustomerCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
-  const fileNameUpload = useMemo(() => (files ? Array.from(files).map((file) => file.name) : []), [files])
-  console.log(fileNameUpload)
   const {
     register,
     handleSubmit,
@@ -59,6 +59,7 @@ const FormCustomerCompany = () => {
     watch,
     reset,
     setValue,
+    control,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
@@ -75,45 +76,48 @@ const FormCustomerCompany = () => {
       contact_name: '',
       status: DEACTIVATED,
       verify: UNVERIFIED,
-      attachment: '',
+      attachments: [],
       note: '',
       assign_at: '',
       date_of_birth: new Date(1990, 0, 1),
-      gender: MALE
+      gender: MALE,
+      cccd: ''
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
-  const fileAttachment = watch('attachment')
+  const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
 
   const createCustomerMutation = useMutation({
     mutationFn: customerApi.createCustomerCompany
   })
   const uploadFileAttachmentMutation = useMutation({
-    mutationFn: customerApi.uploadFile
+    mutationFn: customerApi.uploadFiles
   })
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      let attachmentName = fileAttachment
+      let attachments = filesAttachment
       if (files) {
-        // const form = new FormData()
-        // form.append('files', file)
-        // const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
-        // attachmentName = uploadRes.data.data.filename
-        // setValue('attachment', attachmentName)
+        const form = new FormData()
+        Array.from(files).forEach((file) => {
+          form.append('attachments', file)
+        })
+        const uploadResponeArray = await uploadFileAttachmentMutation.mutateAsync(form)
+        attachments = uploadResponeArray.data.data?.map((file) => file.filename)
+        setValue('attachments', attachments)
       }
       const payload = consultantorId
         ? {
             ...data,
-            attachment: attachmentName,
+            attachments: attachments as string[] | undefined,
             consultantor_id: Number(consultantorId),
             assign_at: new Date()?.toISOString()
           }
         : {
             ...data,
-            attachment: attachmentName
+            attachments: attachments as string[] | undefined
           }
       for (const key in payload) {
         if (
@@ -144,7 +148,7 @@ const FormCustomerCompany = () => {
     }
   })
 
-  const handleChangeFile = (file?: File[]) => setFiles(file)
+  const handleChangeFiles = (files?: File[]) => setFiles(files)
 
   return (
     <form onSubmit={handleSubmitForm} noValidate>
@@ -159,6 +163,22 @@ const FormCustomerCompany = () => {
                 type='text'
                 placeholder={t('Name customer')}
                 errorMessage={errors.name?.message}
+              />
+            </div>
+            <div className='grid gap-3'>
+              <Controller
+                control={control}
+                name='cccd'
+                render={({ field }) => (
+                  <InputNumber
+                    type='text'
+                    placeholder={t('CCCD')}
+                    labelValue={t('CCCD')}
+                    {...field}
+                    onChange={field.onChange}
+                    errorMessage={errors.cccd?.message}
+                  />
+                )}
               />
             </div>
             <div className='grid gap-3 select-none'>
@@ -176,23 +196,35 @@ const FormCustomerCompany = () => {
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>
                 <div className='mn:col-span-12 lg:col-span-6'>
-                  <InputMain
-                    register={register}
+                  <Controller
+                    control={control}
                     name='tax_code'
-                    labelValue={t('Tax code')}
-                    type='text'
-                    placeholder={t('Tax code')}
-                    errorMessage={errors.tax_code?.message}
+                    render={({ field }) => (
+                      <InputNumber
+                        type='text'
+                        placeholder={t('Tax code')}
+                        labelValue={t('Tax code')}
+                        {...field}
+                        onChange={field.onChange}
+                        errorMessage={errors.tax_code?.message}
+                      />
+                    )}
                   />
                 </div>
                 <div className='mn:col-span-12 lg:col-span-6'>
-                  <InputMain
-                    register={register}
+                  <Controller
+                    control={control}
                     name='phone'
-                    labelValue={t('Phone')}
-                    type='number'
-                    placeholder={t('Phone')}
-                    errorMessage={errors.phone?.message}
+                    render={({ field }) => (
+                      <InputNumber
+                        type='text'
+                        placeholder={t('Phone')}
+                        labelValue={t('Phone')}
+                        {...field}
+                        onChange={field.onChange}
+                        errorMessage={errors.phone?.message}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -246,13 +278,7 @@ const FormCustomerCompany = () => {
               </div>
             </div>
             <div className='grid gap-3'>
-              {/* <FileAttachment onChange={handleChangeFile} />
-              {fileNameUpload && (
-                <div>
-                  <strong>File name choosen:</strong> <span className='underline'>{fileNameUpload}</span>
-                </div>
-              )} */}
-              <FileUploadMultiple onChange={handleChangeFile} />
+              <FileUploadMultiple onChange={handleChangeFiles} />
             </div>
             <div className='grid gap-3'>
               <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>

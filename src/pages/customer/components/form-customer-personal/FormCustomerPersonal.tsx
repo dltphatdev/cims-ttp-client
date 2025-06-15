@@ -1,9 +1,10 @@
 import customerApi from '@/apis/customer.api'
 import AddTagUser from '@/components/add-tag-user'
 import DateSelect from '@/components/date-select'
-import FileAttachment from '@/components/file-attachment'
+import FileUploadMultiple from '@/components/file-upload-multiple'
 import GenderSelect from '@/components/gender-select'
 import InputMain from '@/components/input-main'
+import InputNumber from '@/components/input-number'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -18,7 +19,7 @@ import { AppContext } from '@/contexts/app-context'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -49,20 +50,20 @@ const formData = customerSchema.pick([
   'contact_name',
   'status',
   'verify',
-  'attachment',
+  'attachments',
   'note',
   'assign_at',
   'date_of_birth',
-  'gender'
+  'gender',
+  'cccd'
 ])
 
 type FormData = yup.InferType<typeof formData>
 const FormCustomerPersonal = () => {
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
-  const [file, setFile] = useState<File>()
+  const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
-  const fileNameUpload = useMemo(() => (file ? file.name : ''), [file])
   const {
     register,
     handleSubmit,
@@ -87,7 +88,7 @@ const FormCustomerPersonal = () => {
       contact_name: '',
       status: DEACTIVATED,
       verify: UNVERIFIED,
-      attachment: '',
+      attachments: [],
       note: '',
       assign_at: '',
       date_of_birth: new Date(1990, 0, 1),
@@ -96,39 +97,40 @@ const FormCustomerPersonal = () => {
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
-  const fileAttachment = watch('attachment')
+  const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
 
   const createCustomerMutation = useMutation({
     mutationFn: customerApi.createCustomerPersonal
   })
   const uploadFileAttachmentMutation = useMutation({
-    mutationFn: customerApi.uploadFile
+    mutationFn: customerApi.uploadFiles
   })
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      let attachmentName = fileAttachment
-
-      if (file) {
+      let attachments = filesAttachment
+      if (files) {
         const form = new FormData()
-        form.append('file', file)
-        const uploadRes = await uploadFileAttachmentMutation.mutateAsync(form)
-        attachmentName = uploadRes.data.data.filename
-        setValue('attachment', attachmentName)
+        Array.from(files).forEach((file) => {
+          form.append('attachments', file)
+        })
+        const uploadResponeArray = await uploadFileAttachmentMutation.mutateAsync(form)
+        attachments = uploadResponeArray.data.data?.map((file) => file.filename)
+        setValue('attachments', attachments)
       }
 
       const payload = consultantorId
         ? {
             ...data,
             date_of_birth: data.date_of_birth?.toISOString(),
-            attachment: attachmentName,
+            attachments: attachments as string[] | undefined,
             consultantor_id: Number(consultantorId),
             assign_at: new Date()?.toISOString()
           }
         : {
             ...data,
             date_of_birth: data.date_of_birth?.toISOString(),
-            attachment: attachmentName
+            attachments: attachments as string[] | undefined
           }
       for (const key in payload) {
         if (
@@ -159,7 +161,7 @@ const FormCustomerPersonal = () => {
     }
   })
 
-  const handleChangeFile = (file?: File) => setFile(file)
+  const handleChangeFiles = (files?: File[]) => setFiles(files)
 
   return (
     <form onSubmit={handleSubmitForm} noValidate>
@@ -174,6 +176,22 @@ const FormCustomerPersonal = () => {
                 type='text'
                 placeholder={t('Name customer')}
                 errorMessage={errors.name?.message}
+              />
+            </div>
+            <div className='grid gap-3'>
+              <Controller
+                control={control}
+                name='cccd'
+                render={({ field }) => (
+                  <InputNumber
+                    type='text'
+                    placeholder={t('CCCD')}
+                    labelValue={t('CCCD')}
+                    {...field}
+                    onChange={field.onChange}
+                    errorMessage={errors.cccd?.message}
+                  />
+                )}
               />
             </div>
             <div className='grid gap-3 select-none'>
@@ -201,13 +219,19 @@ const FormCustomerPersonal = () => {
                   />
                 </div>
                 <div className='mn:col-span-12 lg:col-span-6'>
-                  <InputMain
-                    register={register}
+                  <Controller
+                    control={control}
                     name='phone'
-                    labelValue={t('Phone')}
-                    type='number'
-                    placeholder={t('Phone')}
-                    errorMessage={errors.phone?.message}
+                    render={({ field }) => (
+                      <InputNumber
+                        type='text'
+                        placeholder={t('Phone')}
+                        labelValue={t('Phone')}
+                        {...field}
+                        onChange={field.onChange}
+                        errorMessage={errors.phone?.message}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -254,12 +278,7 @@ const FormCustomerPersonal = () => {
               )}
             />
             <div className='grid gap-3'>
-              <FileAttachment onChange={handleChangeFile} />
-              {fileNameUpload && (
-                <div>
-                  <strong>File name choosen:</strong> <span className='underline'>{fileNameUpload}</span>
-                </div>
-              )}
+              <FileUploadMultiple onChange={handleChangeFiles} />
             </div>
             <div className='grid gap-3'>
               <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
