@@ -1,6 +1,6 @@
 import type { TQueryConfig } from '@/types/query-config'
 
-type CustomerType = 'Personal' | 'Company'
+export type CustomerType = 'Personal' | 'Company'
 type CustomerVerify = 'Unverified' | 'Verified'
 type CustomerStatus = 'Active' | 'Deactivated'
 type CustomerGender = 'Male' | 'Female'
@@ -39,7 +39,9 @@ export interface Customer {
   } | null
   consultantor: {
     fullname: string
+    id: number
   } | null
+  attachments: { filename: string }[]
 }
 
 type Customers = Pick<
@@ -85,6 +87,7 @@ export interface CreateCustomerCompanyReqBody {
   note?: string
   assign_at?: Date | string
 }
+
 export interface CreateCustomerPersonalReqBody {
   name: string
   type?: CustomerType
@@ -120,7 +123,7 @@ export interface UpdateCustomerCompanyReqBody
     | 'note'
     | 'assign_at'
   > {
-  id: number
+  id: number | string
   name?: string
 }
 
@@ -140,6 +143,6 @@ export interface UpdateCustomerPersonalReqBody
     | 'date_of_birth'
     | 'gender'
   > {
-  id: number
+  id: number | string
   name?: string
 }

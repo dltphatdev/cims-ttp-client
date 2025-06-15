@@ -59,6 +59,7 @@ const formData = customerSchema.pick([
 ])
 
 type FormData = yup.InferType<typeof formData>
+
 const FormCustomerPersonal = () => {
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
@@ -100,7 +101,7 @@ const FormCustomerPersonal = () => {
   const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
 
-  const createCustomerMutation = useMutation({
+  const createCustomerPersonalMutation = useMutation({
     mutationFn: customerApi.createCustomerPersonal
   })
   const uploadFileAttachmentMutation = useMutation({
@@ -141,7 +142,7 @@ const FormCustomerPersonal = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      const res = await createCustomerMutation.mutateAsync(payload)
+      const res = await createCustomerPersonalMutation.mutateAsync(payload)
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-personal/${idCustomerCreated}`)
       reset()

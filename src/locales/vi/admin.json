@@ -81,5 +81,7 @@
   "Maximum file size upload:": "Kích thước tệp tải lên tối đa:",
   "Allow file: .docs | .pp | .pdf | .xlsx": "File cho phép upload: .docs | .pp | .pdf | .xlsx",
   "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Kích thước tệp tối đa 15MB. Định dạng: .docs | .pp | .pdf | .xlsx",
-  "CCCD": "Căn cước công dân"
+  "CCCD": "Căn cước công dân",
+  "Update customer personal": "Cập nhật khách hàng cá nhân",
+  "Update customer company": "Cập nhật khách hàng doanh nghiệp"
 }

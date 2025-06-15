@@ -2,8 +2,11 @@ import type { SuccessResponseApi } from '@/types/common'
 import type {
   CreateCustomerCompanyReqBody,
   CreateCustomerPersonalReqBody,
+  Customer,
   GetCustomersParams,
-  GetListCustomer
+  GetListCustomer,
+  UpdateCustomerCompanyReqBody,
+  UpdateCustomerPersonalReqBody
 } from '@/types/customer'
 import http from '@/utils/http'
 
@@ -31,6 +34,15 @@ const customerApi = {
         'Content-Type': 'multipart/form-data'
       }
     })
+  },
+  updateCustomerCompany(body: UpdateCustomerCompanyReqBody) {
+    return http.patch<{ message: string }>('customer/update-company', body)
+  },
+  updateCustomePersonal(body: UpdateCustomerPersonalReqBody) {
+    return http.patch<{ message: string }>('customer/update-personal', body)
+  },
+  getCustomerDetail(id: string) {
+    return http.get<SuccessResponseApi<Customer>>(`customer/detail/${id}`)
   }
 }
 

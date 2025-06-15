@@ -1,24 +1,36 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { GetUsersParams } from '@/types/user'
+import { useQuery } from '@tanstack/react-query'
 import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omitBy } from 'lodash'
 import userApi from '@/apis/user.api'
-import { useQuery } from '@tanstack/react-query'
+import type { GetUsersParams } from '@/types/user'
 
 interface Props {
   onExportId?: (value: number) => void
+  defaultValue?: { id: number; name: string }
 }
 
-export default function AddTagUser({ onExportId }: Props) {
+export default function AddTagUser({ onExportId, defaultValue }: Props) {
+  const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
-  const [selectedList, setSelectedList] = useState<string[]>([])
+  const [selectedUser, setSelectedUser] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
   const [open, setOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+    // Chỉ set giá trị và gọi onExportId khi mount lần đầu
+    if (!hasInitialized.current && defaultValue?.id && defaultValue?.name) {
+      setSelectedUser(defaultValue)
+      onExportId?.(defaultValue.id)
+      hasInitialized.current = true
+    }
+  }, [defaultValue, onExportId])
+
   const queryParams: GetUsersParams = useQueryParams()
   const queryConfig: GetUsersParams = omitBy(
     {
@@ -35,31 +47,32 @@ export default function AddTagUser({ onExportId }: Props) {
   })
 
   const handleSelect = ({ name, id }: { name: string; id: number }) => {
-    setSelectedList([name])
+    setSelectedUser({ name, id })
     setOpen(false)
     onExportId?.(id)
   }
 
-  const handleRemove = (name: string) => {
-    setSelectedList((prev) => prev.filter((item) => item !== name))
+  const handleRemove = () => {
+    setSelectedUser(null)
+    onExportId?.(0) // Nếu cần reset
   }
 
   const users = userData?.data?.data?.users
+
   return (
     <div className='space-y-2'>
       <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
         {t('Consultant')} <span className='text-red-500'>*</span>
       </label>
       <div className='flex items-center flex-wrap gap-2'>
-        {selectedList.map((name) => (
+        {selectedUser && (
           <Badge
-            key={name}
             variant='secondary'
-            className='text-blue-800 bg-gray-100 border-2 border-gray-200  px-3 py-2 rounded-md flex items-center gap-1'
+            className='text-blue-800 bg-gray-100 border-2 border-gray-200 px-3 py-2 rounded-md flex items-center gap-1'
           >
-            {name}
+            {selectedUser.name}
             <button
-              onClick={() => handleRemove(name)}
+              onClick={handleRemove}
               className='ml-2 text-gray-500 hover:text-red-500'
               aria-label='Remove'
               type='button'
@@ -67,7 +80,7 @@ export default function AddTagUser({ onExportId }: Props) {
               <X size={14} />
             </button>
           </Badge>
-        ))}
+        )}
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -92,7 +105,7 @@ export default function AddTagUser({ onExportId }: Props) {
                       variant='outline'
                       className='justify-start'
                       onClick={() => handleSelect({ id: user.id, name: user.fullname as string })}
-                      disabled={selectedList.includes(user.fullname as string)}
+                      disabled={selectedUser?.name === user.fullname}
                     >
                       {user.fullname}
                     </Button>

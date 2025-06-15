@@ -67,3 +67,5 @@ export default function checkRoleUser(role: string) {
 
 export const getAvatarUrl = (nameAvatar?: string) =>
   nameAvatar ? `${CONFIG.SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'
+
+export const getFilesUrl = (filename?: string) => (filename ? `${CONFIG.SERVER_URL}files/${filename}` : '')

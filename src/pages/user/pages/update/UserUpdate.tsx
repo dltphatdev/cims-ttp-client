@@ -2,6 +2,7 @@ import userApi from '@/apis/user.api'
 import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main'
+import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
 import SelectVerify from '@/components/select-verify'
 import httpStatusCode from '@/constants/httpStatusCode'
@@ -97,7 +98,7 @@ export default function UserUpdate() {
             if (formError) {
               Object.keys(formError).forEach((key) => {
                 setError(key as keyof FormData, {
-                  message: formError[key as keyof FormData]['msg']['message'],
+                  message: formError[key as keyof FormData]['msg'],
                   type: 'Server'
                 })
               })
@@ -111,7 +112,7 @@ export default function UserUpdate() {
       if (formError) {
         Object.keys(formError).forEach((key) => {
           setError(key as keyof FormData, {
-            message: formError[key]['msg']['message'],
+            message: formError[key]['msg'],
             type: 'Server'
           })
         })
@@ -213,13 +214,19 @@ export default function UserUpdate() {
                     />
                   )}
                 />
-                <InputMain
-                  register={register}
-                  labelValue={t('Phone')}
-                  type='number'
-                  placeholder={t('Phone')}
+                <Controller
+                  control={control}
                   name='phone'
-                  errorMessage={errors.phone?.message as string}
+                  render={({ field }) => (
+                    <InputNumber
+                      type='text'
+                      placeholder={t('Phone')}
+                      labelValue={t('Phone')}
+                      {...field}
+                      onChange={field.onChange}
+                      errorMessage={errors.phone?.message}
+                    />
+                  )}
                 />
                 <Controller
                   control={control}

@@ -1,4 +1,5 @@
 import customerApi from '@/apis/customer.api'
+import userApi from '@/apis/user.api'
 import FormattedDate from '@/components/formatted-date'
 import SearchMain from '@/components/search-main'
 import TableMain from '@/components/table-main'
@@ -14,40 +15,170 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { COMPANY, PERSONAL } from '@/constants/customerType'
+import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
+import httpStatusCode from '@/constants/httpStatusCode'
 import { LIMIT, PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
 import { CUSTOMER_HEADER_TABLE } from '@/constants/table'
 import { useQueryParams } from '@/hooks/use-query-params'
-import type { GetCustomersParams } from '@/types/customer'
-import { useQuery } from '@tanstack/react-query'
+import type { CustomerType, GetCustomersParams } from '@/types/customer'
+import type { GetUsersParams } from '@/types/user'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { isUndefined, omitBy } from 'lodash'
+import { isUndefined, omit, omitBy } from 'lodash'
 import { Ellipsis, Plus } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
+import { toast } from 'sonner'
 
 export default function CustomerRead() {
   const { t } = useTranslation('admin')
   const navigate = useNavigate()
   const queryParams: GetCustomersParams = useQueryParams()
+  const queryUserParams: GetUsersParams = useQueryParams()
   const queryConfig: GetCustomersParams = omitBy(
     {
-      page: queryParams.page || '1',
-      limit: queryParams.limit || '10',
+      page: queryParams.page,
+      limit: queryParams.limit,
       name: queryParams.name as string[],
       phone: queryParams.phone as string[]
     },
     isUndefined
   )
-  const { data: customerData } = useQuery({
+
+  const queryConfigUser = {
+    ...omit(queryConfig, ['name']),
+    fullname: queryUserParams.fullname as string[]
+  }
+  const { data: customerData, refetch } = useQuery({
     queryKey: ['customers', queryConfig],
     queryFn: () => customerApi.getCustomers(queryConfig)
   })
+  const { data: userData } = useQuery({
+    queryKey: ['users', queryConfigUser],
+    queryFn: () => userApi.getUsers(queryConfigUser)
+  })
   const customers = customerData?.data?.data?.customers
+  const users = userData?.data?.data?.users
   const pagination = customerData?.data?.data
 
+  const updateCustomerCompanyMutation = useMutation({
+    mutationFn: customerApi.updateCustomerCompany
+  })
+  const updateCustomerPersonalMutation = useMutation({
+    mutationFn: customerApi.updateCustomePersonal
+  })
+
+  const handleVerifyCustomer =
+    ({ id, type }: { id: number; type: CustomerType }) =>
+    () => {
+      if (type === COMPANY) {
+        updateCustomerCompanyMutation.mutate(
+          {
+            id,
+            verify: VERIFIED
+          },
+          {
+            onSuccess: (data) => {
+              toast.success(data.data.message)
+              refetch()
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              if (error.status === httpStatusCode.UnprocessableEntity) {
+                const formError = error.response?.data?.errors
+                if (formError) {
+                  Object.keys(formError).forEach((key) => {
+                    toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+                  })
+                }
+              }
+            }
+          }
+        )
+      } else if (type === PERSONAL) {
+        updateCustomerPersonalMutation.mutate(
+          {
+            id,
+            verify: VERIFIED
+          },
+          {
+            onSuccess: (data) => {
+              toast.success(data.data.message)
+              refetch()
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              if (error.status === httpStatusCode.UnprocessableEntity) {
+                const formError = error.response?.data?.errors
+                if (formError) {
+                  Object.keys(formError).forEach((key) => {
+                    toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+                  })
+                }
+              }
+            }
+          }
+        )
+      }
+    }
+
+  const handleRevokeCustomer =
+    ({ id, type }: { id: number; type: CustomerType }) =>
+    () => {
+      if (type === COMPANY) {
+        updateCustomerCompanyMutation.mutate(
+          {
+            id,
+            verify: UNVERIFIED
+          },
+          {
+            onSuccess: (data) => {
+              toast.success(data.data.message)
+              refetch()
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              if (error.status === httpStatusCode.UnprocessableEntity) {
+                const formError = error.response?.data?.errors
+                if (formError) {
+                  Object.keys(formError).forEach((key) => {
+                    toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+                  })
+                }
+              }
+            }
+          }
+        )
+      } else if (type === PERSONAL) {
+        updateCustomerPersonalMutation.mutate(
+          {
+            id,
+            verify: UNVERIFIED
+          },
+          {
+            onSuccess: (data) => {
+              toast.success(data.data.message)
+              refetch()
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              if (error.status === httpStatusCode.UnprocessableEntity) {
+                const formError = error.response?.data?.errors
+                if (formError) {
+                  Object.keys(formError).forEach((key) => {
+                    toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+                  })
+                }
+              }
+            }
+          }
+        )
+      }
+    }
   return (
     <Fragment>
       <Helmet>
@@ -111,19 +242,31 @@ export default function CustomerRead() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
-                        <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            navigate(
+                              item.type === 'Company'
+                                ? `/customer/update-company/${item.id}`
+                                : `/customer/update-personal/${item.id}`
+                            )
+                          }
+                        >
+                          Chỉnh sửa
+                        </DropdownMenuItem>
                         <DropdownMenuSub>
                           <DropdownMenuSubTrigger className='[&>svg]:hidden'>Phân bổ</DropdownMenuSubTrigger>
                           <DropdownMenuPortal>
                             <DropdownMenuSubContent>
-                              <DropdownMenuItem>Email</DropdownMenuItem>
-                              <DropdownMenuItem>Message</DropdownMenuItem>
-                              <DropdownMenuItem>More...</DropdownMenuItem>
+                              {users?.map((item) => <DropdownMenuItem key={item.id}>{item.fullname}</DropdownMenuItem>)}
                             </DropdownMenuSubContent>
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
-                        <DropdownMenuItem>Thu hồi</DropdownMenuItem>
-                        <DropdownMenuItem>Xác minh</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleRevokeCustomer({ id: item.id, type: item.type })}>
+                          Thu hồi
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleVerifyCustomer({ id: item.id, type: item.type })}>
+                          Xác minh
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import { COMPANY } from '@/constants/customerType'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { UNVERIFIED } from '@/constants/customerVerify'
-import { MALE } from '@/constants/gender'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useContext, useState } from 'react'
@@ -40,8 +39,6 @@ const formData = customerSchema.pick([
   'attachments',
   'note',
   'assign_at',
-  'date_of_birth',
-  'gender',
   'cccd'
 ])
 
@@ -79,8 +76,6 @@ const FormCustomerCompany = () => {
       attachments: [],
       note: '',
       assign_at: '',
-      date_of_birth: new Date(1990, 0, 1),
-      gender: MALE,
       cccd: ''
     },
     resolver: yupResolver(formData) as Resolver<FormData>
@@ -89,7 +84,7 @@ const FormCustomerCompany = () => {
   const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
 
-  const createCustomerMutation = useMutation({
+  const createCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.createCustomerCompany
   })
   const uploadFileAttachmentMutation = useMutation({
@@ -128,7 +123,7 @@ const FormCustomerCompany = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      const res = await createCustomerMutation.mutateAsync(payload)
+      const res = await createCustomerCompanyMutation.mutateAsync(payload)
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-company/${idCustomerCreated}`)
       reset()

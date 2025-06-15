@@ -3,6 +3,7 @@ import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputFileMain from '@/components/input-file-main'
 import InputMain from '@/components/input-main'
+import InputNumber from '@/components/input-number'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { AppContext } from '@/contexts/app-context'
 import { setProfileToLS } from '@/utils/auth'
@@ -152,13 +153,19 @@ export default function UserProfile() {
                     placeholder={t('Address')}
                     errorMessage={errors.address?.message}
                   />
-                  <InputMain
-                    register={register}
-                    labelValue={t('Phone')}
-                    type='number'
-                    placeholder={t('Phone')}
+                  <Controller
+                    control={control}
                     name='phone'
-                    errorMessage={errors.phone?.message as string}
+                    render={({ field }) => (
+                      <InputNumber
+                        type='text'
+                        placeholder={t('Phone')}
+                        labelValue={t('Phone')}
+                        {...field}
+                        onChange={field.onChange}
+                        errorMessage={errors.phone?.message}
+                      />
+                    )}
                   />
                   <Controller
                     control={control}

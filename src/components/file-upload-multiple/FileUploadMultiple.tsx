@@ -5,16 +5,21 @@ import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import CONFIG from '@/constants/config'
 import clsx from 'clsx'
-import { Eye, Trash2, UploadCloud, GripVertical } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Eye, Trash2, UploadCloud, GripVertical, File } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { closestCenter, DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { Link } from 'react-router-dom'
+import { getFilesUrl } from '@/utils/common'
 
 interface Props {
   onChange?: (file?: File[]) => void
+  defaultFiles?: {
+    filename: string
+  }[]
 }
 
 function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRemove: () => void }) {
@@ -31,7 +36,9 @@ function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRe
         <span {...attributes} {...listeners} className='cursor-move text-gray-500'>
           <GripVertical className='w-4 h-4' />
         </span>
-        <span className='truncate'>{file.name}</span>
+        <span className='truncate flex items-center gap-1'>
+          <File width={15} /> {file.name}
+        </span>
       </div>
       <Button variant='ghost' size='icon' onClick={onRemove}>
         <Trash2 className='w-4 h-4 text-red-500' />
@@ -40,13 +47,20 @@ function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRe
   )
 }
 
-export default function FileUploadMultiple({ onChange }: Props) {
+export default function FileUploadMultiple({ onChange, defaultFiles }: Props) {
   const { t } = useTranslation('admin')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<File[]>([])
-  const [open, setOpen] = useState<boolean>(false)
+  const [serverFiles, setServerFiles] = useState<Props['defaultFiles']>([])
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const sensors = useSensors(useSensor(PointerSensor))
+
+  useEffect(() => {
+    if (defaultFiles && defaultFiles.length > 0) {
+      setServerFiles(defaultFiles)
+    }
+  }, [defaultFiles])
+
   const handleClick = () => {
     fileInputRef.current?.click()
   }
@@ -84,8 +98,8 @@ export default function FileUploadMultiple({ onChange }: Props) {
 
     if (validFiles.length > 0) {
       onChange?.(validFiles)
-      setOpen(true)
       setFiles(validFiles)
+      setServerFiles([]) // 👈 Xóa serve files vì người dùng đã chọn mới
     }
   }
 
@@ -95,7 +109,6 @@ export default function FileUploadMultiple({ onChange }: Props) {
 
   const clearAll = () => {
     setFiles([])
-    setOpen(false)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -137,9 +150,9 @@ export default function FileUploadMultiple({ onChange }: Props) {
           <Button
             type='button'
             className={clsx({
-              'hover:cursor-not-allowed opacity-80': open === false
+              'hover:cursor-not-allowed opacity-80': files.length === 0 && serverFiles?.length === 0
             })}
-            disabled={open === false}
+            disabled={files.length === 0 && serverFiles?.length === 0}
           >
             <Eye /> View file choosen
           </Button>
@@ -153,24 +166,33 @@ export default function FileUploadMultiple({ onChange }: Props) {
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={files.map((f) => f.name)} strategy={verticalListSortingStrategy}>
                   {files.map((file, index) => (
-                    // <div key={index} className='flex justify-between items-center border-b py-2 text-sm'>
-                    //   <span className='truncate'>{file.name}</span>
-                    //   <Button variant='ghost' size='icon' onClick={() => removeFile(index)}>
-                    //     <Trash2 className='w-4 h-4 text-red-500' />
-                    //   </Button>
-                    // </div>
                     <SortableFileItem key={file.name} id={file.name} file={file} onRemove={() => removeFile(index)} />
                   ))}
                 </SortableContext>
               </DndContext>
+            ) : serverFiles && serverFiles.length > 0 ? (
+              serverFiles?.map((file) => (
+                <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
+                  <Link
+                    to={getFilesUrl(file.filename)}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='truncate flex items-center gap-1 hover:underline text-blue-600'
+                  >
+                    <File width={15} /> <span>{file.filename}</span>
+                  </Link>
+                </div>
+              ))
             ) : (
               <div className='text-red-500'>Không có file</div>
             )}
           </ScrollArea>
           <div className='flex justify-end pt-4'>
-            <Button variant='destructive' onClick={clearAll}>
-              Xoá tất cả
-            </Button>
+            {serverFiles?.length === 0 && (
+              <Button variant='destructive' onClick={clearAll}>
+                Xoá tất cả
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -179,7 +201,7 @@ export default function FileUploadMultiple({ onChange }: Props) {
 }
 
 /**
-✅ Giải thích kỹ:
+Note:
 Thành phần	Vai trò
 DndContext	Wrapper để kích hoạt tính năng kéo thả
 SortableContext	Khai báo danh sách có thể sắp xếp

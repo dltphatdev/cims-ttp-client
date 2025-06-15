@@ -34,6 +34,12 @@ export default function DateSelect({ errorMessage, onChange, value, labelValue }
       year: value?.getFullYear() || date.year,
       [name]: Number(valueFormSelect)
     }
+    // Lấy số ngày tối đa của tháng được chọn
+    const maxDays = new Date(newDate.year, newDate.month + 1, 0).getDate()
+    // Nếu ngày hiện tại vượt quá max thì tự động điều chỉnh
+    if (newDate.date > maxDays) {
+      newDate.date = maxDays
+    }
     setDate(newDate)
     onChange?.(new Date(newDate.year, newDate.month, newDate.date))
   }
