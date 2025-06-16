@@ -26,24 +26,28 @@ export function isAxiosExpiredTokenError<ExpiredTokenError>(error: unknown): err
   )
 }
 
-export function formatedTime(isoDate: string) {
-  const date = new Date(isoDate)
-  return date.toLocaleString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZone: 'Asia/Ho_Chi_Minh'
-  })
+export function formatedTime(isoDate?: string) {
+  const date = isoDate ? new Date(isoDate) : null
+  return date
+    ? date.toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      })
+    : ''
 }
 
-export function formatedDate(isoDate: string) {
-  const date = new Date(isoDate)
-  return date.toLocaleString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    timeZone: 'Asia/Ho_Chi_Minh'
-  })
+export function formatedDate(isoDate?: string) {
+  const date = isoDate ? new Date(isoDate) : null
+  return date
+    ? date.toLocaleString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      })
+    : ''
 }
 
 export function checkVerifyStatus({ statusVerify, t }: { statusVerify: string; t: TFunction }) {

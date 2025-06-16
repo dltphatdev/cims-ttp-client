@@ -154,12 +154,12 @@ export default function FileUploadMultiple({ onChange, defaultFiles }: Props) {
             })}
             disabled={files.length === 0 && serverFiles?.length === 0}
           >
-            <Eye /> View file choosen
+            <Eye /> View file choosen ({serverFiles?.length || files.length})
           </Button>
         </DialogTrigger>
         <DialogContent className='max-w-lg'>
           <DialogHeader>
-            <DialogTitle>Danh sách file</DialogTitle>
+            <DialogTitle>{t('List file')}</DialogTitle>
           </DialogHeader>
           <ScrollArea className='h-60 pr-4'>
             {files.length > 0 ? (
@@ -184,13 +184,13 @@ export default function FileUploadMultiple({ onChange, defaultFiles }: Props) {
                 </div>
               ))
             ) : (
-              <div className='text-red-500'>Không có file</div>
+              <div className='text-red-500'>{t('Empty file')}</div>
             )}
           </ScrollArea>
           <div className='flex justify-end pt-4'>
             {serverFiles?.length === 0 && (
               <Button variant='destructive' onClick={clearAll}>
-                Xoá tất cả
+                {t('Delete all')}
               </Button>
             )}
           </div>

@@ -5,6 +5,7 @@ import type {
   ChangePasswordUserReqBody,
   GetListUser,
   GetUsersParams,
+  ResetPasswordReqBody,
   User,
   UserCreateReqBody,
   UserSuccessResponeApi
@@ -39,6 +40,9 @@ const userApi = {
   },
   getProfile() {
     return http.get<SuccessResponseApi<User>>('user/me')
+  },
+  resetPassword(body: ResetPasswordReqBody) {
+    return http.patch<SuccessResponseApi<{ message: string }>>('user/reset-password', body)
   },
   uploadAvatar(body: FormData) {
     return http.post<

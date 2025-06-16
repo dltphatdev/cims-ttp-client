@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 interface Props {
   labelValue: string
+  labelRequired?: boolean
   genders: {
     gender_type: string
     gender_value: string
@@ -14,7 +15,7 @@ interface Props {
   errorMessage?: string
 }
 
-const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value }: Props) => {
+const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value, labelRequired = false }: Props) => {
   const { t } = useTranslation('admin')
   const [gender, setGender] = useState<string>(value || '')
   const handleChange = (value: string) => {
@@ -24,7 +25,7 @@ const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value }: Pr
   return (
     <div className='space-y-3'>
       <Label className='text-sm font-medium'>
-        {labelValue} <span className='text-red-500'>*</span>
+        {labelValue} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <Select value={value || gender} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>

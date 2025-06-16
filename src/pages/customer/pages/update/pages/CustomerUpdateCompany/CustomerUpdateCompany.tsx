@@ -13,7 +13,7 @@ import { Fragment } from 'react/jsx-runtime'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { MALE } from '@/constants/gender'
-import { UNVERIFIED } from '@/constants/customerVerify'
+import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY } from '@/constants/customerType'
 import { useEffect, useState } from 'react'
@@ -23,6 +23,7 @@ import FileUploadMultiple from '@/components/file-upload-multiple'
 import AddTagUser from '@/components/add-tag-user'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
+import { formatedDate, formatedTime } from '@/utils/common'
 
 const formData = customerSchema.pick([
   'name',
@@ -52,6 +53,7 @@ const CustomerUpdateCompany = () => {
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
+  const [isVerifyCustomer, setIsVerifyCustomer] = useState<boolean>(false)
   const {
     register,
     handleSubmit,
@@ -168,6 +170,12 @@ const CustomerUpdateCompany = () => {
 
   const handleChangeFiles = (files?: File[]) => setFiles(files)
 
+  const handleClickVerifyCustomer = () => {
+    setIsVerifyCustomer(!isVerifyCustomer)
+    setValue('verify', VERIFIED)
+    toast.success(t('Verify is choosen'))
+  }
+
   return (
     <Fragment>
       <Helmet>
@@ -208,14 +216,25 @@ const CustomerUpdateCompany = () => {
                       )}
                     />
                   </div>
-                  <div className='grid gap-3 select-none'>
-                    <InputMain
-                      labelValue={t('Creator')}
-                      type='text'
-                      placeholder={t('Creator')}
-                      disabled={true}
-                      value={customer?.creator?.fullname || ''}
-                    />
+                  <div className='grid grid-cols-12 gap-4'>
+                    <div className='mn:col-span-12 lg:col-span-6'>
+                      <InputMain
+                        labelValue={t('Creator')}
+                        type='text'
+                        placeholder={t('Creator')}
+                        disabled={true}
+                        value={customer?.creator?.fullname || ''}
+                      />
+                    </div>
+                    <div className='mn:col-span-12 lg:col-span-6'>
+                      <InputMain
+                        labelValue={t('Status customer')}
+                        type='text'
+                        placeholder={t('Status customer')}
+                        disabled={true}
+                        value={customer?.verify === 'Verified' ? t('Verify') : t('Unverify')}
+                      />
+                    </div>
                   </div>
                   <div className='grid gap-3'>
                     <AddTagUser
@@ -326,9 +345,40 @@ const CustomerUpdateCompany = () => {
                     <Textarea {...register('note')} placeholder={t('Note')} />
                     {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
                   </div>
+                  <div className='grid gap-3'>
+                    <div className='grid grid-cols-12 gap-4'>
+                      <div className='mn:col-span-12 lg:col-span-6'>
+                        <div className='select-none'>
+                          <InputMain
+                            value={`${formatedTime(customer?.created_at as string)} ${formatedDate(customer?.created_at as string)}`}
+                            labelValue={t('Created at')}
+                            type='text'
+                            disabled={true}
+                          />
+                        </div>
+                      </div>
+                      <div className='mn:col-span-12 lg:col-span-6'>
+                        <div className='select-none'>
+                          <InputMain
+                            value={`${formatedTime(customer?.updated_at as string)} ${formatedDate(customer?.updated_at as string)}`}
+                            labelValue={t('Updated at')}
+                            type='text'
+                            disabled={true}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
                 <CardFooter>
-                  <Button>{t('Save')}</Button>
+                  <div className='flex flex-wrap gap-2'>
+                    <Button>{t('Save')}</Button>
+                    {customer?.verify === 'Unverified' && isVerifyCustomer === false && (
+                      <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
+                        {t('Verify')}
+                      </Button>
+                    )}
+                  </div>
                 </CardFooter>
               </Card>
             </form>

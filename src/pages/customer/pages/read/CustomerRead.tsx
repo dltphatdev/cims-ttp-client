@@ -82,9 +82,8 @@ export default function CustomerRead() {
             verify: VERIFIED
           },
           {
-            onSuccess: (data) => {
-              toast.success(data.data.message)
-              refetch()
+            onSuccess: () => {
+              navigate(type === 'Company' ? `/customer/update-company/${id}` : `/customer/update-personal/${id}`)
             },
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onError: (error: any) => {
@@ -262,10 +261,10 @@ export default function CustomerRead() {
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
                         <DropdownMenuItem onClick={handleRevokeCustomer({ id: item.id, type: item.type })}>
-                          Thu hồi
+                          {t('Revoke')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleVerifyCustomer({ id: item.id, type: item.type })}>
-                          Xác minh
+                          {t('Verify')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

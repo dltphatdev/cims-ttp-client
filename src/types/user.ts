@@ -11,7 +11,13 @@ export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'
 
 export interface UserCreateReqBody {
   email: string
-  password: string
+  password?: string
+  fullname?: string
+  address?: string
+  phone?: string
+  code?: string
+  date_of_birth?: string | Date
+  role?: UserRole
 }
 
 export interface User {
@@ -60,6 +66,12 @@ export interface BodyUpdateProfile {
   password?: string
   role?: UserRole
 }
+
+export interface ResetPasswordReqBody {
+  id: number
+  password: string
+}
+
 export interface BodyUserProfile extends Omit<BodyUpdateProfile, 'password' | 'verify' | 'role' | 'id'> {
   avatar?: string
 }

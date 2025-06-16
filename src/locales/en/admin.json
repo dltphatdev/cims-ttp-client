@@ -87,5 +87,13 @@
   "Edit": "Edit",
   "Update member": "Update member",
   "Reset password": "Reset password",
-  "Updated at": "Updated at"
+  "Updated at": "Updated at",
+  "Empty file": "Empty file",
+  "Delete all": "Delete all",
+  "List file": "List file",
+  "Status customer": "Status customer",
+  "Verify": "Verify",
+  "Unverify": "Unverify",
+  "Revoke": "Revoke",
+  "Verify is choosen": "Verify is choosen"
 }

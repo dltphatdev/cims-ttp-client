@@ -173,6 +173,7 @@ const FormCustomerPersonal = () => {
               <InputMain
                 register={register}
                 name='name'
+                labelRequired={true}
                 labelValue={t('Name customer')}
                 type='text'
                 placeholder={t('Name customer')}
@@ -186,6 +187,7 @@ const FormCustomerPersonal = () => {
                 render={({ field }) => (
                   <InputNumber
                     type='text'
+                    labelRequired={true}
                     placeholder={t('CCCD')}
                     labelValue={t('CCCD')}
                     {...field}

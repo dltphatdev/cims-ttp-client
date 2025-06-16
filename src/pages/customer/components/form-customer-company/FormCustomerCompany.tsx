@@ -154,6 +154,7 @@ const FormCustomerCompany = () => {
               <InputMain
                 register={register}
                 name='name'
+                labelRequired={true}
                 labelValue={t('Name customer')}
                 type='text'
                 placeholder={t('Name customer')}
@@ -167,6 +168,7 @@ const FormCustomerCompany = () => {
                 render={({ field }) => (
                   <InputNumber
                     type='text'
+                    labelRequired={true}
                     placeholder={t('CCCD')}
                     labelValue={t('CCCD')}
                     {...field}

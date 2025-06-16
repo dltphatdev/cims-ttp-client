@@ -1,18 +1,21 @@
 import userApi from '@/apis/user.api'
 import ButtonMain from '@/components/button-main'
+import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main/InputMain'
+import InputNumber from '@/components/input-number'
+import { PASSWORD_DEFAULT } from '@/constants/crypto'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { schema } from '@/utils/validation'
+import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = schema.pick(['email', 'password'])
+const formData = userSchema.pick(['email', 'password', 'fullname', 'address', 'phone', 'code', 'date_of_birth'])
 type FormData = yup.InferType<typeof formData>
 
 export default function UserCreate() {
@@ -22,38 +25,66 @@ export default function UserCreate() {
     handleSubmit,
     setError,
     reset,
+    control,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(formData),
     defaultValues: {
       email: '',
-      password: ''
+      password: PASSWORD_DEFAULT,
+      fullname: '',
+      address: '',
+      phone: '',
+      code: '',
+      date_of_birth: new Date(1990, 0, 1)
     }
   })
   const createUserMutation = useMutation({
     mutationFn: userApi.createUser
   })
   const handleSubmitForm = handleSubmit((data) => {
-    createUserMutation.mutateAsync(data, {
-      onSuccess: (data) => {
-        toast.success(data.data.message)
-        reset()
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onError: (error: any) => {
-        if (error.status === httpStatusCode.UnprocessableEntity) {
-          const formError = error.response?.data?.errors
-          if (formError) {
-            Object.keys(formError).forEach((key) => {
-              setError(key as keyof FormData, {
-                message: formError[key as keyof FormData]['msg'],
-                type: 'Server'
-              })
-            })
-          }
+    try {
+      const payload = {
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString()
+      }
+      for (const key in payload) {
+        if (payload[key as keyof typeof payload] === undefined || payload[key as keyof typeof payload] === '') {
+          delete payload[key as keyof typeof payload]
         }
       }
-    })
+      createUserMutation.mutateAsync(payload, {
+        onSuccess: (data) => {
+          toast.success(data.data.message)
+          reset()
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+          if (error.status === httpStatusCode.UnprocessableEntity) {
+            const formError = error.response?.data?.errors
+            if (formError) {
+              Object.keys(formError).forEach((key) => {
+                setError(key as keyof FormData, {
+                  message: formError[key as keyof FormData]['msg'],
+                  type: 'Server'
+                })
+              })
+            }
+          }
+        }
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      const formError = error.response?.data?.errors
+      if (formError) {
+        Object.keys(formError).forEach((key) => {
+          setError(key as keyof FormData, {
+            message: formError[key]['msg'],
+            type: 'Server'
+          })
+        })
+      }
+    }
   })
   return (
     <Fragment>
@@ -70,19 +101,75 @@ export default function UserCreate() {
               <div>
                 <InputMain
                   register={register}
-                  labelValue='Email'
-                  type='email'
                   name='email'
-                  placeholder='Email'
-                  errorMessage={errors?.email?.message as string}
+                  labelRequired={true}
+                  labelValue={t('Email')}
+                  type='email'
+                  placeholder={t('Email')}
+                  errorMessage={errors.email?.message}
                 />
                 <InputMain
                   register={register}
-                  labelValue={t('Password')}
-                  type='password'
-                  name='password'
-                  errorMessage={errors?.password?.message as string}
-                  placeholder={t('Password')}
+                  name='fullname'
+                  labelValue={t('Fullname')}
+                  type='text'
+                  placeholder={t('Fullname')}
+                  errorMessage={errors.fullname?.message}
+                />
+                <InputMain
+                  register={register}
+                  labelValue={t('Address')}
+                  name='address'
+                  type='text'
+                  placeholder={t('Address')}
+                  errorMessage={errors.address?.message}
+                />
+                <InputMain
+                  register={register}
+                  labelValue={t('Code user')}
+                  name='code'
+                  type='text'
+                  errorMessage={errors.code?.message}
+                  placeholder={t('Code user')}
+                />
+                {/* <Controller
+                  control={control}
+                  name='role'
+                  render={({ field }) => (
+                    <SelectRole
+                      {...field}
+                      onChange={field.onChange}
+                      roles={roles}
+                      labelValue={t('Select role')}
+                      errorMessage={errors.role?.message as string}
+                    />
+                  )}
+                /> */}
+                <Controller
+                  control={control}
+                  name='phone'
+                  render={({ field }) => (
+                    <InputNumber
+                      type='text'
+                      placeholder={t('Phone')}
+                      labelValue={t('Phone')}
+                      {...field}
+                      onChange={field.onChange}
+                      errorMessage={errors.phone?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name='date_of_birth'
+                  render={({ field }) => (
+                    <DateSelect
+                      onChange={field.onChange}
+                      value={field.value as Date}
+                      labelValue={t('Date of birth')}
+                      errorMessage={errors.date_of_birth?.message}
+                    />
+                  )}
                 />
               </div>
               <ButtonMain

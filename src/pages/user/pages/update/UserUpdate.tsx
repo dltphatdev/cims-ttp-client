@@ -67,6 +67,10 @@ export default function UserUpdate() {
     mutationFn: userApi.updateUser
   })
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: userApi.resetPassword
+  })
+
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
       const payload = {
@@ -118,14 +122,32 @@ export default function UserUpdate() {
       setValue('phone', user.phone || '')
       setValue('address', user.address || '')
       setValue('code', user.code || '')
-      setValue('role', user.role)
+      // setValue('role', user.role)
       setValue('date_of_birth', user.date_of_birth ? new Date(user.date_of_birth) : new Date(1990, 0, 1))
     }
   }, [user, setValue])
 
   const handleClickResetPassword = () => {
     setIsResetPassword(!isResetPassword)
-    setValue('password', PASSWORD_DEFAULT)
+    // setValue('password', PASSWORD_DEFAULT)
+    const payload = { password: PASSWORD_DEFAULT, id: Number(userId) }
+    resetPasswordMutation.mutate(payload, {
+      onSuccess: (data) => toast.success(data.data.message),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onError: (error: any) => {
+        if (error.status === httpStatusCode.UnprocessableEntity) {
+          const formError = error.response?.data?.errors
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof FormData, {
+                message: formError[key as keyof FormData]['msg'],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
+    })
   }
   return (
     <Fragment>
@@ -140,6 +162,9 @@ export default function UserUpdate() {
             <h1 className='mb-2 font-bold text-2xl'>{t('Update member')}</h1>
             <form onSubmit={handleSubmitForm} noValidate>
               <div>
+                <div className='select-none'>
+                  <InputMain value={user?.email} labelValue={t('Email')} type='email' disabled={true} />
+                </div>
                 <InputMain
                   register={register}
                   name='fullname'
@@ -229,7 +254,6 @@ export default function UserUpdate() {
                 >
                   {t('Save')}
                 </ButtonMain>
-
                 <Button
                   type='button'
                   className='mt-4 text-base select-none'

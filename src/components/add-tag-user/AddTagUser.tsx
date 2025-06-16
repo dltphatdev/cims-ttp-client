@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -10,17 +10,20 @@ import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omitBy } from 'lodash'
 import userApi from '@/apis/user.api'
 import type { GetUsersParams } from '@/types/user'
+import { Input } from '@/components/ui/input'
 
 interface Props {
   onExportId?: (value: number) => void
   defaultValue?: { id: number; name: string }
+  labelRequired?: boolean
 }
 
-export default function AddTagUser({ onExportId, defaultValue }: Props) {
+export default function AddTagUser({ onExportId, defaultValue, labelRequired = false }: Props) {
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
   const [selectedUser, setSelectedUser] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
   const [open, setOpen] = useState<boolean>(false)
+  const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
     // Chỉ set giá trị và gọi onExportId khi mount lần đầu
@@ -58,11 +61,15 @@ export default function AddTagUser({ onExportId, defaultValue }: Props) {
   }
 
   const users = userData?.data?.data?.users
+  const filteredUsers = useMemo(
+    () => users?.filter((user) => user.fullname?.toLowerCase().includes(searchValue.toLowerCase())),
+    [searchValue, users]
+  )
 
   return (
     <div className='space-y-2'>
       <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
-        {t('Consultant')} <span className='text-red-500'>*</span>
+        {t('Consultant')} {labelRequired === true && <span className='text-red-500'>*</span>}
       </label>
       <div className='flex items-center flex-wrap gap-2'>
         {selectedUser && (
@@ -96,10 +103,17 @@ export default function AddTagUser({ onExportId, defaultValue }: Props) {
             <DialogHeader>
               <DialogTitle>{t('Select consultant')}</DialogTitle>
             </DialogHeader>
+            <Input
+              placeholder={t('Search consultant') || 'Search consultant...'}
+              className='mb-2'
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+
             <ScrollArea className='h-40'>
               <div className='grid gap-2'>
-                {users &&
-                  users.map((user) => (
+                {filteredUsers && filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
                     <Button
                       key={user.id}
                       variant='outline'
@@ -109,7 +123,10 @@ export default function AddTagUser({ onExportId, defaultValue }: Props) {
                     >
                       {user.fullname}
                     </Button>
-                  ))}
+                  ))
+                ) : (
+                  <div className='text-sm text-gray-500 px-2'>{t('No data available')}</div>
+                )}
               </div>
             </ScrollArea>
           </DialogContent>

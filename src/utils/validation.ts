@@ -29,6 +29,12 @@ export const schema = yup.object({
 })
 
 export const userSchema = yup.object({
+  email: yup
+    .string()
+    .required('Email is required')
+    .min(5, 'Email min length is 5 characters')
+    .max(160, 'Email max length 160 characters')
+    .email('Email invalid'),
   fullname: yup.string().max(160, 'Fullname maximum length is 160 characters').optional(),
   phone: yup.string().max(10, 'Phone maximum length is 10 characters').optional(),
   address: yup.string().max(160, 'Address maximum length is 160 characters').optional(),
@@ -58,7 +64,11 @@ export const customerSchema = yup.object({
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
   consultantor_id: yup.string().optional(),
   tax_code: yup.string().max(13, 'Tax code maximum length is 13 characters').optional(),
-  cccd: yup.string().max(12, 'Citizen identification card maximum length is 12 characters').optional(),
+  cccd: yup
+    .string()
+    .required('Citizen identification')
+    .min(12, 'Citizen identification card min length is 12 characters')
+    .max(12, 'Citizen identification card maximum length is 12 characters'),
   website: yup.string().max(50, 'Website maximum length is 50 characters').optional(),
   surrogate: yup.string().max(160, 'Surrogate maximum length is 160 characters').optional(),
   address_company: yup.string().max(160, 'Address company maximum length is 160 characters').optional(),

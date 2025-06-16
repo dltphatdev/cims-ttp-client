@@ -87,5 +87,13 @@
   "Edit": "Chỉnh sửa",
   "Update member": "Cập nhật thành viên",
   "Reset password": "Làm mới mật khẩu",
-  "Updated at": "Ngày cập nhật"
+  "Updated at": "Ngày cập nhật",
+  "Empty file": "Không có file",
+  "Delete all": "Xoá tất cả",
+  "List file": "Danh sách file",
+  "Status customer": "Trạng thái khách hàng",
+  "Verify": "Xác minh",
+  "Unverify": "Chưa xác minh",
+  "Revoke": "Thu hồi",
+  "Verify is choosen": "Trạng thái xác minh được chọn"
 }
