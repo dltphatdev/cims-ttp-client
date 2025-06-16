@@ -9,7 +9,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 export default function ButtonMain({
   children,
   classNameWrapper,
-  className = 'py-2 px-3 bg-(--color-green) hover:bg-orange-500 light:text-white font-medium text-base rounded-lg',
+  className = 'py-2 px-3 font-medium text-base rounded-lg',
   isLoading,
   disabled,
   ...rest

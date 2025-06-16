@@ -3,16 +3,15 @@ import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
-import SelectRole from '@/components/select-role'
-import SelectVerify from '@/components/select-verify'
+import { Button } from '@/components/ui/button'
+import { PASSWORD_DEFAULT } from '@/constants/crypto'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, NONE, SALE } from '@/constants/role'
-import { UNVERIFIED } from '@/constants/verify'
+// import { ADMIN, NONE, SALE } from '@/constants/role'
 import { formatedDate, formatedTime } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -21,32 +20,24 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = userSchema.pick([
-  'fullname',
-  'address',
-  'code',
-  'date_of_birth',
-  'role',
-  'password',
-  'phone',
-  'verify'
-])
+const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'password', 'phone'])
 
 type FormData = yup.InferType<typeof formData>
 
-const roles = [
-  {
-    role_type: ADMIN,
-    role_value: 'Admin'
-  },
-  {
-    role_type: SALE,
-    role_value: 'Sale'
-  }
-]
+// const roles = [
+//   {
+//     role_type: ADMIN,
+//     role_value: 'Admin'
+//   },
+//   {
+//     role_type: SALE,
+//     role_value: 'Sale'
+//   }
+// ]
 
 export default function UserUpdate() {
   const { t } = useTranslation('admin')
+  const [isResetPassword, setIsResetPassword] = useState<boolean>(false)
   const {
     register,
     control,
@@ -59,8 +50,7 @@ export default function UserUpdate() {
       fullname: '',
       address: '',
       code: '',
-      verify: UNVERIFIED,
-      role: NONE,
+      // role: NONE,
       password: '',
       phone: '',
       date_of_birth: new Date(1990, 0, 1)
@@ -129,11 +119,14 @@ export default function UserUpdate() {
       setValue('address', user.address || '')
       setValue('code', user.code || '')
       setValue('role', user.role)
-      setValue('verify', user.verify)
       setValue('date_of_birth', user.date_of_birth ? new Date(user.date_of_birth) : new Date(1990, 0, 1))
     }
   }, [user, setValue])
 
+  const handleClickResetPassword = () => {
+    setIsResetPassword(!isResetPassword)
+    setValue('password', PASSWORD_DEFAULT)
+  }
   return (
     <Fragment>
       <Helmet>
@@ -144,9 +137,9 @@ export default function UserUpdate() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
-            <h1 className='mb-2 font-bold text-2xl'>{t('Profile')}</h1>
+            <h1 className='mb-2 font-bold text-2xl'>{t('Update member')}</h1>
             <form onSubmit={handleSubmitForm} noValidate>
-              <div className=''>
+              <div>
                 <InputMain
                   register={register}
                   name='fullname'
@@ -171,24 +164,7 @@ export default function UserUpdate() {
                   errorMessage={errors.code?.message}
                   placeholder={t('Code user')}
                 />
-                <InputMain
-                  register={register}
-                  labelValue={t('Password')}
-                  type='password'
-                  name='password'
-                  placeholder={t('Password')}
-                  errorMessage={errors.password?.message}
-                />
-                <div className='select-none'>
-                  <InputMain
-                    value={`${formatedTime(user?.created_at as string)} ${formatedDate(user?.created_at as string)}`}
-                    register={register}
-                    labelValue={t('Created at')}
-                    type='text'
-                    disabled={true}
-                  />
-                </div>
-                <Controller
+                {/* <Controller
                   control={control}
                   name='role'
                   render={({ field }) => (
@@ -200,20 +176,7 @@ export default function UserUpdate() {
                       errorMessage={errors.role?.message as string}
                     />
                   )}
-                />
-
-                <Controller
-                  control={control}
-                  name='verify'
-                  render={({ field }) => (
-                    <SelectVerify
-                      {...field}
-                      onChange={field.onChange}
-                      labelValue={t('Verified user')}
-                      errorMessage={errors.verify?.message as string}
-                    />
-                  )}
-                />
+                /> */}
                 <Controller
                   control={control}
                   name='phone'
@@ -240,15 +203,42 @@ export default function UserUpdate() {
                     />
                   )}
                 />
+                <div className='select-none mt-4'>
+                  <InputMain
+                    value={`${formatedTime(user?.created_at as string)} ${formatedDate(user?.created_at as string)}`}
+                    labelValue={t('Created at')}
+                    type='text'
+                    disabled={true}
+                  />
+                </div>
+                <div className='select-none'>
+                  <InputMain
+                    value={`${formatedTime(user?.updated_at as string)} ${formatedDate(user?.updated_at as string)}`}
+                    labelValue={t('Updated at')}
+                    type='text'
+                    disabled={true}
+                  />
+                </div>
               </div>
-              <ButtonMain
-                isLoading={updateUserMutation.isPending}
-                disabled={updateUserMutation.isPending}
-                type='submit'
-                classNameWrapper='mt-4'
-              >
-                {t('Save')}
-              </ButtonMain>
+              <div className='flex flex-wrap gap-1 items-center'>
+                <ButtonMain
+                  isLoading={updateUserMutation.isPending}
+                  disabled={updateUserMutation.isPending}
+                  type='submit'
+                  classNameWrapper='mt-4'
+                >
+                  {t('Save')}
+                </ButtonMain>
+
+                <Button
+                  type='button'
+                  className='mt-4 text-base select-none'
+                  onClick={handleClickResetPassword}
+                  disabled={isResetPassword === true}
+                >
+                  {t('Reset password')}
+                </Button>
+              </div>
             </form>
           </div>
         </div>

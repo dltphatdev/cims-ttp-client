@@ -5,9 +5,9 @@ import MSG from '@/constants/msg'
 
 type Language = 'vi' | 'en'
 
-const LANGUAGES: { value: Language; label: string; flag: string }[] = [
-  { value: 'vi', label: MSG.VIETNAME, flag: '/images/vi.jpg' },
-  { value: 'en', label: MSG.ENGLISH, flag: '/images/en.jpg' }
+const LANGUAGES: { value: Language; label: string }[] = [
+  { value: 'vi', label: MSG.VIETNAME },
+  { value: 'en', label: MSG.ENGLISH }
 ]
 
 const SelectLang = () => {
@@ -18,21 +18,11 @@ const SelectLang = () => {
   return (
     <Select value={current?.value} onValueChange={(value: Language) => handleChangeLanguage(value)}>
       <SelectTrigger className='w-[150px]'>
-        <SelectValue>
-          {current && (
-            <img
-              src={current.flag}
-              alt={`${current.label} flag`}
-              className='inline-block w-5 h-5 mr-2 rounded-sm object-cover'
-            />
-          )}
-          {nameLang}
-        </SelectValue>
+        <SelectValue>{nameLang}</SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {LANGUAGES.map(({ value, label, flag }) => (
+        {LANGUAGES.map(({ value, label }) => (
           <SelectItem key={label} value={value}>
-            <img src={flag} alt={`${label} flag`} className='inline-block w-5 h-5 mr-2 rounded-sm object-cover' />
             {label}
           </SelectItem>
         ))}

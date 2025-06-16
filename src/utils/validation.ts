@@ -1,8 +1,6 @@
 import * as yup from 'yup'
 import { ACTIVE, DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY, PERSONAL } from '@/constants/customerType'
-import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
-import { BANNED, UNVERIFIED, VERIFIED } from '@/constants/verify'
 import { UNVERIFIED as UNVERIFIED_CUSTOMER, VERIFIED as VERIFIED_CUSTOMER } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
 
@@ -37,8 +35,7 @@ export const userSchema = yup.object({
   avatar: yup.string().max(1000, 'Avatar maximum length is 1000 characters').optional(),
   code: yup.string().max(1000, 'Code maximum length is 6 characters').optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
-  verify: yup.string().oneOf([VERIFIED, UNVERIFIED, BANNED], 'Invalid verify account').optional(),
-  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
+  // role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
 })
 

@@ -12,9 +12,10 @@ interface Props {
   onChange?: (value: string) => void
   value?: string
   errorMessage?: string
+  labelRequired?: boolean
 }
 
-export default function SelectRole({ labelValue, roles, onChange, value, errorMessage }: Props) {
+export default function SelectRole({ labelValue, roles, onChange, value, errorMessage, labelRequired }: Props) {
   const { t } = useTranslation('admin')
   const [role, setRole] = useState<string>(value || '')
   const handleChange = (value: string) => {
@@ -24,7 +25,7 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
   return (
     <div className='space-y-3'>
       <Label className='text-sm font-medium'>
-        {labelValue} <span className='text-red-500'>*</span>
+        {labelValue} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <Select value={value || role} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>

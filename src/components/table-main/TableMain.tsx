@@ -5,13 +5,21 @@ import { useTranslation } from 'react-i18next'
 
 interface Props<T> {
   headers: string[]
+  headerClassNames?: string[]
   data: T[] | undefined
   renderRow: (item: T, index: number) => React.ReactNode
   page?: string
   page_size?: string
 }
 
-export default function TableMain<T>({ data, headers, renderRow, page = PAGE, page_size = LIMIT }: Props<T>) {
+export default function TableMain<T>({
+  data,
+  headers,
+  headerClassNames,
+  renderRow,
+  page = PAGE,
+  page_size = LIMIT
+}: Props<T>) {
   const { t } = useTranslation('admin')
   return (
     <div className='p-4'>
@@ -19,7 +27,9 @@ export default function TableMain<T>({ data, headers, renderRow, page = PAGE, pa
         <TableHeader>
           <TableRow>
             {headers.map((header, index) => (
-              <TableHead key={index}>{t(header)}</TableHead>
+              <TableHead key={index} className={headerClassNames?.[index]}>
+                {t(header)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>

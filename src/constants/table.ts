@@ -1,4 +1,4 @@
-export const USER_HEADER_TABLE = ['STT', 'Fullname', 'Email', 'Role', 'Phone', 'Created at', 'Status', 'Action']
+export const USER_HEADER_TABLE = ['STT', 'Fullname', 'Email', 'Role', 'Phone', 'Created at', 'Action']
 export const CUSTOMER_HEADER_TABLE = [
   'STT',
   'Fullname',

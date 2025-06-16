@@ -59,7 +59,6 @@ export interface BodyUpdateProfile {
   code?: string
   password?: string
   role?: UserRole
-  verify?: UserVerifyStatus
 }
 export interface BodyUserProfile extends Omit<BodyUpdateProfile, 'password' | 'verify' | 'role' | 'id'> {
   avatar?: string

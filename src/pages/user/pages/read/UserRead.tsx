@@ -7,17 +7,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { TableCell, TableRow } from '@/components/ui/table'
 import { LIMIT, PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
-import STATUS from '@/constants/status'
 import { USER_HEADER_TABLE } from '@/constants/table'
-import { AppContext } from '@/contexts/app-context'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetUsersParams } from '@/types/user'
-import checkRoleUser, { checkVerifyStatus } from '@/utils/common'
 import { useQuery } from '@tanstack/react-query'
-import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
 import { Ellipsis, Plus } from 'lucide-react'
-import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -40,15 +35,9 @@ export default function UserRead() {
     queryKey: ['users', queryConfig],
     queryFn: () => userApi.getUsers(queryConfig)
   })
-  const { profile } = useContext(AppContext)
   const users = userData?.data?.data?.users
   const pagination = userData?.data?.data
-  const renderHeaderForRuleUser = () => {
-    if (!checkRoleUser(profile?.role as string)) {
-      return USER_HEADER_TABLE.filter((item) => item !== 'Action')
-    }
-    return USER_HEADER_TABLE
-  }
+
   const handleNavigateEditUser = (id: number) => navigate(`${PATH.USER}/${id}`)
   return (
     <Fragment>
@@ -75,7 +64,8 @@ export default function UserRead() {
             <TableMain
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
-              headers={renderHeaderForRuleUser()}
+              headers={USER_HEADER_TABLE}
+              headerClassNames={['', '', '', '', '', '', 'text-right']}
               data={users}
               renderRow={(item, index) => (
                 <TableRow key={item.id}>
@@ -87,16 +77,6 @@ export default function UserRead() {
                   <TableCell>
                     <FormattedDate isoDate={item.created_at as string} />
                   </TableCell>
-                  <TableCell>
-                    <span
-                      className={clsx('w-[150px] border-0 shadow-none focus:hidden', {
-                        'text-(--color-green-custom)': item.verify === STATUS.VERIFIED,
-                        'text-red-500': item.verify === STATUS.UNVERIFIED
-                      })}
-                    >
-                      {checkVerifyStatus({ statusVerify: item.verify, t: t })}
-                    </span>
-                  </TableCell>
                   <TableCell className='ml-auto text-end'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -105,10 +85,7 @@ export default function UserRead() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
-                        <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>Chỉnh sửa</DropdownMenuItem>
-                        <DropdownMenuItem>Phân bổ</DropdownMenuItem>
-                        <DropdownMenuItem>Thu hồi</DropdownMenuItem>
-                        <DropdownMenuItem>Xác minh</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>{t('Edit')}</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

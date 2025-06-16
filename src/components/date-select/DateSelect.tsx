@@ -8,9 +8,10 @@ interface Props {
   value?: Date
   labelValue: string
   errorMessage?: string
+  labelRequired?: boolean
 }
 
-export default function DateSelect({ errorMessage, onChange, value, labelValue }: Props) {
+export default function DateSelect({ errorMessage, onChange, value, labelValue, labelRequired = false }: Props) {
   const { t } = useTranslation()
   const [date, setDate] = useState({
     date: value?.getDate() || 1,
@@ -46,7 +47,7 @@ export default function DateSelect({ errorMessage, onChange, value, labelValue }
   return (
     <div>
       <Label className='text-sm font-medium light:text-gray-700'>
-        {labelValue} <span className='text-red-500'>*</span>
+        {labelValue} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <div className='mt-2 md:mt-4 flex flex-wrap'>
         <div className='w-full'>

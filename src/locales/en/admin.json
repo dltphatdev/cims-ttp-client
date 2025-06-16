@@ -83,5 +83,9 @@
   "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx",
   "CCCD": "Citizen identification card",
   "Update customer personal": "Update customer personal",
-  "Update customer company": "Update customer company"
+  "Update customer company": "Update customer company",
+  "Edit": "Edit",
+  "Update member": "Update member",
+  "Reset password": "Reset password",
+  "Updated at": "Updated at"
 }

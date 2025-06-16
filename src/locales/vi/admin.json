@@ -83,5 +83,9 @@
   "Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx": "Kích thước tệp tối đa 15MB. Định dạng: .docs | .pp | .pdf | .xlsx",
   "CCCD": "Căn cước công dân",
   "Update customer personal": "Cập nhật khách hàng cá nhân",
-  "Update customer company": "Cập nhật khách hàng doanh nghiệp"
+  "Update customer company": "Cập nhật khách hàng doanh nghiệp",
+  "Edit": "Chỉnh sửa",
+  "Update member": "Cập nhật thành viên",
+  "Reset password": "Làm mới mật khẩu",
+  "Updated at": "Ngày cập nhật"
 }

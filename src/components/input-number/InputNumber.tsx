@@ -8,11 +8,13 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   classNameErrorMessage?: string
   classNameLabel?: string
   labelValue?: string
+  labelRequired?: boolean
 }
 
 const InputNumber = forwardRef<HTMLInputElement, Props>(function InputNumberInner(
   {
     errorMessage,
+    labelRequired = false,
     classNameWrapper = 'space-y-2 mn:mb-2 lg:mb-3',
     classNameLabel = 'text-sm font-medium light:text-gray-700',
     classNameErrorMessage = 'text-red-600 text-sm',
@@ -37,7 +39,7 @@ const InputNumber = forwardRef<HTMLInputElement, Props>(function InputNumberInne
   return (
     <div className={classNameWrapper}>
       <Label htmlFor={name} className={classNameLabel}>
-        {labelValue} <span className='text-red-500'>*</span>
+        {labelValue} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <div>
         <Input

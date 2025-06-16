@@ -6,6 +6,7 @@ import { useState, type ForwardRefExoticComponent, type InputHTMLAttributes } fr
 import type { RegisterOptions, UseFormRegister, UseFormSetValue } from 'react-hook-form'
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
+  labelRequired?: boolean
   classNameWrapper?: string
   errorMessage?: string
   classNameErrorMessage?: string
@@ -21,6 +22,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export default function InputMain({
+  labelRequired = false,
   labelValue,
   classNameWrapper = 'space-y-2 mn:mb-2 lg:mb-3',
   classNameLabel = 'text-sm font-medium light:text-gray-700',
@@ -41,7 +43,7 @@ export default function InputMain({
   return (
     <div className={classNameWrapper}>
       <Label htmlFor={name} className={classNameLabel}>
-        {labelValue} <span className='text-red-500'>*</span>
+        {labelValue} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <div className='relative z-2'>
         <Input
