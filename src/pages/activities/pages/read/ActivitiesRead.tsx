@@ -48,6 +48,7 @@ export default function ActivitiesRead() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
+            <div>Comming soon</div>
             {/* <TableMain
               headers={[
                 'STT',

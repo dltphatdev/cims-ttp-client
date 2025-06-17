@@ -28,20 +28,17 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
 
     let updatedTags = [...tags]
 
-    // Nếu là số -> thay hoặc thêm tag số
     if (isNumber) {
-      updatedTags = updatedTags.filter((tag) => !/^\d+$/.test(tag)) // xoá tag số cũ
+      updatedTags = updatedTags.filter((tag) => !/^\d+$/.test(tag)) // loai bo tag la number
       updatedTags.push(_value)
     } else {
-      // Nếu là text -> thay hoặc thêm tag text
-      updatedTags = updatedTags.filter((tag) => /^\d+$/.test(tag)) // xoá tag text cũ
+      updatedTags = updatedTags.filter((tag) => /^\d+$/.test(tag)) // loai bo tag la text
       updatedTags.push(_value)
     }
 
     setTags(updatedTags)
     setLocalValue('')
 
-    // Điều hướng ngay khi add tag
     const payload: { [key: string]: string } = {}
     updatedTags.forEach((tag) => {
       if (/^\d+$/.test(tag) && payloadField?.number) {
@@ -58,11 +55,6 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
         ...payload
       }).toString()
     })
-
-    // if (_value.trim() && !tags.includes(_value)) {
-    //   setTags([...tags, _value.trim()])
-    //   setLocalValue('')
-    // }
   }
 
   const removeTag = (tag: string) => {
@@ -105,33 +97,6 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
   const handleSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     handleAddTag()
-    // const textList: string[] = []
-    // const numberList: string[] = []
-    // const payload: { [key: string]: string } = {}
-    // tags.forEach((tag) => {
-    //   const isNumber = /^\d+$/.test(tag)
-    //   if (isNumber) {
-    //     numberList.push(tag)
-    //   } else {
-    //     textList.push(tag)
-    //   }
-    // })
-
-    // if (payloadField?.number) {
-    //   payload[payloadField.number] = numberList.join(',')
-    // }
-
-    // if (payloadField?.text) {
-    //   payload[payloadField.text] = textList.join(',')
-    // }
-
-    // navigate({
-    //   pathname: '',
-    //   search: createSearchParams({
-    //     ...queryConfig,
-    //     ...payload
-    //   }).toString()
-    // })
   }
 
   return (

@@ -5,6 +5,9 @@
 // import { TableCell, TableRow } from '@/components/ui/table'
 // import { Ellipsis } from 'lucide-react'
 
+import { Helmet } from 'react-helmet-async'
+import { Fragment } from 'react/jsx-runtime'
+
 // const data = [
 //   {
 //     title: 'HQ Digiworld',
@@ -19,10 +22,16 @@
 
 export default function EffectiveRead() {
   return (
-    <div className='@container/main'>
-      <div className='py-4 md:gap-6 md:py-6'>
-        <div className='px-4 lg:px-6'>
-          {/* <TableMain
+    <Fragment>
+      <Helmet>
+        <title>Hiệu quả - TTP Telecom</title>
+        <meta name='keywords' content='Hiệu quả - TTP Telecom' />
+        <meta name='description' content='Hiệu quả - TTP Telecom' />
+      </Helmet>
+      <div className='@container/main'>
+        <div className='py-4 md:gap-6 md:py-6'>
+          <div className='px-4 lg:px-6'>
+            {/* <TableMain
             headers={[
               'STT',
               'Tiêu đề',
@@ -75,8 +84,9 @@ export default function EffectiveRead() {
               </TableRow>
             )}
           /> */}
+          </div>
         </div>
       </div>
-    </div>
+    </Fragment>
   )
 }
