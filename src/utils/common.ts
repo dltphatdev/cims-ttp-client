@@ -73,3 +73,7 @@ export const getAvatarUrl = (nameAvatar?: string) =>
   nameAvatar ? `${CONFIG.SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'
 
 export const getFilesUrl = (filename?: string) => (filename ? `${CONFIG.SERVER_URL}files/${filename}` : '')
+
+export function formatNumberCurrency(currency: number) {
+  return Intl.NumberFormat('de-DE').format(currency)
+}

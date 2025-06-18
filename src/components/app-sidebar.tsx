@@ -31,7 +31,7 @@ const data = [
       },
       {
         title: 'Effective',
-        url: PATH.EFFECTIVE,
+        url: PATH.PERFORMANCE,
         icon: <CircleDollarSign />
       }
     ]

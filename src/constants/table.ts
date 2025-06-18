@@ -11,3 +11,16 @@ export const CUSTOMER_HEADER_TABLE = [
   'Status',
   'Action'
 ]
+
+export const PERFORMANCE_HEADER_TABLE = [
+  'STT',
+  'Title',
+  'Customer',
+  'Revenue',
+  'Profit',
+  'Ratio profit',
+  'Creator',
+  'Created at',
+  'Status',
+  'Action'
+]

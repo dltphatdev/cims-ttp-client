@@ -3,6 +3,7 @@ import { ACTIVE, DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED as UNVERIFIED_CUSTOMER, VERIFIED as VERIFIED_CUSTOMER } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
+import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
 
 function handleConfirmPasswordYup(field: string) {
   return yup
@@ -59,7 +60,7 @@ export const customerSchema = yup.object({
   name: yup
     .string()
     .required('Name is required')
-    .min(3, 'Name min length is 4 characters')
+    .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
   consultantor_id: yup.string().optional(),
@@ -86,4 +87,21 @@ export const customerSchema = yup.object({
   assign_at: yup.string().optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
   gender: yup.string().oneOf([MALE, FEMALE], 'Gender invalid').optional()
+})
+
+export const performanceSchema = yup.object({
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(3, 'Name min length is 3 characters')
+    .max(160, 'Name maximum length is 160 characters'),
+  customer_id: yup.string().required(),
+  note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
+  status: yup.string().oneOf([NEW, APPROVED, CANCELLED], 'Status performance invalid').optional(),
+  operating_cost: yup.string().max(100, 'Operating cost max length 100 characters'),
+  customer_care_cost: yup.string().max(100, 'Customer care cost max length 100 characters'),
+  commission_cost: yup.string().max(100, 'Commission cost max length 100 characters'),
+  diplomatic_cost: yup.string().max(100, 'Diplomatic cost max length 100 characters'),
+  reserve_cost: yup.string().max(100, 'Reserve cost max length 100 characters'),
+  customer_cost: yup.string().max(100, 'Customer cost max length 100 characters')
 })

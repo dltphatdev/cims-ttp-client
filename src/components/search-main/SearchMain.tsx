@@ -5,13 +5,14 @@ import { X, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import type { TQueryConfig } from '@/types/query-config'
+import { PAGE } from '@/constants/pagination'
 
 interface Props {
   queryConfig?: TQueryConfig
   value?: string
   payloadField?: {
     text: string // field cho text, ví dụ: "name"
-    number: string // field cho số, ví dụ: "phone"
+    number?: string // field cho số, ví dụ: "phone"
   }
 }
 
@@ -22,7 +23,7 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
   const [tags, setTags] = useState<string[]>([])
 
   const handleAddTag = () => {
-    const _value = value || localValue
+    const _value = (value || localValue).trim()
     if (!_value) return
     const isNumber = /^\d+$/.test(_value)
 
@@ -52,7 +53,8 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
       pathname: '',
       search: createSearchParams({
         ...queryConfig,
-        ...payload
+        ...payload,
+        page: PAGE
       }).toString()
     })
   }

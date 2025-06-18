@@ -125,7 +125,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
   return (
     <div className='flex flex-col space-y-4 w-fit mb-2'>
       <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-        File upload {labelRequired === true && <span className='text-red-500'>*</span>}
+        Bản scan hợp đồng {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <Button type='button' variant='outline' onClick={handleClick} className='flex items-center gap-2'>
         <UploadCloud className='w-4 h-4' />

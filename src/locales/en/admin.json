@@ -95,5 +95,14 @@
   "Verify": "Verify",
   "Unverify": "Unverify",
   "Revoke": "Revoke",
-  "Verify is choosen": "Verify is choosen"
+  "Verify is choosen": "Verify is choosen",
+  "Revenue": "Revenue",
+  "Profit": "Profit",
+  "Ratio profit": "Ratio profit",
+  "Create performance": "Create performance",
+  "Select status": "Select status",
+  "Select customer": "Select customer",
+  "New": "New",
+  "Approved": "Approved",
+  "Cancelled": "Cancelled"
 }

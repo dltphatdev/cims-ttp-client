@@ -10,9 +10,9 @@ const Dashboard = lazy(() => import('@/pages/dashboard'))
 const NotFound = lazy(() => import('@/pages/not-found'))
 const CustomerRead = lazy(() => import('@/pages/customer/pages/read'))
 const CustomerCreate = lazy(() => import('@/pages/customer/pages/create'))
-const EffectiveRead = lazy(() => import('@/pages/effective/pages/read'))
-const EffectiveCreate = lazy(() => import('@/pages/effective/pages/create'))
-const EffectiveUpdate = lazy(() => import('@/pages/effective/pages/update'))
+const PerformanceRead = lazy(() => import('@/pages/performance/pages/read'))
+const PerformanceCreate = lazy(() => import('@/pages/performance/pages/create'))
+const PerformanceUpdate = lazy(() => import('@/pages/performance/pages/update'))
 const ActivitiesRead = lazy(() => import('@/pages/activities/pages/read'))
 const ActivitiesCreate = lazy(() => import('@/pages/activities/pages/create'))
 const ActivitiesUpdate = lazy(() => import('@/pages/activities/pages/update'))
@@ -130,26 +130,26 @@ const Router = () => {
               )
             },
             {
-              path: PATH.EFFECTIVE,
+              path: PATH.PERFORMANCE,
               element: (
                 <Suspense>
-                  <EffectiveRead />
+                  <PerformanceRead />
                 </Suspense>
               )
             },
             {
-              path: PATH.EFFECTIVE_CREATE,
+              path: PATH.PERFORMANCE_CREATE,
               element: (
                 <Suspense>
-                  <EffectiveCreate />
+                  <PerformanceCreate />
                 </Suspense>
               )
             },
             {
-              path: PATH.EFFECTIVE_UPDATE,
+              path: PATH.PERFORMANCE_UPDATE,
               element: (
                 <Suspense>
-                  <EffectiveUpdate />
+                  <PerformanceUpdate />
                 </Suspense>
               )
             },

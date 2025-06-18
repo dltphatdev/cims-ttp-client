@@ -95,5 +95,14 @@
   "Verify": "Xác minh",
   "Unverify": "Chưa xác minh",
   "Revoke": "Thu hồi",
-  "Verify is choosen": "Trạng thái xác minh được chọn"
+  "Verify is choosen": "Trạng thái xác minh được chọn",
+  "Revenue": "Doanh thu",
+  "Profit": "Lợi nhuận",
+  "Ratio profit": "Tỉ lệ lợi nhuận",
+  "Create performance": "Thêm mới hiệu quả",
+  "Select status": "Chọn trạng thái",
+  "Select customer": "Chọn khách hàng",
+  "New": "Mới",
+  "Approved": "Đã duyệt",
+  "Cancelled": "Hủy"
 }

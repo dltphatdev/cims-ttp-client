@@ -8,8 +8,6 @@ import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omitBy } from 'lodash'
-import userApi from '@/apis/user.api'
-import type { GetUsersParams } from '@/types/user'
 import { Input } from '@/components/ui/input'
 import {
   AlertDialog,
@@ -20,6 +18,8 @@ import {
   AlertDialogTitle,
   AlertDialogAction
 } from '@/components/ui/alert-dialog'
+import customerApi from '@/apis/customer.api'
+import type { GetCustomersParams } from '@/types/customer'
 
 interface Props {
   onExportId?: (value: number) => void
@@ -27,62 +27,62 @@ interface Props {
   labelRequired?: boolean
 }
 
-export default function AddTagUser({ onExportId, defaultValue, labelRequired = false }: Props) {
+export default function AddTagCustomer({ onExportId, defaultValue, labelRequired = false }: Props) {
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
   const [confirmAction, setConfirmAction] = useState<null | 'add' | 'remove'>(null)
-  const [pendingUser, setPendingUser] = useState<{ id: number; name: string } | null>(null)
-  const [selectedUser, setSelectedUser] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
+  const [pendingCustomer, setPendingCustomer] = useState<{ id: number; name: string } | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
   const [open, setOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
     if (!hasInitialized.current && defaultValue?.id && defaultValue?.name) {
-      setSelectedUser(defaultValue)
+      setSelectedCustomer(defaultValue)
       onExportId?.(defaultValue.id)
       hasInitialized.current = true
     }
   }, [defaultValue, onExportId])
 
-  const queryParams: GetUsersParams = useQueryParams()
-  const queryConfig: GetUsersParams = omitBy(
+  const queryParams: GetCustomersParams = useQueryParams()
+  const queryConfig: GetCustomersParams = omitBy(
     {
       page: queryParams.page,
       limit: queryParams.limit,
-      fullname: queryParams.fullname as string[],
+      name: queryParams.name as string[],
       phone: queryParams.phone as string[]
     },
     isUndefined
   )
-  const { data: userData } = useQuery({
-    queryKey: ['users', queryConfig],
-    queryFn: () => userApi.getUsers(queryConfig)
+  const { data: customersData } = useQuery({
+    queryKey: ['customers', queryConfig],
+    queryFn: () => customerApi.getCustomers(queryConfig)
   })
 
   const handleSelect = ({ name, id }: { name: string; id: number }) => {
-    setPendingUser({ name, id })
+    setPendingCustomer({ name, id })
     setConfirmAction('add')
   }
 
   const handleRemove = () => setConfirmAction('remove')
 
-  const users = userData?.data?.data?.users
+  const customers = customersData?.data?.data?.customers
 
-  const filteredUsers = useMemo(
-    () => users?.filter((user) => user.fullname?.toLowerCase().includes(searchValue.toLowerCase())),
-    [searchValue, users]
+  const filteredCustomers = useMemo(
+    () => customers?.filter((customer) => customer.name?.toLowerCase().includes(searchValue.toLowerCase())),
+    [searchValue, customers]
   )
 
   const handleAlertDialogSuccessAction = () => {
-    if (confirmAction === 'add' && pendingUser) {
-      setSelectedUser(pendingUser)
-      onExportId?.(pendingUser.id)
+    if (confirmAction === 'add' && pendingCustomer) {
+      setSelectedCustomer(pendingCustomer)
+      onExportId?.(pendingCustomer.id)
       setOpen(false)
     } else if (confirmAction === 'remove') {
-      setSelectedUser(null)
+      setSelectedCustomer(null)
       onExportId?.(0)
     }
-    setPendingUser(null)
+    setPendingCustomer(null)
     setConfirmAction(null)
   }
 
@@ -90,15 +90,15 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
   return (
     <div className='space-y-2'>
       <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
-        {t('Sale')} {labelRequired === true && <span className='text-red-500'>*</span>}
+        {t('Customer')} {labelRequired === true && <span className='text-red-500'>*</span>}
       </label>
       <div className='flex items-center flex-wrap gap-2'>
-        {selectedUser && (
+        {selectedCustomer && (
           <Badge
             variant='secondary'
             className='text-blue-800 bg-gray-100 border-2 border-gray-200 px-3 py-2 rounded-md flex items-center gap-1'
           >
-            {selectedUser.name}
+            {selectedCustomer.name}
             <button
               onClick={handleRemove}
               className='ml-2 text-gray-500 hover:text-red-500'
@@ -122,10 +122,10 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
 
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
-              <DialogTitle>{t('Select consultant')}</DialogTitle>
+              <DialogTitle>{t('Select customer')}</DialogTitle>
             </DialogHeader>
             <Input
-              placeholder={t('Search consultant') || 'Search consultant...'}
+              placeholder={t('Search customer') || 'Search customer...'}
               className='mb-2'
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -133,16 +133,16 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
 
             <ScrollArea className='h-40'>
               <div className='grid gap-2'>
-                {filteredUsers && filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
+                {filteredCustomers && filteredCustomers.length > 0 ? (
+                  filteredCustomers.map((item) => (
                     <Button
-                      key={user.id}
+                      key={item.id}
                       variant='outline'
                       className='justify-start'
-                      onClick={() => handleSelect({ id: user.id, name: user.fullname as string })}
-                      disabled={selectedUser?.name === user.fullname}
+                      onClick={() => handleSelect({ id: item.id, name: item.name as string })}
+                      disabled={selectedCustomer?.name === item.name}
                     >
-                      {user.fullname}
+                      {item.name}
                     </Button>
                   ))
                 ) : (
@@ -158,7 +158,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {confirmAction === 'add' ? t('Confirm add consultant?') : t('Confirm remove consultant?')}
+                {confirmAction === 'add' ? t('Confirm add customer?') : t('Confirm remove customer?')}
               </AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogFooter>
