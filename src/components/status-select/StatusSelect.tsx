@@ -29,7 +29,7 @@ const StatusSelect = ({ labelValue, statuses, errorMessage, onChange, value, lab
       </Label>
       <Select value={value || status} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select status')}>{value || status}</SelectValue>
+          <SelectValue placeholder={t('Select status')}>{t(value as string) || t(status)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

@@ -10,6 +10,7 @@ interface Props<T> {
   renderRow: (item: T, index: number) => React.ReactNode
   page?: string
   page_size?: string
+  pageKey?: string
 }
 
 export default function TableMain<T>({
@@ -18,7 +19,8 @@ export default function TableMain<T>({
   headerClassNames,
   renderRow,
   page = PAGE,
-  page_size = LIMIT
+  page_size = LIMIT,
+  pageKey = 'page'
 }: Props<T>) {
   const { t } = useTranslation('admin')
   return (
@@ -44,7 +46,7 @@ export default function TableMain<T>({
         </TableBody>
       </Table>
       {/* Pagination */}
-      <PaginationMain page={Number(page)} page_size={Number(page_size)} />
+      <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />
     </div>
   )
 }

@@ -104,5 +104,15 @@
   "Select customer": "Select customer",
   "New": "New",
   "Approved": "Approved",
-  "Cancelled": "Cancelled"
+  "Cancelled": "Cancelled",
+  "Update performance": "Update performance",
+  "Revenue input": "Revenue input",
+  "Revenue output": "Revenue output",
+  "Revenue title": "Revenue title",
+  "Description": "Description",
+  "Caculate unit": "Caculate unit",
+  "Price": "Price",
+  "Quantity": "Quantity",
+  "OneTime": "One Time",
+  "EveryMonth": "Very Month"
 }

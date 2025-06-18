@@ -40,7 +40,6 @@ export default function PerformanceRead() {
   const performances = performanceData?.data?.data?.performances
   const pagination = performanceData?.data?.data
 
-  console.log(performances)
   return (
     <Fragment>
       <Helmet>

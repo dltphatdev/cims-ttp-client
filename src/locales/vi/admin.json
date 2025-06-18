@@ -104,5 +104,15 @@
   "Select customer": "Chọn khách hàng",
   "New": "Mới",
   "Approved": "Đã duyệt",
-  "Cancelled": "Hủy"
+  "Cancelled": "Hủy",
+  "Update performance": "Cập nhật hiệu quả",
+  "Revenue input": "Chi phí đầu vào",
+  "Revenue output": "Chi phí đầu ra",
+  "Revenue title": "Hạng mục",
+  "Description": "Diễn giải",
+  "Caculate unit": "Đơn vị tính",
+  "Price": "Đơn giá",
+  "Quantity": "Số lượng",
+  "OneTime": "Một lần",
+  "EveryMonth": "Hàng tháng"
 }

@@ -340,7 +340,7 @@ const CustomerUpdateCompany = () => {
                   </div>
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                      {t('Note')} <span className='text-red-500'>*</span>
+                      {t('Note')}
                     </Label>
                     <Textarea {...register('note')} placeholder={t('Note')} />
                     {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}

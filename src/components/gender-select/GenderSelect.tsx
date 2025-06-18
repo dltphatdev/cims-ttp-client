@@ -29,13 +29,13 @@ const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value, labe
       </Label>
       <Select value={value || gender} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select gender')}>{value || gender}</SelectValue>
+          <SelectValue placeholder={t('Select gender')}>{t(value as string) || t(gender)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {genders.map((item) => (
               <SelectItem key={item.gender_type} value={item.gender_type}>
-                {item.gender_value}
+                {t(item.gender_value)}
               </SelectItem>
             ))}
           </SelectGroup>

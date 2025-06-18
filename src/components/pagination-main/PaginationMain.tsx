@@ -1,16 +1,24 @@
-import { createSearchParams, Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 
 interface Props {
   page: number
   page_size: number
+  pageKey?: string
 }
 
 const RANGE = 2
 
-export default function Pagination({ page, page_size }: Props) {
+export default function Pagination({ page, page_size, pageKey = 'page' }: Props) {
+  const location = useLocation()
   let dotAfter = false
   let dotBefore = false
+
+  const getUpdatedSearch = (value: number) => {
+    const params = new URLSearchParams(location.search)
+    params.set(pageKey, value.toString())
+    return params.toString()
+  }
 
   const renderDotAfter = (index: number) => {
     if (!dotAfter) {
@@ -58,9 +66,7 @@ export default function Pagination({ page, page_size }: Props) {
           <li className='w-fit' key={index}>
             <Link
               to={{
-                search: createSearchParams({
-                  page: pageNumber.toString()
-                }).toString()
+                search: getUpdatedSearch(pageNumber)
               }}
               className={clsx('flex items-center justify-center w-[36px] h-[36px] rounded-sm border border-gray-300', {
                 '!border-(--color-green) text-(--color-green)': page === pageNumber
@@ -79,9 +85,7 @@ export default function Pagination({ page, page_size }: Props) {
           <li className='w-fit'>
             <Link
               to={{
-                search: createSearchParams({
-                  page: (page - 1).toString()
-                }).toString()
+                search: getUpdatedSearch(page - 1)
               }}
               className='flex h-[36px] items-center justify-center border border-gray-300 w-[36px] rounded-sm'
             >
@@ -103,9 +107,7 @@ export default function Pagination({ page, page_size }: Props) {
           <li className='w-fit'>
             <Link
               to={{
-                search: createSearchParams({
-                  page: (page + 1).toString()
-                }).toString()
+                search: getUpdatedSearch(page + 1)
               }}
               className='flex h-[36px] items-center justify-center border border-gray-300 w-[36px] rounded-sm'
             >

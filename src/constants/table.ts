@@ -24,3 +24,25 @@ export const PERFORMANCE_HEADER_TABLE = [
   'Status',
   'Action'
 ]
+
+export const REVENUE_INPUT_HEADER_TABLE = [
+  'STT',
+  'Revenue title',
+  'Type',
+  'Description',
+  'Caculate unit',
+  'Price',
+  'Quantity',
+  'Created at'
+]
+
+export const REVENUE_OUTPUT_HEADER_TABLE = [
+  'STT',
+  'Revenue title',
+  'Type',
+  'Description',
+  'Caculate unit',
+  'Price',
+  'Quantity',
+  'Created at'
+]
