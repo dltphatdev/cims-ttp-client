@@ -15,7 +15,8 @@ const PATH = {
   USER_CHANGE_PASSWORD: '/user/change-password',
   USER_DETAIL: '/user/:userId',
   USER_CREATE: '/user/create',
-  USER_UPDATE: '/user/profile'
+  USER_UPDATE: '/user/profile',
+  REVENUE_CREATE: '/revenue/create'
 } as const
 
 export default PATH

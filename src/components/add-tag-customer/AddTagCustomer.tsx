@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X } from 'lucide-react'
+import { AlertTriangle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { useQueryParams } from '@/hooks/use-query-params'
@@ -158,9 +158,15 @@ export default function AddTagCustomer({ onExportId, defaultValue, labelRequired
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {confirmAction === 'add' ? t('Confirm add customer?') : t('Confirm remove customer?')}
+                <div className='flex flex-wrap gap-2 text-red-500 items-center'>
+                  <AlertTriangle className=' w-6 h-6' />{' '}
+                  {confirmAction === 'add' ? 'Thông báo thao tác thêm khách hàng' : 'Thông báo thao tác xoá khách hàng'}
+                </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
+            <p className='text-sm text-muted-foreground px-1'>
+              Bạn có chắc chắn muốn {confirmAction === 'add' ? 'thêm' : 'xóa'} khách hàng này không?
+            </p>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>
               <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('OK')}</AlertDialogAction>

@@ -31,7 +31,7 @@ export interface UpdatePerformanceReqBody {
   assign_at?: string
   operating_cost?: number | string
   customer_care_cost?: number | string
-  commission_cost?: number
+  commission_cost?: number | string
   diplomatic_cost?: number | string
   reserve_cost?: number | string
   customer_cost?: number | string

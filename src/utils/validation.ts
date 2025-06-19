@@ -4,6 +4,7 @@ import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED as UNVERIFIED_CUSTOMER, VERIFIED as VERIFIED_CUSTOMER } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
 import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
+import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
 
 function handleConfirmPasswordYup(field: string) {
   return yup
@@ -104,4 +105,17 @@ export const performanceSchema = yup.object({
   diplomatic_cost: yup.string().max(100, 'Diplomatic cost max length 100 characters'),
   reserve_cost: yup.string().max(100, 'Reserve cost max length 100 characters'),
   customer_cost: yup.string().max(100, 'Customer cost max length 100 characters')
+})
+
+export const revenueSchema = yup.object({
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(3, 'Name min length is 3 characters')
+    .max(160, 'Name maximum length is 160 characters'),
+  description: yup.string().required().max(2000, 'Description maximum length is 2000 characters'),
+  unit_caculate: yup.string().required().max(160, 'Name maximum length is 255 characters'),
+  type: yup.string().required().oneOf([ONE_TIME, EVERY_MONTH], 'Type invalid'),
+  price: yup.string().required(),
+  quantity: yup.string().required()
 })

@@ -14,3 +14,14 @@ export interface Revenue {
   created_at: string
   updated_at: string
 }
+
+export interface CreateRevenueReqBody {
+  name: string
+  description: string
+  unit_caculate: string
+  type: TypeRevenue
+  performance_id: number
+  price: number
+  quantity: number
+  direction: RevenueDirection
+}

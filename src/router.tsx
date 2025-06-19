@@ -23,6 +23,7 @@ const UserUpdate = lazy(() => import('@/pages/user/pages/update'))
 const ChangePassword = lazy(() => import('@/pages/user/pages/change-password'))
 const CustomerUpdateCompany = lazy(() => import('@/pages/customer/pages/update/pages/CustomerUpdateCompany'))
 const CustomerUpdatePersonal = lazy(() => import('@/pages/customer/pages/update/pages/CustomerUpdatePersonal'))
+const RevenueCreate = lazy(() => import('@/pages/revenue/create'))
 
 const ProtectedRoute = () => {
   const { isAuthenticated } = useContext(AppContext)
@@ -190,6 +191,14 @@ const Router = () => {
               element: (
                 <Suspense>
                   <ChangePassword />
+                </Suspense>
+              )
+            },
+            {
+              path: PATH.REVENUE_CREATE,
+              element: (
+                <Suspense>
+                  <RevenueCreate />
                 </Suspense>
               )
             }

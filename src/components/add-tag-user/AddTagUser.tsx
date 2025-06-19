@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X } from 'lucide-react'
+import { AlertTriangle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { useQueryParams } from '@/hooks/use-query-params'
@@ -158,9 +158,17 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {confirmAction === 'add' ? t('Confirm add consultant?') : t('Confirm remove consultant?')}
+                <div className='flex flex-wrap gap-2 text-red-500 items-center'>
+                  <AlertTriangle className=' w-6 h-6' />{' '}
+                  {confirmAction === 'add'
+                    ? 'Thông báo thao tác thêm người tư vấn'
+                    : 'Thông báo thao tác xoá người tư vấn'}
+                </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
+            <p className='text-sm text-muted-foreground px-1'>
+              Bạn có chắc chắn muốn {confirmAction === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
+            </p>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>
               <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('OK')}</AlertDialogAction>

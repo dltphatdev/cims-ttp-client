@@ -15,6 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
 import { Ellipsis, Plus } from 'lucide-react'
+import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -39,6 +40,15 @@ export default function PerformanceRead() {
 
   const performances = performanceData?.data?.data?.performances
   const pagination = performanceData?.data?.data
+
+  const extendedPerformances = useMemo(() => {
+    if (performances)
+      return performances.map((item) => ({
+        ...item,
+        revenueInput: item.revenues.filter((i) => i.direction === 'In'),
+        revenueOutput: item.revenues.filter((i) => i.direction === 'Out')
+      }))
+  }, [performances])
 
   return (
     <Fragment>
@@ -65,35 +75,40 @@ export default function PerformanceRead() {
               headers={PERFORMANCE_HEADER_TABLE}
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
-              data={performances}
+              data={extendedPerformances}
               renderRow={(item, index) => {
-                const revenue = item.revenues.reduce(
+                const revenuePrice = item.revenueInput.reduce(
+                  (result, current) => result + Number(current.price) * current.quantity,
+                  0
+                ) // doanh thu
+                const revenueOperatingCostPrice = item.operating_cost * revenuePrice
+                const revenueCustomerCareCostPrice = item.customer_care_cost * revenuePrice
+                const revenueManagerCompany = revenueOperatingCostPrice + revenueCustomerCareCostPrice // 1
+                const revenueOutputPrice = item.revenueOutput.reduce(
                   (result, current) => result + Number(current.price) * current.quantity,
                   0
                 )
-                const operatingCost = revenue && item.operating_cost ? revenue * item.operating_cost : 0
-                const customerCareCost = revenue && item.customer_care_cost ? revenue * item.customer_care_cost : 0
-                const commissionCost = revenue && item.commission_cost ? revenue * item.commission_cost : 0
-                const diplomaticCost = revenue && item.diplomatic_cost ? revenue * item.diplomatic_cost : 0
-                const reserveCost = revenue && item.reserve_cost ? revenue * item.reserve_cost : 0
-                const customerCost = revenue && item.customer_cost ? revenue * item.customer_cost : 0
-                const profit =
-                  revenue -
-                  operatingCost -
-                  customerCareCost -
-                  commissionCost -
-                  diplomaticCost -
-                  reserveCost -
-                  customerCost
-                const ratioProfit = profit / revenue
+                const revenueCommissionCostPrice = revenuePrice * item.commission_cost
+                const revenueDiplomaticCostPrice = revenuePrice * item.diplomatic_cost
+                const revenueCustomerCostPrice = revenuePrice * item.customer_cost
+                const revenueReserveCostPrice = revenuePrice * item.reserve_cost
+                const revenueCommissionDiplomaticCustomerReserve =
+                  revenueCommissionCostPrice +
+                  revenueDiplomaticCostPrice +
+                  revenueCustomerCostPrice +
+                  revenueReserveCostPrice
+                const costOfSales = revenueCommissionDiplomaticCustomerReserve + revenueOutputPrice // 2
+                const revenueTax = revenuePrice - costOfSales - revenueCommissionCostPrice // 3
+                const profit = revenuePrice - revenueManagerCompany - costOfSales - revenueTax
+                const ratioProfit = profit / revenuePrice
                 return (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.customer.name}</TableCell>
-                    <TableCell>{formatNumberCurrency(revenue) || 0} đ</TableCell>
+                    <TableCell>{formatNumberCurrency(revenuePrice) || 0} đ</TableCell>
                     <TableCell>{formatNumberCurrency(profit) || 0} đ</TableCell>
-                    <TableCell>{ratioProfit || 0}%</TableCell>
+                    <TableCell>{ratioProfit * 100 || 0}%</TableCell>
                     <TableCell>{item.creator.fullname}</TableCell>
                     <TableCell>
                       <FormattedDate isoDate={item.created_at as string} />
