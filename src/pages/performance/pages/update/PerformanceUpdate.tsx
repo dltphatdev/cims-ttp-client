@@ -364,8 +364,8 @@ export default function PerformanceUpdate() {
               <div className='mb-6'>
                 <Card className='overflow-x-auto'>
                   <CardContent className='grid gap-3'>
-                    <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
-                      <h1 className='mb-2 font-bold text-xl'>A. Doanh thu (trước VAT)</h1>
+                    <div className='flex items-center flex-wrap justify-between mb-4 gap-3'>
+                      <h1 className='font-bold text-xl'>A. Doanh thu (trước VAT)</h1>
                       <Button
                         type='button'
                         variant='outline'
@@ -411,7 +411,9 @@ export default function PerformanceUpdate() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align='end'>
-                                <DropdownMenuItem>{t('Edit')}</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigate(`/revenue/update/${item.id}?direction=In`)}>
+                                  {t('Edit')}
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -437,7 +439,7 @@ export default function PerformanceUpdate() {
               <div className='mb-6'>
                 <Card className='overflow-x-auto'>
                   <CardContent className='grid gap-3'>
-                    <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
+                    <div className='flex items-center flex-wrap justify-between mb-4 gap-3'>
                       <h1 className='mb-2 font-bold text-xl'>B. Chi phí</h1>
                       <Button
                         variant='outline'
@@ -484,7 +486,9 @@ export default function PerformanceUpdate() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align='end'>
-                                <DropdownMenuItem>{t('Edit')}</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigate(`/revenue/update/${item.id}?direction=Out`)}>
+                                  {t('Edit')}
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -673,7 +677,7 @@ export default function PerformanceUpdate() {
                 <Card>
                   <CardContent className='grid gap-3'>
                     <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
-                      <h1 className='mb-2 font-bold text-xl'>C. Chỉ số</h1>
+                      <h1 className='font-bold text-xl'>C. Chỉ số</h1>
                     </div>
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-4'>
@@ -695,7 +699,6 @@ export default function PerformanceUpdate() {
                   </CardContent>
                 </Card>
               </div>
-
               <CardFooter className='mt-6 p-0'>
                 <Button>{t('Save')}</Button>
               </CardFooter>

@@ -29,7 +29,7 @@ export default function NavItem({ data, sideBarLabel }: Props) {
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton
               className={clsx('sidebar-btn transition-all', {
-                active: pathname === item.url
+                active: pathname === item.url || pathname.match(item.url + '/')
               })}
               asChild
             >

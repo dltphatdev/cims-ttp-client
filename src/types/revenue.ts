@@ -6,11 +6,11 @@ export interface Revenue {
   name: string
   description: string
   unit_caculate: string
-  type: TypeRevenue
+  type: TypeRevenue | string
   performance_id: number
   price: string
   quantity: number
-  direction: RevenueDirection
+  direction: RevenueDirection | string
   created_at: string
   updated_at: string
 }
@@ -24,4 +24,18 @@ export interface CreateRevenueReqBody {
   price: number
   quantity: number
   direction: RevenueDirection
+}
+
+export interface UpdateRevenueReqBody {
+  id: number
+  name?: string
+  description?: string
+  unit_caculate?: string
+  type?: TypeRevenue | string
+  price?: number
+  quantity?: number
+}
+
+export interface GetDetailRevenueParams {
+  direction?: RevenueDirection
 }
