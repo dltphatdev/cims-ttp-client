@@ -114,5 +114,7 @@
   "Price": "Đơn giá",
   "Quantity": "Số lượng",
   "OneTime": "Một lần",
-  "EveryMonth": "Hàng tháng"
+  "EveryMonth": "Hàng tháng",
+  "Time start": "Bắt đầu",
+  "Time end": "Kết thúc"
 }

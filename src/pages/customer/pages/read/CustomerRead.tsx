@@ -206,7 +206,7 @@ export default function CustomerRead() {
               headers={CUSTOMER_HEADER_TABLE}
               data={customers}
               renderRow={(item, index) => (
-                <TableRow key={index}>
+                <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.type === 'Personal' ? item.cccd : item.tax_code}</TableCell>

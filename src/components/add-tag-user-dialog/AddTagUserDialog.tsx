@@ -1,39 +1,39 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { AlertTriangle, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
-import { useQueryParams } from '@/hooks/use-query-params'
-import { isUndefined, omitBy } from 'lodash'
 import userApi from '@/apis/user.api'
-import type { GetUsersParams } from '@/types/user'
-import { Input } from '@/components/ui/input'
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogAction
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useQueryParams } from '@/hooks/use-query-params'
+import type { GetUsersParams } from '@/types/user'
+import { useQuery } from '@tanstack/react-query'
+import { isUndefined, omitBy } from 'lodash'
+import { AlertTriangle, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   onExportId?: (value: number) => void
   defaultValue?: { id: number; name: string }
-  labelRequired?: boolean
+  openPopup: boolean
+  setOpenPopup: (value: boolean) => void
 }
 
-export default function AddTagUser({ onExportId, defaultValue, labelRequired = false }: Props) {
+const AddTagUserDialog = ({ onExportId, defaultValue, openPopup, setOpenPopup }: Props) => {
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
   const [confirmAction, setConfirmAction] = useState<null | 'add' | 'remove'>(null)
   const [pendingUser, setPendingUser] = useState<{ id: number; name: string } | null>(null)
   const [selectedUser, setSelectedUser] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
-  const [open, setOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
     if (confirmAction === 'add' && pendingUser) {
       setSelectedUser(pendingUser)
       onExportId?.(pendingUser.id)
-      setOpen(false)
+      setOpenPopup(false)
     } else if (confirmAction === 'remove') {
       setSelectedUser(null)
       onExportId?.(0)
@@ -88,9 +88,6 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
   const handleAlertDialogCancelAction = () => setConfirmAction(null)
   return (
     <div className='space-y-2'>
-      <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
-        {t('Sale')} {labelRequired === true && <span className='text-red-500'>*</span>}
-      </label>
       <div className='flex items-center flex-wrap gap-2'>
         {selectedUser && (
           <Badge
@@ -109,16 +106,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
           </Badge>
         )}
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant='ghost'
-              className='border border-dashed border-(--color-org) text-(--color-org) hover:bg-orange-50 px-3 py-1 text-sm font-medium rounded-md'
-            >
-              + Add (max 1)
-            </Button>
-          </DialogTrigger>
-
+        <Dialog open={openPopup} onOpenChange={setOpenPopup}>
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
               <DialogTitle>{t('Select consultant')}</DialogTitle>
@@ -178,3 +166,5 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
     </div>
   )
 }
+
+export default AddTagUserDialog

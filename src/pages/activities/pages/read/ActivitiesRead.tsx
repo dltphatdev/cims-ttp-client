@@ -1,43 +1,47 @@
-// import TableMain from '@/components/table-main'
-// import { Button } from '@/components/ui/button'
-// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-// import { TableCell, TableRow } from '@/components/ui/table'
-// import { Ellipsis } from 'lucide-react'
+import TableMain from '@/components/table-main'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { Ellipsis, Plus } from 'lucide-react'
+import activityApi from '@/apis/activity.api'
+import { useQueryParams } from '@/hooks/use-query-params'
+import type { GetListActivityParams } from '@/types/activity'
+import { useQuery } from '@tanstack/react-query'
+import { isUndefined, omitBy } from 'lodash'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
-
-// const data = [
-//   {
-//     title: 'Hẹn tư vấn demo',
-//     customer: 'Công ty TNHH ABC',
-//     creator: 'Nguyễn Nhược Phi',
-//     created_at: '14:17:00 12/12/2024',
-//     start: '14:17:00 12/12/2024',
-//     end: '14:17:00 12/12/2024',
-//     status: 'Hoàn thành'
-//   },
-//   {
-//     title: 'Hẹn tư vấn demo',
-//     customer: 'Công ty TNHH ABC',
-//     creator: 'Nguyễn Nhược Phi',
-//     created_at: '14:17:00 12/12/2024',
-//     start: '14:17:00 12/12/2024',
-//     end: '14:17:00 12/12/2024',
-//     status: 'Đang thực hiện'
-//   },
-//   {
-//     title: 'Hẹn tư vấn demo',
-//     customer: 'Công ty TNHH ABC',
-//     creator: 'Nguyễn Nhược Phi',
-//     created_at: '14:17:00 12/12/2024',
-//     start: '14:17:00 12/12/2024',
-//     end: '14:17:00 12/12/2024',
-//     status: 'Hủy'
-//   }
-// ]
+import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
+import FormattedDate from '@/components/formatted-date'
+import { LIMIT, PAGE } from '@/constants/pagination'
+import { useTranslation } from 'react-i18next'
+import clsx from 'clsx'
+import SearchMain from '@/components/search-main'
+import { useState } from 'react'
+import AddTagUserDialog from '@/components/add-tag-user-dialog'
 
 export default function ActivitiesRead() {
+  const { t } = useTranslation('admin')
+  const [openTagUsers, setOpenTagUsers] = useState(false)
+  const queryParams: GetListActivityParams = useQueryParams()
+  const queryConfig: GetListActivityParams = omitBy(
+    {
+      page: queryParams.page,
+      limit: queryParams.limit,
+      name: queryParams.name as string[]
+    },
+    isUndefined
+  )
+  const { data: activitiesData } = useQuery({
+    queryKey: ['activities', queryConfig],
+    queryFn: () => activityApi.getListActivity(queryConfig)
+  })
+  const activities = activitiesData?.data.data.activities
+  const pagination = activitiesData?.data.data
+
+  // const handleRevokeCustomer = () => {
+  //   console.log(123)
+  // }
+
   return (
     <Fragment>
       <Helmet>
@@ -48,39 +52,56 @@ export default function ActivitiesRead() {
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
-            <div>Comming soon</div>
-            {/* <TableMain
-              headers={[
-                'STT',
-                'Tiêu đề',
-                'Khách hàng',
-                'Người tạo',
-                'Ngày tạo',
-                'Bắt đầu',
-                'Kết thúc',
-                'Trạng thái',
-                'Hành động'
-              ]}
-              data={data}
+            <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
+              <SearchMain
+                queryConfig={queryConfig}
+                payloadField={{
+                  text: 'name'
+                }}
+              />
+              <Button variant='outline' type='button'>
+                <Plus /> {t('Create new')}
+              </Button>
+            </div>
+            <TableMain
+              headers={ACTIVITY_HEADER_TABLE}
+              data={activities}
+              page={pagination?.page.toString() || PAGE}
+              page_size={pagination?.limit.toString() || LIMIT}
               renderRow={(item, index) => (
-                <TableRow key={index}>
+                <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{item.title}</TableCell>
-                  <TableCell>{item.customer}</TableCell>
-                  <TableCell>{item.creator}</TableCell>
-                  <TableCell>{item.created_at}</TableCell>
-                  <TableCell>{item.start}</TableCell>
-                  <TableCell>{item.end}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.customer.name}</TableCell>
+                  <TableCell>{item.creator.fullname}</TableCell>
                   <TableCell>
-                    <Select value='abc'>
-                      <SelectTrigger className='w-[150px] border-0 shadow-none focus:hidden text-(--color-green-custom)'>
-                        <SelectValue className=''>Đã xác minh</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='Chưa xác minh'>Chưa xác minh</SelectItem>
-                        <SelectItem value='Đã xác minh'>Đã xác minh</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormattedDate isoDate={item.created_at as string} />
+                  </TableCell>
+                  <TableCell>
+                    <FormattedDate isoDate={item.time_start as string} />
+                  </TableCell>
+                  <TableCell>
+                    <FormattedDate isoDate={item.time_end as string} />
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
+                        'text-(--color-green-custom)': item.status === 'Completed',
+                        '!text-red-500': item.status === 'Cancelled',
+                        '!text-yellow-500': item.status === 'New',
+                        '!text-orange-500': item.status === 'InProgress'
+                      })}
+                    >
+                      {item.status === 'New'
+                        ? t('New')
+                        : item.status === 'InProgress'
+                          ? t('In progress')
+                          : item.status === 'Completed'
+                            ? t('Completed')
+                            : item.status === 'Cancelled'
+                              ? t('Cancelled')
+                              : ''}
+                    </span>
                   </TableCell>
                   <TableCell className='ml-auto text-end'>
                     <DropdownMenu>
@@ -91,7 +112,7 @@ export default function ActivitiesRead() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
                         <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-                        <DropdownMenuItem>Phân bổ</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setOpenTagUsers(!openTagUsers)}>Phân bổ</DropdownMenuItem>
                         <DropdownMenuItem>Thu hồi</DropdownMenuItem>
                         <DropdownMenuItem>Xác minh</DropdownMenuItem>
                       </DropdownMenuContent>
@@ -99,10 +120,11 @@ export default function ActivitiesRead() {
                   </TableCell>
                 </TableRow>
               )}
-            /> */}
+            />
           </div>
         </div>
       </div>
+      <AddTagUserDialog openPopup={openTagUsers} setOpenPopup={setOpenTagUsers} onExportId={(v) => console.log(v)} />
     </Fragment>
   )
 }

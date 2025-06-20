@@ -119,7 +119,7 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
         {tags.map((tag) => (
           <div
             key={tag}
-            className='flex items-center bg-gray-100 text-blue-800 text-md rounded-md px-3 py-2 border-2 border-gray-200 capitalize'
+            className='flex items-center bg-gray-100 text-md rounded-md px-3 py-2 border-2 border-gray-200 capitalize'
           >
             {tag}
             <button onClick={() => removeTag(tag)} className='ml-1 hover:text-red-500'>

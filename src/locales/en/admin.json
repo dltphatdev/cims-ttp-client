@@ -114,5 +114,7 @@
   "Price": "Price",
   "Quantity": "Quantity",
   "OneTime": "One Time",
-  "EveryMonth": "Very Month"
+  "EveryMonth": "Very Month",
+  "Time start": "Time start",
+  "Time end": "Time end"
 }
