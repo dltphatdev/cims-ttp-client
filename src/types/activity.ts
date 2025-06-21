@@ -8,11 +8,11 @@ export interface GetListActivityParams extends Pick<TQueryConfig, 'limit' | 'pag
 
 export interface CreateActivityReqBody {
   name: string
-  customer_id: number
+  customer_id: number | string
   contact_name: string
   address: string
   phone: string
-  status: ActivityStatus
+  status?: ActivityStatus
   time_start: string
   time_end: string
   content?: string
@@ -22,7 +22,7 @@ export interface CreateActivityReqBody {
 export interface UpdateActivityReqBody {
   id: number
   name?: string
-  customer_id?: number
+  customer_id?: number | string
   contact_name?: string
   address?: string
   phone?: string
@@ -43,6 +43,7 @@ export interface Activity {
   time_end: string
   status: ActivityStatus
   contact_name: string
+  content: string
   created_at: string
   updated_at: string
   creator: {

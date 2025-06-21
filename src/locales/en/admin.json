@@ -116,5 +116,11 @@
   "OneTime": "One Time",
   "EveryMonth": "Very Month",
   "Time start": "Time start",
-  "Time end": "Time end"
+  "Time end": "Time end",
+  "Create activity": "Create activity",
+  "Contact name": "Contact name",
+  "Content": "Content",
+  "Completed": "Cancelled",
+  "InProgress": "In progress",
+  "Update activity": "Update activity"
 }

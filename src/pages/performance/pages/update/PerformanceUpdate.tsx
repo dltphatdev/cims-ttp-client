@@ -71,7 +71,6 @@ export default function PerformanceUpdate() {
     register,
     handleSubmit,
     setError,
-    watch,
     setValue,
     control,
     formState: { errors }
@@ -90,7 +89,6 @@ export default function PerformanceUpdate() {
       reserve_cost: '0'
     }
   })
-  const customerId = watch('customer_id')
   const queryParams: GetDetailPerformancesParams = useQueryParams()
   const queryConfig: GetDetailPerformancesParams = omitBy(
     {
@@ -123,6 +121,7 @@ export default function PerformanceUpdate() {
       setValue('diplomatic_cost', performanceDetail?.performance?.diplomatic_cost.toString() || '0')
       setValue('reserve_cost', performanceDetail?.performance?.reserve_cost.toString() || '0')
       setValue('commission_cost', performanceDetail?.performance?.commission_cost.toString() || '0')
+      setValue('customer_id', performanceDetail?.performance?.customer_id.toString() || '0')
     }
   }, [performanceDetail, setValue])
 
@@ -244,19 +243,13 @@ export default function PerformanceUpdate() {
         customer_cost: Number(data.customer_cost)
       }
 
-      const payload = customerId
-        ? {
-            ...data,
-            ...payloadOptions,
-            customer_id: Number(customerId),
-            assign_at: new Date()?.toISOString(),
-            id: Number(performanceId)
-          }
-        : {
-            ...data,
-            ...payloadOptions,
-            id: Number(performanceId)
-          }
+      const payload = {
+        ...data,
+        ...payloadOptions,
+        customer_id: Number(data.customer_id),
+        assign_at: new Date()?.toISOString(),
+        id: Number(performanceId)
+      }
 
       for (const key in payload) {
         if (
@@ -311,20 +304,19 @@ export default function PerformanceUpdate() {
                     />
                   </div>
                   <div className='grid gap-3'>
-                    <AddTagCustomer
-                      onExportId={(id) => {
-                        if (id) setValue('customer_id', id.toString())
-                      }}
-                      defaultValue={
-                        performanceDetail?.performance?.customer
-                          ? {
-                              name: performanceDetail?.performance?.customer.name,
-                              id: performanceDetail?.performance?.customer.id
-                            }
-                          : undefined
-                      }
+                    <Controller
+                      control={control}
+                      name='customer_id'
+                      render={({ field }) => (
+                        <AddTagCustomer
+                          labelRequired={true}
+                          {...field}
+                          onChange={field.onChange}
+                          name={performanceDetail?.performance?.customer.name}
+                          errorMessage={errors.customer_id?.message}
+                        />
+                      )}
                     />
-                    {errors?.customer_id && <span className='text-red-600'>{errors?.customer_id?.message}</span>}
                   </div>
                   <div className='grid gap-3 select-none'>
                     <InputMain

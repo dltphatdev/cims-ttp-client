@@ -207,7 +207,18 @@ const FormCustomerPersonal = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <AddTagUser onExportId={(id) => setValue('consultantor_id', id.toString())} />
+              <Controller
+                control={control}
+                name='consultantor_id'
+                render={({ field }) => (
+                  <AddTagUser
+                    labelRequired={true}
+                    {...field}
+                    onChange={field.onChange}
+                    errorMessage={errors.consultantor_id?.message}
+                  />
+                )}
+              />
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>

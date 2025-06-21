@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { forwardRef, useState, type InputHTMLAttributes } from 'react'
+import { forwardRef, useEffect, useState, type InputHTMLAttributes } from 'react'
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
   classNameWrapper?: string
@@ -29,6 +29,11 @@ const InputNumber = forwardRef<HTMLInputElement, Props>(function InputNumberInne
   ref
 ) {
   const [localValue, setLocalValue] = useState<string>(value as string)
+
+  useEffect(() => {
+    setLocalValue(value as string)
+  }, [value])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
     if (/^\d+/.test(value) || value === '') {

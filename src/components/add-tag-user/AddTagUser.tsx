@@ -22,27 +22,34 @@ import {
 } from '@/components/ui/alert-dialog'
 
 interface Props {
-  onExportId?: (value: number) => void
-  defaultValue?: { id: number; name: string }
+  name?: string
+  value?: string
+  onChange?: (value: string) => void
   labelRequired?: boolean
+  errorMessage?: string
 }
 
-export default function AddTagUser({ onExportId, defaultValue, labelRequired = false }: Props) {
+export default function AddTagUser({ name, value, errorMessage, onChange, labelRequired = false }: Props) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const defaultValue = value ? { id: value, name } : null
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
   const [confirmAction, setConfirmAction] = useState<null | 'add' | 'remove'>(null)
-  const [pendingUser, setPendingUser] = useState<{ id: number; name: string } | null>(null)
-  const [selectedUser, setSelectedUser] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
+  const [pendingUser, setPendingUser] = useState<{ id: string; name: string } | null>(null)
+  const [selectedUser, setSelectedUser] = useState(defaultValue)
   const [open, setOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState('')
-
+  console.log(value)
   useEffect(() => {
+    if (!value) {
+      setSelectedUser(null)
+      return
+    }
     if (!hasInitialized.current && defaultValue?.id && defaultValue?.name) {
       setSelectedUser(defaultValue)
-      onExportId?.(defaultValue.id)
       hasInitialized.current = true
     }
-  }, [defaultValue, onExportId])
+  }, [defaultValue, value])
 
   const queryParams: GetUsersParams = useQueryParams()
   const queryConfig: GetUsersParams = omitBy(
@@ -59,7 +66,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
     queryFn: () => userApi.getUsers(queryConfig)
   })
 
-  const handleSelect = ({ name, id }: { name: string; id: number }) => {
+  const handleSelect = ({ name, id }: { name: string; id: string }) => {
     setPendingUser({ name, id })
     setConfirmAction('add')
   }
@@ -76,11 +83,11 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
   const handleAlertDialogSuccessAction = () => {
     if (confirmAction === 'add' && pendingUser) {
       setSelectedUser(pendingUser)
-      onExportId?.(pendingUser.id)
+      onChange?.(pendingUser.id)
       setOpen(false)
     } else if (confirmAction === 'remove') {
       setSelectedUser(null)
-      onExportId?.(0)
+      onChange?.('')
     }
     setPendingUser(null)
     setConfirmAction(null)
@@ -138,7 +145,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
                       key={user.id}
                       variant='outline'
                       className='justify-start'
-                      onClick={() => handleSelect({ id: user.id, name: user.fullname as string })}
+                      onClick={() => handleSelect({ id: user.id.toString(), name: user.fullname as string })}
                       disabled={selectedUser?.name === user.fullname}
                     >
                       {user.fullname}
@@ -175,6 +182,7 @@ export default function AddTagUser({ onExportId, defaultValue, labelRequired = f
           </AlertDialogContent>
         </AlertDialog>
       </div>
+      {errorMessage && <span className='text-red-600'>{errorMessage}</span>}
     </div>
   )
 }

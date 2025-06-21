@@ -116,5 +116,11 @@
   "OneTime": "Một lần",
   "EveryMonth": "Hàng tháng",
   "Time start": "Bắt đầu",
-  "Time end": "Kết thúc"
+  "Time end": "Kết thúc",
+  "Create activity": "Thêm hoạt động",
+  "Contact name": "Người liên hệ",
+  "Content": "Nội dung",
+  "Completed": "Hoàn thành",
+  "InProgress": "Đang thực hiện",
+  "Update activity": "Cập nhật hoạt động"
 }

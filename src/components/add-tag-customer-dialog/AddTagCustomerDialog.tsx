@@ -1,56 +1,49 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { AlertTriangle, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
-import { useQueryParams } from '@/hooks/use-query-params'
-import { isUndefined, omitBy } from 'lodash'
-import { Input } from '@/components/ui/input'
+import customerApi from '@/apis/customer.api'
+
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogAction
+  AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import customerApi from '@/apis/customer.api'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetCustomersParams } from '@/types/customer'
+import { useQuery } from '@tanstack/react-query'
+import { isUndefined, omitBy } from 'lodash'
+import { AlertTriangle, X } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
-  onChange?: (value: string) => void
-  value?: string
-  name?: string
-  labelRequired?: boolean
-  errorMessage?: string
+  onExportId?: (value: number) => void
+  defaultValue?: { id: number; name: string }
+  openPopup: boolean
+  setOpenPopup: (value: boolean) => void
 }
 
-export default function AddTagCustomer({ onChange, errorMessage, name, value, labelRequired = false }: Props) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const defaultValue = value ? { id: value, name } : null
+const AddTagCustomerDialog = ({ onExportId, defaultValue, openPopup, setOpenPopup }: Props) => {
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
   const [confirmAction, setConfirmAction] = useState<null | 'add' | 'remove'>(null)
-  const [pendingCustomer, setPendingCustomer] = useState<{ id: string; name: string } | null>(null)
-  const [selectedCustomer, setSelectedCustomer] = useState(defaultValue || null)
-  const [open, setOpen] = useState<boolean>(false)
+  const [pendingUser, setPendingUser] = useState<{ id: number; name: string } | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<{ id: number; name: string } | null>(defaultValue ?? null)
   const [searchValue, setSearchValue] = useState('')
 
   useEffect(() => {
-    if (!value) {
-      setSelectedCustomer(null)
-      return
-    }
-
     if (!hasInitialized.current && defaultValue?.id && defaultValue?.name) {
       setSelectedCustomer(defaultValue)
+      onExportId?.(defaultValue.id)
       hasInitialized.current = true
     }
-  }, [defaultValue, value])
+  }, [defaultValue, onExportId])
 
   const queryParams: GetCustomersParams = useQueryParams()
   const queryConfig: GetCustomersParams = omitBy(
@@ -62,44 +55,40 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
     },
     isUndefined
   )
-  const { data: customersData } = useQuery({
+  const { data: customerData } = useQuery({
     queryKey: ['customers', queryConfig],
     queryFn: () => customerApi.getCustomers(queryConfig)
   })
 
-  const handleSelect = ({ name, id }: { name: string; id: string }) => {
-    setPendingCustomer({ name, id })
+  const handleSelect = ({ name, id }: { name: string; id: number }) => {
+    setPendingUser({ name, id })
     setConfirmAction('add')
   }
 
   const handleRemove = () => setConfirmAction('remove')
 
-  const customers = customersData?.data?.data?.customers
+  const customers = customerData?.data?.data?.customers
 
-  const filteredCustomers = useMemo(
-    () => customers?.filter((customer) => customer.name?.toLowerCase().includes(searchValue.toLowerCase())),
+  const filteredCustomer = useMemo(
+    () => customers?.filter((item) => item.name?.toLowerCase().includes(searchValue.toLowerCase())),
     [searchValue, customers]
   )
 
   const handleAlertDialogSuccessAction = () => {
-    if (confirmAction === 'add' && pendingCustomer) {
-      setSelectedCustomer(pendingCustomer)
-      setOpen(false)
-      onChange?.(pendingCustomer.id)
+    if (confirmAction === 'add' && pendingUser) {
+      setSelectedCustomer(pendingUser)
+      onExportId?.(pendingUser.id)
+      setOpenPopup(false)
     } else if (confirmAction === 'remove') {
       setSelectedCustomer(null)
-      onChange?.('')
+      onExportId?.(0)
     }
-    setPendingCustomer(null)
+    setPendingUser(null)
     setConfirmAction(null)
   }
-
   const handleAlertDialogCancelAction = () => setConfirmAction(null)
   return (
     <div className='space-y-2'>
-      <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
-        {t('Customer')} {labelRequired === true && <span className='text-red-500'>*</span>}
-      </label>
       <div className='flex items-center flex-wrap gap-2'>
         {selectedCustomer && (
           <Badge
@@ -118,16 +107,7 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
           </Badge>
         )}
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant='ghost'
-              className='border border-dashed border-(--color-org) text-(--color-org) hover:bg-orange-50 px-3 py-1 text-sm font-medium rounded-md'
-            >
-              + Add (max 1)
-            </Button>
-          </DialogTrigger>
-
+        <Dialog open={openPopup} onOpenChange={setOpenPopup}>
           <DialogContent className='sm:max-w-md'>
             <DialogHeader>
               <DialogTitle>{t('Select customer')}</DialogTitle>
@@ -141,13 +121,13 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
 
             <ScrollArea className='h-40'>
               <div className='grid gap-2'>
-                {filteredCustomers && filteredCustomers.length > 0 ? (
-                  filteredCustomers.map((item) => (
+                {filteredCustomer && filteredCustomer.length > 0 ? (
+                  filteredCustomer.map((item) => (
                     <Button
                       key={item.id}
                       variant='outline'
                       className='justify-start'
-                      onClick={() => handleSelect({ id: item.id.toString(), name: item.name as string })}
+                      onClick={() => handleSelect({ id: item.id, name: item.name as string })}
                       disabled={selectedCustomer?.name === item.name}
                     >
                       {item.name}
@@ -167,8 +147,8 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
             <AlertDialogHeader>
               <AlertDialogTitle>
                 <div className='flex flex-wrap gap-2 text-red-500 items-center'>
-                  <AlertTriangle className=' w-6 h-6' />{' '}
-                  {confirmAction === 'add' ? 'Thông báo thao tác thêm khách hàng' : 'Thông báo thao tác xoá khách hàng'}
+                  <AlertTriangle className=' w-6 h-6' /> Thông báo thao tác {confirmAction === 'add' ? 'thêm' : 'xóa'}{' '}
+                  khách hàng
                 </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
@@ -182,7 +162,8 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      {errorMessage && <span className='text-red-600'>{errorMessage}</span>}
     </div>
   )
 }
+
+export default AddTagCustomerDialog

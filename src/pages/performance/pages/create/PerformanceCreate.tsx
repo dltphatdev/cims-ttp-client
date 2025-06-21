@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import performanceApi from '@/apis/performance.api'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 
 const formData = performanceSchema.pick(['name', 'customer_id', 'note', 'status'])
 type FormData = yup.InferType<typeof formData>
@@ -40,7 +40,6 @@ const statuses = [
 
 export default function PerformanceCreate() {
   const { t } = useTranslation('admin')
-  const navigate = useNavigate()
   const { profile } = useContext(AppContext)
   const {
     register,
@@ -48,7 +47,6 @@ export default function PerformanceCreate() {
     setError,
     reset,
     watch,
-    setValue,
     control,
     formState: { errors }
   } = useForm<FormData>({
@@ -68,13 +66,11 @@ export default function PerformanceCreate() {
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      const payload = customerId
-        ? {
-            ...data,
-            customer_id: Number(customerId),
-            assign_at: new Date()?.toISOString()
-          }
-        : data
+      const payload = {
+        ...data,
+        customer_id: Number(customerId),
+        assign_at: new Date()?.toISOString()
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -85,9 +81,8 @@ export default function PerformanceCreate() {
         }
       }
       const res = await createPerformanceMutation.mutateAsync(payload)
-      const idCustomerCreated = res.data.id
       reset()
-      navigate(`/performance/update/${idCustomerCreated}`)
+      toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -129,8 +124,18 @@ export default function PerformanceCreate() {
                     />
                   </div>
                   <div className='grid gap-3'>
-                    <AddTagCustomer labelRequired={true} onExportId={(id) => setValue('customer_id', id.toString())} />
-                    {errors?.customer_id && <span className='text-red-600'>{errors?.customer_id?.message}</span>}
+                    <Controller
+                      control={control}
+                      name='customer_id'
+                      render={({ field }) => (
+                        <AddTagCustomer
+                          labelRequired={true}
+                          {...field}
+                          onChange={field.onChange}
+                          errorMessage={errors.customer_id?.message}
+                        />
+                      )}
+                    />
                   </div>
                   <div className='grid gap-3 select-none'>
                     <InputMain

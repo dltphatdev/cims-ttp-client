@@ -7,7 +7,7 @@ const PATH = {
   CUSTOMER_UPDATE_COMPANY: '/customer/update-company/:customerId',
   ACTIVITIES: '/activities',
   ACTIVITIES_CREATE: '/activities/create',
-  ACTIVITIES_UPDATE: '/activities/update',
+  ACTIVITIES_UPDATE: '/activities/update/:activityId',
   PERFORMANCE: '/performance',
   PERFORMANCE_CREATE: '/performance/create',
   PERFORMANCE_UPDATE: '/performance/update/:performanceId',

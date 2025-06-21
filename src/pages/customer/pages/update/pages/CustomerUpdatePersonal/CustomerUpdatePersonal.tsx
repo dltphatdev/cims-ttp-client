@@ -124,6 +124,7 @@ const CustomerUpdatePersonal = () => {
       setValue('address_personal', customer.address_personal || '')
       setValue('date_of_birth', customer?.date_of_birth ? new Date(customer.date_of_birth) : new Date(1990, 0, 1))
       setValue('note', customer.note || '')
+      setValue('consultantor_id', customer?.consultantor?.id?.toString() || '')
     }
   }, [customer, setValue])
 
@@ -248,20 +249,19 @@ const CustomerUpdatePersonal = () => {
                       />
                     </div>
                   </div>
-                  {/*  */}
                   <div className='grid gap-3'>
-                    <AddTagUser
-                      onExportId={(id) => {
-                        if (id) setValue('consultantor_id', id.toString())
-                      }}
-                      defaultValue={
-                        customer?.consultantor
-                          ? {
-                              name: customer.consultantor.fullname,
-                              id: customer.consultantor.id
-                            }
-                          : undefined
-                      }
+                    <Controller
+                      control={control}
+                      name='consultantor_id'
+                      render={({ field }) => (
+                        <AddTagUser
+                          labelRequired={true}
+                          {...field}
+                          onChange={field.onChange}
+                          name={customer?.consultantor?.fullname}
+                          errorMessage={errors.consultantor_id?.message}
+                        />
+                      )}
                     />
                   </div>
                   <div className='grid gap-3'>

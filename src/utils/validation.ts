@@ -4,6 +4,7 @@ import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED as UNVERIFIED_CUSTOMER, VERIFIED as VERIFIED_CUSTOMER } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
 import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
+import { NEW as NEW_ACTIVITY, IN_PROGRESS, COMPLETED, CANCELLED as CANCELLED_ACTIVITY } from '@/constants/activity'
 import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
 
 function handleConfirmPasswordYup(field: string) {
@@ -64,7 +65,7 @@ export const customerSchema = yup.object({
     .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
-  consultantor_id: yup.string().optional(),
+  consultantor_id: yup.string().required('Sale add tags is required'),
   tax_code: yup.string().max(13, 'Tax code maximum length is 13 characters').optional(),
   cccd: yup
     .string()
@@ -96,7 +97,7 @@ export const performanceSchema = yup.object({
     .required('Name is required')
     .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
-  customer_id: yup.string().required(),
+  customer_id: yup.string().required('Customer is required'),
   note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
   status: yup.string().oneOf([NEW, APPROVED, CANCELLED], 'Status performance invalid').optional(),
   operating_cost: yup.string().max(100, 'Operating cost max length 100 characters'),
@@ -114,8 +115,39 @@ export const revenueSchema = yup.object({
     .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
   description: yup.string().required().max(2000, 'Description maximum length is 2000 characters'),
-  unit_caculate: yup.string().required().max(160, 'Name maximum length is 255 characters'),
+  unit_caculate: yup
+    .string()
+    .required('Unit caculate is required')
+    .max(160, 'Unit caculate maximum length is 255 characters'),
   type: yup.string().required().oneOf([ONE_TIME, EVERY_MONTH], 'Type invalid'),
   price: yup.string().required(),
   quantity: yup.string().required()
+})
+
+export const activitySchema = yup.object({
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(2, 'Name min length is 2 characters')
+    .max(160, 'Name maximum length is 160 characters'),
+  customer_id: yup.string().required('Customer is required'),
+  contact_name: yup
+    .string()
+    .required('Contact name is required')
+    .min(2, 'Contact name min length is 2 characters')
+    .max(160, 'Contact name maximum length is 160 characters'),
+  address: yup
+    .string()
+    .required('Address is required')
+    .min(1, 'Address min length is 1 characters')
+    .max(160, 'Address maximum length is 160 characters'),
+  phone: yup.string().required('Phone number is required').max(10, 'Phone maximum length is 10 characters'),
+  status: yup
+    .string()
+    .oneOf([NEW_ACTIVITY, IN_PROGRESS, CANCELLED_ACTIVITY, COMPLETED], 'Status activity invalid')
+    .optional(),
+  time_start: yup.date().required('Time start is required'),
+  time_end: yup.date().required('Time end is required'),
+  assign_at: yup.string().optional(),
+  content: yup.string().max(2000, 'Content maximum length is 2000 characters').optional()
 })

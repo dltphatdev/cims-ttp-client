@@ -113,6 +113,7 @@ const CustomerUpdateCompany = () => {
       setValue('website', customer.website || '')
       setValue('address_company', customer.address_company || '')
       setValue('note', customer.note || '')
+      setValue('consultantor_id', customer?.consultantor?.id?.toString() || '')
     }
   }, [customer, setValue])
 
@@ -132,7 +133,7 @@ const CustomerUpdateCompany = () => {
         ? {
             ...data,
             attachments: attachments as string[] | undefined,
-            consultantor_id: Number(consultantorId),
+            consultantor_id: Number(data.consultantor_id),
             assign_at: new Date()?.toISOString(),
             id: Number(customerId)
           }
@@ -237,18 +238,18 @@ const CustomerUpdateCompany = () => {
                     </div>
                   </div>
                   <div className='grid gap-3'>
-                    <AddTagUser
-                      onExportId={(id) => {
-                        if (id) setValue('consultantor_id', id.toString())
-                      }}
-                      defaultValue={
-                        customer?.consultantor
-                          ? {
-                              name: customer.consultantor.fullname,
-                              id: customer.consultantor.id
-                            }
-                          : undefined
-                      }
+                    <Controller
+                      control={control}
+                      name='consultantor_id'
+                      render={({ field }) => (
+                        <AddTagUser
+                          labelRequired={true}
+                          {...field}
+                          onChange={field.onChange}
+                          name={customer?.consultantor?.fullname}
+                          errorMessage={errors.consultantor_id?.message}
+                        />
+                      )}
                     />
                   </div>
                   <div className='grid gap-3'>

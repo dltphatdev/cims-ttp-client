@@ -6,7 +6,7 @@ import { Ellipsis, Plus } from 'lucide-react'
 import activityApi from '@/apis/activity.api'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetListActivityParams } from '@/types/activity'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { isUndefined, omitBy } from 'lodash'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
@@ -17,11 +17,17 @@ import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import SearchMain from '@/components/search-main'
 import { useState } from 'react'
-import AddTagUserDialog from '@/components/add-tag-user-dialog'
+import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
+import AddTagCustomerDialog from '@/components/add-tag-customer-dialog'
+import httpStatusCode from '@/constants/httpStatusCode'
+import { toast } from 'sonner'
 
 export default function ActivitiesRead() {
   const { t } = useTranslation('admin')
-  const [openTagUsers, setOpenTagUsers] = useState(false)
+  const navigate = useNavigate()
+  const [openTagCustomer, setOpenTagCustomer] = useState(false)
+  const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>()
   const queryParams: GetListActivityParams = useQueryParams()
   const queryConfig: GetListActivityParams = omitBy(
     {
@@ -35,12 +41,31 @@ export default function ActivitiesRead() {
     queryKey: ['activities', queryConfig],
     queryFn: () => activityApi.getListActivity(queryConfig)
   })
+  const updateActivityMutation = useMutation({
+    mutationFn: activityApi.updateActivity
+  })
   const activities = activitiesData?.data.data.activities
   const pagination = activitiesData?.data.data
 
-  // const handleRevokeCustomer = () => {
-  //   console.log(123)
-  // }
+  const handleAllocation = async (activityId: number, customerId: number) => {
+    try {
+      const res = await updateActivityMutation.mutateAsync({
+        customer_id: customerId,
+        id: activityId
+      })
+      toast.success(res.data.message)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.status === httpStatusCode.UnprocessableEntity) {
+        const formError = error.response?.data?.errors
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            toast.error(formError[key as keyof typeof formError]?.msg || 'Có lỗi xảy ra')
+          })
+        }
+      }
+    }
+  }
 
   return (
     <Fragment>
@@ -59,7 +84,7 @@ export default function ActivitiesRead() {
                   text: 'name'
                 }}
               />
-              <Button variant='outline' type='button'>
+              <Button variant='outline' type='button' onClick={() => navigate(PATH.ACTIVITIES_CREATE)}>
                 <Plus /> {t('Create new')}
               </Button>
             </div>
@@ -95,7 +120,7 @@ export default function ActivitiesRead() {
                       {item.status === 'New'
                         ? t('New')
                         : item.status === 'InProgress'
-                          ? t('In progress')
+                          ? t('InProgress')
                           : item.status === 'Completed'
                             ? t('Completed')
                             : item.status === 'Cancelled'
@@ -111,10 +136,19 @@ export default function ActivitiesRead() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end'>
-                        <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setOpenTagUsers(!openTagUsers)}>Phân bổ</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
+                          {t('Edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedActivityId(item.id)
+                            setOpenTagCustomer(true)
+                          }}
+                        >
+                          Phân bổ
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Thu hồi</DropdownMenuItem>
-                        <DropdownMenuItem>Xác minh</DropdownMenuItem>
+                        {/* <DropdownMenuItem>Xác minh</DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -124,7 +158,13 @@ export default function ActivitiesRead() {
           </div>
         </div>
       </div>
-      <AddTagUserDialog openPopup={openTagUsers} setOpenPopup={setOpenTagUsers} onExportId={(v) => console.log(v)} />
+      <AddTagCustomerDialog
+        openPopup={openTagCustomer}
+        setOpenPopup={setOpenTagCustomer}
+        onExportId={(id) => {
+          if (selectedActivityId && id) handleAllocation(selectedActivityId, id)
+        }}
+      />
     </Fragment>
   )
 }
