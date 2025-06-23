@@ -357,7 +357,7 @@ export default function PerformanceUpdate() {
                 <Card className='overflow-x-auto'>
                   <CardContent className='grid gap-3'>
                     <div className='flex items-center flex-wrap justify-between mb-4 gap-3'>
-                      <h1 className='font-bold text-xl'>A. Doanh thu (trước VAT)</h1>
+                      <h1 className='font-bold text-xl'>A. {t('Revenue (before VAT)')}</h1>
                       <Button
                         type='button'
                         variant='outline'
@@ -415,14 +415,17 @@ export default function PerformanceUpdate() {
 
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='Chi phí một lần:' price={revenueInputPriceOneTime as number} />
+                        <RevenueTagsPrice label={t('One-time cost') + ':'} price={revenueInputPriceOneTime as number} />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='Chi phí mỗi tháng:' price={revenueInputPriceEveryMonth as number} />
+                        <RevenueTagsPrice
+                          label={t('Cost per month') + ':'}
+                          price={revenueInputPriceEveryMonth as number}
+                        />
                       </div>
                     </div>
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice label='Doanh thu:' price={revenuePrice as number} />
+                      <RevenueTagsPrice label={t('Revenue') + ':'} price={revenuePrice as number} />
                     </div>
                   </CardContent>
                 </Card>
@@ -432,7 +435,7 @@ export default function PerformanceUpdate() {
                 <Card className='overflow-x-auto'>
                   <CardContent className='grid gap-3'>
                     <div className='flex items-center flex-wrap justify-between mb-4 gap-3'>
-                      <h1 className='mb-2 font-bold text-xl'>B. Chi phí</h1>
+                      <h1 className='mb-2 font-bold text-xl'>B. {t('Revenue cost')}</h1>
                       <Button
                         variant='outline'
                         type='button'
@@ -496,8 +499,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí vận hành'
-                                labelValue='Chi phí vận hành (%)'
+                                placeholder={t('Enter operating costs')}
+                                labelValue={t('Operating costs') + '(%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.operating_cost?.message}
@@ -513,8 +516,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí CSKH'
-                                labelValue='Chi phí CSKH (%)'
+                                placeholder={t('Enter customer service costs')}
+                                labelValue={t('Customer care costs')}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.customer_care_cost?.message}
@@ -534,8 +537,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí hoa hồng'
-                                labelValue='Chi phí hoa hồng (%)'
+                                placeholder={t('Enter commission cost')}
+                                labelValue={t('Commission costs')}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.commission_cost?.message}
@@ -551,8 +554,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí ngoại giao'
-                                labelValue='Chi phí ngoại giao (%)'
+                                placeholder={t('Enter diplomatic expenses')}
+                                labelValue={t('Diplomatic expenses')}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.diplomatic_cost?.message}
@@ -572,8 +575,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí dự phòng'
-                                labelValue='Chi phí dự phòng (%)'
+                                placeholder={t('Enter contingency costs')}
+                                labelValue={t('Contingency costs')}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.reserve_cost?.message}
@@ -589,8 +592,8 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder='Nhập % chi phí khách hàng'
-                                labelValue='Chi phí khách hàng (%)'
+                                placeholder={t('Enter customer costs')}
+                                labelValue={t('Customer costs')}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.customer_cost?.message}
@@ -602,28 +605,37 @@ export default function PerformanceUpdate() {
                       </div>
                     </div>
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice label='1. Chi phí quản lý công ty:' price={revenueManagerCompany as number} />
+                      <RevenueTagsPrice
+                        label={`1. ${t('Company management costs')}:`}
+                        price={revenueManagerCompany as number}
+                      />
                     </div>
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='1.1 Chi phí vận hành:' price={revenueOperatingCostPrice as number} />
+                        <RevenueTagsPrice
+                          label={`1.1 ${t('Operating costs')}:`}
+                          price={revenueOperatingCostPrice as number}
+                        />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='1.2 Chi phí CSKH:' price={revenueCustomerCareCostPrice as number} />
+                        <RevenueTagsPrice
+                          label={`1.2 ${t('Customer care costs')}:`}
+                          price={revenueCustomerCareCostPrice as number}
+                        />
                       </div>
                     </div>
 
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice label='2. Giá vốn bán hàng:' price={costOfSales as number} />
+                      <RevenueTagsPrice label={`2. ${t('Cost of sales')}:`} price={costOfSales as number} />
                     </div>
 
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='2.1 Chi phí đầu vào:' price={revenueOutputPrice as number} />
+                        <RevenueTagsPrice label={`2.1 ${t('Revenue input')}:`} price={revenueOutputPrice as number} />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice
-                          label='2.2 Chi phí hoa hồng, thưởng, ngoại giao, xử lý:'
+                          label={`2.2 ${t('Commission, bonus, diplomacy, handling costs')}:`}
                           price={revenueCommissionDiplomaticCustomerReserve as number}
                         />
                       </div>
@@ -632,13 +644,13 @@ export default function PerformanceUpdate() {
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice
-                          label='2.2.1 Chi phí hoa hồng:'
+                          label={`2.2.1 ${t('Commission costs')}:`}
                           price={revenueCommissionCostPrice as number}
                         />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice
-                          label='2.2.2 Chi phí ngoại giao:'
+                          label={`2.2.2 ${t('Diplomatic expenses')}:`}
                           price={revenueDiplomaticCostPrice as number}
                         />
                       </div>
@@ -647,19 +659,25 @@ export default function PerformanceUpdate() {
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice
-                          label='2.2.3 Chi phí cho khách hàng:'
+                          label={`2.2.3 ${t('Customer costs')}:`}
                           price={revenueCustomerCostPrice as number}
                         />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label='2.2.4 Chi phí dự phòng:' price={revenueReserveCostPrice as number} />
+                        <RevenueTagsPrice
+                          label={`2.2.4 ${t('Contingency costs')}:`}
+                          price={revenueReserveCostPrice as number}
+                        />
                       </div>
                     </div>
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice label='3. Chi phí đóng thuế TNCN:' price={revenueTax as number} />
+                      <RevenueTagsPrice
+                        label={`3. ${t('Personal income tax payment costs')}:`}
+                        price={revenueTax as number}
+                      />
                     </div>
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice label='Tổng chi phí:' price={revenueTotal as number} />
+                      <RevenueTagsPrice label={t('Total cost') + ':'} price={revenueTotal as number} />
                     </div>
                   </CardContent>
                 </Card>
@@ -669,21 +687,23 @@ export default function PerformanceUpdate() {
                 <Card>
                   <CardContent className='grid gap-3'>
                     <div className='flex items-start flex-wrap justify-between mb-4 gap-3'>
-                      <h1 className='font-bold text-xl'>C. Chỉ số</h1>
+                      <h1 className='font-bold text-xl'>C. {t('Index')}</h1>
                     </div>
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-4'>
-                        <RevenueTagsPrice label='Lợi nhuận:' price={profit as number} />
+                        <RevenueTagsPrice label={t('Profit') + ':'} price={profit as number} />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-4'>
                         <div className='py-2 px-4 rounded-md border border-color-[rgba(240,240,240,1)]'>
-                          <strong>Tỉ lệ lợi nhuận:</strong>
+                          <strong>{t('Ratio profit')}:</strong>
                           <strong className='text-gray-500'> {ratioProfit + '%'}</strong>
                         </div>
                       </div>
                       <div className='mn:col-span-12 lg:col-span-4'>
                         <div className='py-2 px-4 rounded-md border border-color-[rgba(240,240,240,1)]'>
-                          <strong>Giá vốn bán hàng/ Doanh thu:</strong>
+                          <strong>
+                            {t('Cost of sales')} / {t('Revenue')}:
+                          </strong>
                           <strong className='text-gray-500'> {Math.round(ratioCostOfSalesRevenuePrice) + '%'}</strong>
                         </div>
                       </div>

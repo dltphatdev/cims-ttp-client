@@ -6,7 +6,7 @@ import { Ellipsis, Plus } from 'lucide-react'
 import activityApi from '@/apis/activity.api'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetListActivityParams } from '@/types/activity'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isUndefined, omitBy } from 'lodash'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 
 export default function ActivitiesRead() {
   const { t } = useTranslation('admin')
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [openTagCustomer, setOpenTagCustomer] = useState(false)
   const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>()
@@ -37,7 +38,7 @@ export default function ActivitiesRead() {
     },
     isUndefined
   )
-  const { data: activitiesData } = useQuery({
+  const { data: activitiesData, refetch } = useQuery({
     queryKey: ['activities', queryConfig],
     queryFn: () => activityApi.getListActivity(queryConfig)
   })
@@ -54,6 +55,9 @@ export default function ActivitiesRead() {
         id: activityId
       })
       toast.success(res.data.message)
+      queryClient.invalidateQueries({ queryKey: ['activity', activityId] })
+
+      refetch()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -145,10 +149,8 @@ export default function ActivitiesRead() {
                             setOpenTagCustomer(true)
                           }}
                         >
-                          Phân bổ
+                          {t('Allocation')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Thu hồi</DropdownMenuItem>
-                        {/* <DropdownMenuItem>Xác minh</DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

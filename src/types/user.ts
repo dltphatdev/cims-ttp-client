@@ -11,7 +11,6 @@ export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'
 
 export interface UserCreateReqBody {
   email: string
-  password?: string
   fullname?: string
   address?: string
   phone?: string

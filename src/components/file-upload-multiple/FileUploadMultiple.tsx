@@ -100,7 +100,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
     if (validFiles.length > 0) {
       onChange?.(validFiles)
       setFiles(validFiles)
-      setServerFiles([]) // 👈 Xóa serve files vì người dùng đã chọn mới
+      setServerFiles([])
     }
   }
 
@@ -108,9 +108,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const clearAll = () => {
-    setFiles([])
-  }
+  const clearAll = () => setFiles([])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -125,7 +123,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
   return (
     <div className='flex flex-col space-y-4 w-fit mb-2'>
       <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-        Bản scan hợp đồng {labelRequired === true && <span className='text-red-500'>*</span>}
+        {t('Unified scan')} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <Button type='button' variant='outline' onClick={handleClick} className='flex items-center gap-2'>
         <UploadCloud className='w-4 h-4' />
@@ -155,7 +153,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
             })}
             disabled={files.length === 0 && serverFiles?.length === 0}
           >
-            <Eye /> View file choosen ({serverFiles?.length || files.length})
+            <Eye /> {t('View file choosen')} ({serverFiles?.length || files.length})
           </Button>
         </DialogTrigger>
         <DialogContent className='max-w-lg'>

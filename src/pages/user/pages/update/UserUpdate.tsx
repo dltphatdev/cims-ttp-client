@@ -4,7 +4,6 @@ import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
 import { Button } from '@/components/ui/button'
-import { PASSWORD_DEFAULT } from '@/constants/crypto'
 import httpStatusCode from '@/constants/httpStatusCode'
 // import { ADMIN, NONE, SALE } from '@/constants/role'
 import { formatedDate, formatedTime } from '@/utils/common'
@@ -20,7 +19,7 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'password', 'phone'])
+const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'phone'])
 
 type FormData = yup.InferType<typeof formData>
 
@@ -51,7 +50,6 @@ export default function UserUpdate() {
       address: '',
       code: '',
       // role: NONE,
-      password: '',
       phone: '',
       date_of_birth: new Date(1990, 0, 1)
     },
@@ -129,8 +127,7 @@ export default function UserUpdate() {
 
   const handleClickResetPassword = () => {
     setIsResetPassword(!isResetPassword)
-    // setValue('password', PASSWORD_DEFAULT)
-    const payload = { password: PASSWORD_DEFAULT, id: Number(userId) }
+    const payload = { password: import.meta.env.VITE_PASSWORD_DEFAULT, id: Number(userId) }
     resetPasswordMutation.mutate(payload, {
       onSuccess: (data) => toast.success(data.data.message),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,7 +160,7 @@ export default function UserUpdate() {
             <form onSubmit={handleSubmitForm} noValidate>
               <div>
                 <div className='select-none'>
-                  <InputMain value={user?.email} labelValue={t('Email')} type='email' disabled={true} />
+                  <InputMain value={user?.email || ''} labelValue={t('Email')} type='email' disabled={true} />
                 </div>
                 <InputMain
                   register={register}

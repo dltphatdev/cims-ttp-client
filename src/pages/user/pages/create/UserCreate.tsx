@@ -3,7 +3,6 @@ import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main/InputMain'
 import InputNumber from '@/components/input-number'
-import { PASSWORD_DEFAULT } from '@/constants/crypto'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -15,7 +14,7 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = userSchema.pick(['email', 'password', 'fullname', 'address', 'phone', 'code', 'date_of_birth'])
+const formData = userSchema.pick(['email', 'fullname', 'address', 'phone', 'code', 'date_of_birth', 'password'])
 type FormData = yup.InferType<typeof formData>
 
 export default function UserCreate() {
@@ -31,7 +30,7 @@ export default function UserCreate() {
     resolver: yupResolver(formData),
     defaultValues: {
       email: '',
-      password: PASSWORD_DEFAULT,
+      password: import.meta.env.VITE_PASSWORD_DEFAULT,
       fullname: '',
       address: '',
       phone: '',
