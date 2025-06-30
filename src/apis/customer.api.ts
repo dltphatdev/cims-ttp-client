@@ -2,7 +2,7 @@ import type { SuccessResponseApi } from '@/types/common'
 import type {
   CreateCustomerCompanyReqBody,
   CreateCustomerPersonalReqBody,
-  Customer,
+  GetCustomerDetail,
   GetCustomersParams,
   GetListCustomer,
   UpdateCustomerCompanyReqBody,
@@ -42,7 +42,7 @@ const customerApi = {
     return http.patch<{ message: string }>('customer/update-personal', body)
   },
   getCustomerDetail(id: string) {
-    return http.get<SuccessResponseApi<Customer>>(`customer/detail/${id}`)
+    return http.get<SuccessResponseApi<GetCustomerDetail>>(`customer/detail/${id}`)
   }
 }
 

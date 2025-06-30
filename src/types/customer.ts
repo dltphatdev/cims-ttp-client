@@ -1,3 +1,4 @@
+import type { Activity } from '@/types/activity'
 import type { TQueryConfig } from '@/types/query-config'
 
 export type CustomerType = 'Personal' | 'Company'
@@ -42,6 +43,14 @@ export interface Customer {
     id: number
   } | null
   attachments: { filename: string }[]
+  activityCustomers: Activity[]
+}
+
+export interface GetCustomerDetail {
+  customer: Customer
+  limit_activities: number
+  page_activities: number
+  totalPagesActivities: number
 }
 
 type Customers = Pick<

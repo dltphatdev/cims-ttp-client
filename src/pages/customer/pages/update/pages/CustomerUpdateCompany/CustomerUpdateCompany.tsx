@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -17,13 +17,23 @@ import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY } from '@/constants/customerType'
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import AddTagUser from '@/components/add-tag-user'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import { formatedDate, formatedTime } from '@/utils/common'
+import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
+import { LIMIT, PAGE } from '@/constants/pagination'
+import { TableCell, TableRow } from '@/components/ui/table'
+import FormattedDate from '@/components/formatted-date'
+import clsx from 'clsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Ellipsis } from 'lucide-react'
+import AddTagCustomerDialog from '@/components/add-tag-customer-dialog'
+import activityApi from '@/apis/activity.api'
+import TableMain from '@/components/table-main'
 
 const formData = customerSchema.pick([
   'name',
@@ -50,10 +60,14 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdateCompany = () => {
+  const navigate = useNavigate()
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const [isVerifyCustomer, setIsVerifyCustomer] = useState<boolean>(false)
+  const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>()
+  const [openTagCustomer, setOpenTagCustomer] = useState(false)
+  const queryClient = useQueryClient()
   const {
     register,
     handleSubmit,
@@ -89,8 +103,8 @@ const CustomerUpdateCompany = () => {
 
   const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
-
-  const { data: customerData } = useQuery({
+  // dang handle
+  const { data: customerData, refetch } = useQuery({
     queryKey: ['customer', customerId],
     queryFn: () => customerApi.getCustomerDetail(customerId as string)
   })
@@ -100,22 +114,27 @@ const CustomerUpdateCompany = () => {
   const updateCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.updateCustomerCompany
   })
-  const customer = customerData?.data?.data
+  const updateActivityMutation = useMutation({
+    mutationFn: activityApi.updateActivity
+  })
+  const customerDetail = customerData?.data?.data.customer
+  const customers = customerDetail?.activityCustomers
+  const pagination = customerData?.data?.data
 
   useEffect(() => {
-    if (customer) {
-      setValue('name', customer.name || '')
-      setValue('tax_code', customer.tax_code || '')
-      setValue('cccd', customer.cccd || '')
-      setValue('phone', customer.phone || '')
-      setValue('surrogate', customer.surrogate || '')
-      setValue('email', customer.email || '')
-      setValue('website', customer.website || '')
-      setValue('address_company', customer.address_company || '')
-      setValue('note', customer.note || '')
-      setValue('consultantor_id', customer?.consultantor?.id?.toString() || '')
+    if (customerDetail) {
+      setValue('name', customerDetail.name || '')
+      setValue('tax_code', customerDetail.tax_code || '')
+      setValue('cccd', customerDetail.cccd || '')
+      setValue('phone', customerDetail.phone || '')
+      setValue('surrogate', customerDetail.surrogate || '')
+      setValue('email', customerDetail.email || '')
+      setValue('website', customerDetail.website || '')
+      setValue('address_company', customerDetail.address_company || '')
+      setValue('note', customerDetail.note || '')
+      setValue('consultantor_id', customerDetail?.consultantor?.id?.toString() || '')
     }
-  }, [customer, setValue])
+  }, [customerDetail, setValue])
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
@@ -177,6 +196,29 @@ const CustomerUpdateCompany = () => {
     toast.success(t('Verify is choosen'))
   }
 
+  const handleAllocation = async (activityId: number, customerId: number) => {
+    try {
+      const res = await updateActivityMutation.mutateAsync({
+        customer_id: customerId,
+        id: activityId
+      })
+      toast.success(res.data.message)
+      queryClient.invalidateQueries({ queryKey: ['activity', activityId] })
+
+      refetch()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.status === httpStatusCode.UnprocessableEntity) {
+        const formError = error.response?.data?.errors
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            toast.error(formError[key as keyof typeof formError]?.msg || 'Có lỗi xảy ra')
+          })
+        }
+      }
+    }
+  }
+
   return (
     <Fragment>
       <Helmet>
@@ -224,7 +266,7 @@ const CustomerUpdateCompany = () => {
                         type='text'
                         placeholder={t('Creator')}
                         disabled={true}
-                        value={customer?.creator?.fullname || ''}
+                        value={customerDetail?.creator?.fullname || ''}
                       />
                     </div>
                     <div className='mn:col-span-12 lg:col-span-6'>
@@ -233,7 +275,7 @@ const CustomerUpdateCompany = () => {
                         type='text'
                         placeholder={t('Status customer')}
                         disabled={true}
-                        value={customer?.verify === 'Verified' ? t('Verify') : t('Unverify')}
+                        value={customerDetail?.verify === 'Verified' ? t('Verify') : t('Unverify')}
                       />
                     </div>
                   </div>
@@ -246,7 +288,7 @@ const CustomerUpdateCompany = () => {
                           labelRequired={true}
                           {...field}
                           onChange={field.onChange}
-                          name={customer?.consultantor?.fullname}
+                          name={customerDetail?.consultantor?.fullname}
                           errorMessage={errors.consultantor_id?.message}
                         />
                       )}
@@ -337,7 +379,7 @@ const CustomerUpdateCompany = () => {
                     </div>
                   </div>
                   <div className='grid gap-3'>
-                    <FileUploadMultiple defaultFiles={customer?.attachments} onChange={handleChangeFiles} />
+                    <FileUploadMultiple defaultFiles={customerDetail?.attachments} onChange={handleChangeFiles} />
                   </div>
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
@@ -351,7 +393,7 @@ const CustomerUpdateCompany = () => {
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <div className='select-none'>
                           <InputMain
-                            value={`${formatedTime(customer?.created_at as string)} ${formatedDate(customer?.created_at as string)}`}
+                            value={`${formatedTime(customerDetail?.created_at as string)} ${formatedDate(customerDetail?.created_at as string)}`}
                             labelValue={t('Created at')}
                             type='text'
                             disabled={true}
@@ -361,7 +403,7 @@ const CustomerUpdateCompany = () => {
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <div className='select-none'>
                           <InputMain
-                            value={`${formatedTime(customer?.updated_at as string)} ${formatedDate(customer?.updated_at as string)}`}
+                            value={`${formatedTime(customerDetail?.updated_at as string)} ${formatedDate(customerDetail?.updated_at as string)}`}
                             labelValue={t('Updated at')}
                             type='text'
                             disabled={true}
@@ -374,7 +416,7 @@ const CustomerUpdateCompany = () => {
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
                     <Button>{t('Save')}</Button>
-                    {customer?.verify === 'Unverified' && isVerifyCustomer === false && (
+                    {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
                       <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
                         {t('Verify')}
                       </Button>
@@ -383,9 +425,83 @@ const CustomerUpdateCompany = () => {
                 </CardFooter>
               </Card>
             </form>
+            <Card className='mt-3'>
+              <TableMain
+                headers={ACTIVITY_HEADER_TABLE}
+                data={customers}
+                page={pagination?.page_activities.toString() || PAGE}
+                page_size={pagination?.limit_activities.toString() || LIMIT}
+                renderRow={(item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.customer.name}</TableCell>
+                    <TableCell>{item.creator.fullname}</TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.created_at as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_start as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_end as string} />
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
+                          'text-(--color-green-custom)': item.status === 'Completed',
+                          '!text-red-500': item.status === 'Cancelled',
+                          '!text-yellow-500': item.status === 'New',
+                          '!text-orange-500': item.status === 'InProgress'
+                        })}
+                      >
+                        {item.status === 'New'
+                          ? t('New')
+                          : item.status === 'InProgress'
+                            ? t('InProgress')
+                            : item.status === 'Completed'
+                              ? t('Completed')
+                              : item.status === 'Cancelled'
+                                ? t('Cancelled')
+                                : ''}
+                      </span>
+                    </TableCell>
+                    <TableCell className='ml-auto text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                            <Ellipsis className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
+                            {t('Edit')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedActivityId(item.id)
+                              setOpenTagCustomer(true)
+                            }}
+                          >
+                            {t('Allocation')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )}
+              />
+            </Card>
           </div>
         </div>
       </div>
+      <AddTagCustomerDialog
+        openPopup={openTagCustomer}
+        setOpenPopup={setOpenTagCustomer}
+        onExportId={(id) => {
+          if (selectedActivityId && id) handleAllocation(selectedActivityId, id)
+        }}
+      />
     </Fragment>
   )
 }

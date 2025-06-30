@@ -13,7 +13,6 @@ export default function Pagination({ page, page_size, pageKey = 'page' }: Props)
   const location = useLocation()
   let dotAfter = false
   let dotBefore = false
-
   const getUpdatedSearch = (value: number) => {
     const params = new URLSearchParams(location.search)
     params.set(pageKey, value.toString())
