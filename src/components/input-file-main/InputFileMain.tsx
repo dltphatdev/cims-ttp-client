@@ -1,5 +1,4 @@
 import { Fragment, useRef } from 'react'
-import CONFIG from '@/constants/config'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 
@@ -12,7 +11,10 @@ export default function InputFileMain({ onChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = e.target.files?.[0]
-    if (fileFromLocal && (fileFromLocal.size >= CONFIG.MAX_FILE_SIZE_UPLOAD || !fileFromLocal.type.includes('image'))) {
+    if (
+      fileFromLocal &&
+      (fileFromLocal.size >= Number(import.meta.env.VITE_MAX_FILE_SIZE_UPLOAD) || !fileFromLocal.type.includes('image'))
+    ) {
       toast.error(t('Maximum file size 1MB. Format: .JPG, .JPEG, .PNG'))
     } else {
       onChange?.(fileFromLocal)
@@ -26,7 +28,7 @@ export default function InputFileMain({ onChange }: Props) {
         type='file'
         ref={fileInputRef}
         className='hidden'
-        accept={CONFIG.ACCEPT_FILE_UPLOAD}
+        accept={import.meta.env.VITE_ACCEPT_FILE_UPLOAD}
         onChange={handleChangeFile}
         onClick={(e) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

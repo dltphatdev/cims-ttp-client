@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import CONFIG from '@/constants/config'
 import { UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -38,7 +37,8 @@ const FileAttachment = ({ onChange }: Props) => {
     ]
     if (
       fileFromLocal &&
-      (fileFromLocal.size >= CONFIG.MAX_FILE_ATTACHMENT || !allowedTypes.includes(fileFromLocal.type))
+      (fileFromLocal.size >= Number(import.meta.env.VITE_MAX_FILE_ATTACHMENT) ||
+        !allowedTypes.includes(fileFromLocal.type))
     ) {
       toast.error(t('Maximum file size 15MB. Format: .docs | .pp | .pdf | .xlsx'))
     } else {

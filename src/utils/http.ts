@@ -1,5 +1,4 @@
 import { URL_LOGIN, URL_LOGOUT, URL_REFRESH_TOKEN } from '@/apis/user.api'
-import CONFIG from '@/constants/config'
 import httpStatusCode from '@/constants/httpStatusCode'
 import type { ErrorResponseApi } from '@/types/common'
 import type { RefreshTokenReponse, UserSuccessResponeApi } from '@/types/user'
@@ -25,8 +24,8 @@ class Http {
     this.refreshToken = getRefreshTokenFromLS()
     this.refreshTokenRequest = null
     this.instance = axios.create({
-      baseURL: CONFIG.API_ENPOINT,
-      timeout: CONFIG.ENPOINT_TIMEOUT,
+      baseURL: import.meta.env.VITE_API_ENPOINT,
+      timeout: Number(import.meta.env.VITE_ENPOINT_TIMEOUT),
       headers: {
         'Content-Type': 'application/json'
       }

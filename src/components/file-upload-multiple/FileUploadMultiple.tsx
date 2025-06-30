@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import CONFIG from '@/constants/config'
 import clsx from 'clsx'
 import { Eye, Trash2, UploadCloud, GripVertical, File } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -80,8 +79,7 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
       'application/vnd.openxmlformats-officedocument.presentationml.presentation'
     ]
 
-    const MAX_FILE_SIZE = CONFIG.MAX_FILE_ATTACHMENT || 15 * 1024 * 1024
-
+    const MAX_FILE_SIZE = Number(import.meta.env.VITE_MAX_FILE_ATTACHMENT)
     const validFiles: File[] = []
     const invalidFiles: string[] = []
 

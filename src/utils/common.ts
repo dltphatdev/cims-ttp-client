@@ -1,4 +1,3 @@
-import CONFIG from '@/constants/config'
 import httpStatusCode from '@/constants/httpStatusCode'
 import STATUS from '@/constants/status'
 import type { ErrorResponseApi } from '@/types/common'
@@ -70,9 +69,10 @@ export default function checkRoleUser(role: string) {
 }
 
 export const getAvatarUrl = (nameAvatar?: string) =>
-  nameAvatar ? `${CONFIG.SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'
+  nameAvatar ? `${import.meta.env.VITE_SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'
 
-export const getFilesUrl = (filename?: string) => (filename ? `${CONFIG.SERVER_URL}files/${filename}` : '')
+export const getFilesUrl = (filename?: string) =>
+  filename ? `${import.meta.env.VITE_SERVER_URL}files/${filename}` : ''
 
 export function formatNumberCurrency(currency: number) {
   return Intl.NumberFormat('de-DE').format(currency)
