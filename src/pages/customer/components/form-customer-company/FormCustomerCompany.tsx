@@ -196,6 +196,7 @@ const FormCustomerCompany = () => {
                     labelRequired={true}
                     {...field}
                     onChange={field.onChange}
+                    name=''
                     errorMessage={errors.consultantor_id?.message}
                   />
                 )}
@@ -214,6 +215,7 @@ const FormCustomerCompany = () => {
                         labelValue={t('Tax code')}
                         {...field}
                         onChange={field.onChange}
+                        labelRequired
                         errorMessage={errors.tax_code?.message}
                       />
                     )}

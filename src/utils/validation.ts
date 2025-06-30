@@ -6,6 +6,7 @@ import { FEMALE, MALE } from '@/constants/gender'
 import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
 import { NEW as NEW_ACTIVITY, IN_PROGRESS, COMPLETED, CANCELLED as CANCELLED_ACTIVITY } from '@/constants/activity'
 import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
+import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
 
 function handleConfirmPasswordYup(field: string) {
   return yup
@@ -44,7 +45,7 @@ export const userSchema = yup.object({
   avatar: yup.string().max(1000, 'Avatar maximum length is 1000 characters').optional(),
   code: yup.string().max(1000, 'Code maximum length is 6 characters').optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
-  // role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
+  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
 })
 
@@ -66,7 +67,7 @@ export const customerSchema = yup.object({
     .max(160, 'Name maximum length is 160 characters'),
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
   consultantor_id: yup.string().required('Sale add tags is required'),
-  tax_code: yup.string().max(13, 'Tax code maximum length is 13 characters').optional(),
+  tax_code: yup.string().required('Tax code is required').max(13, 'Tax code maximum length is 13 characters'),
   cccd: yup
     .string()
     .required('Citizen identification')

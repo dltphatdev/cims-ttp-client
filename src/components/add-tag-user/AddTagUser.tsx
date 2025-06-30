@@ -29,7 +29,7 @@ interface Props {
   errorMessage?: string
 }
 
-export default function AddTagUser({ name, value, errorMessage, onChange, labelRequired = false }: Props) {
+export default function AddTagUser({ name = '', value, errorMessage, onChange, labelRequired = false }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultValue = value ? { id: value, name } : null
   const hasInitialized = useRef(false)
@@ -39,7 +39,6 @@ export default function AddTagUser({ name, value, errorMessage, onChange, labelR
   const [selectedUser, setSelectedUser] = useState(defaultValue)
   const [open, setOpen] = useState<boolean>(false)
   const [searchValue, setSearchValue] = useState('')
-  console.log(value)
   useEffect(() => {
     if (!value) {
       setSelectedUser(null)

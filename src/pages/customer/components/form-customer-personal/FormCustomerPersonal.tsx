@@ -40,7 +40,6 @@ const formData = customerSchema.pick([
   'name',
   'type',
   'consultantor_id',
-  'tax_code',
   'website',
   'surrogate',
   'address_company',
@@ -79,7 +78,6 @@ const FormCustomerPersonal = () => {
       name: '',
       type: PERSONAL,
       consultantor_id: '',
-      tax_code: '',
       website: '',
       surrogate: '',
       address_company: '',
@@ -214,6 +212,7 @@ const FormCustomerPersonal = () => {
                   <AddTagUser
                     labelRequired={true}
                     {...field}
+                    name=''
                     onChange={field.onChange}
                     errorMessage={errors.consultantor_id?.message}
                   />
@@ -274,7 +273,7 @@ const FormCustomerPersonal = () => {
                     labelValue={t('Address personal')}
                     type='text'
                     placeholder={t('Address personal')}
-                    errorMessage={errors.tax_code?.message}
+                    errorMessage={errors.address_personal?.message}
                   />
                 </div>
               </div>

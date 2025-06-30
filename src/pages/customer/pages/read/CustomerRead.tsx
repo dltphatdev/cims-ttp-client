@@ -21,7 +21,6 @@ import PATH from '@/constants/path'
 import { CUSTOMER_HEADER_TABLE } from '@/constants/table'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { CustomerType, GetCustomersParams } from '@/types/customer'
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
@@ -260,15 +259,18 @@ export default function CustomerRead() {
               headers={CUSTOMER_HEADER_TABLE}
               data={customers}
               renderRow={(item, index) => {
-                console.log(item)
                 return (
                   <TableRow key={item.id}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.type === 'Personal' ? item.cccd : item.tax_code}</TableCell>
                     <TableCell>
-                      <span>{item.phone}</span>
-                      <br />
+                      {item.phone && (
+                        <>
+                          <span>{item.phone}</span>
+                          <br />
+                        </>
+                      )}
                       <span>{item.type === 'Personal' ? item.address_personal : item.address_company}</span>
                     </TableCell>
                     <TableCell>

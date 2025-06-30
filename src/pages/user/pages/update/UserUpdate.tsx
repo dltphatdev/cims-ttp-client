@@ -3,9 +3,10 @@ import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
+import SelectRole from '@/components/select-role'
 import { Button } from '@/components/ui/button'
 import httpStatusCode from '@/constants/httpStatusCode'
-// import { ADMIN, NONE, SALE } from '@/constants/role'
+import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
 import { formatedDate, formatedTime } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -19,20 +20,28 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'phone'])
+const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'phone', 'role'])
 
 type FormData = yup.InferType<typeof formData>
 
-// const roles = [
-//   {
-//     role_type: ADMIN,
-//     role_value: 'Admin'
-//   },
-//   {
-//     role_type: SALE,
-//     role_value: 'Sale'
-//   }
-// ]
+const roles = [
+  {
+    role_type: ADMIN,
+    role_value: 'Admin'
+  },
+  {
+    role_type: SALE,
+    role_value: 'Sale'
+  },
+  {
+    role_type: SUPERADMIN,
+    role_value: 'Super admin'
+  },
+  {
+    role_type: NONE,
+    role_value: 'None'
+  }
+]
 
 export default function UserUpdate() {
   const { t } = useTranslation('admin')
@@ -49,14 +58,14 @@ export default function UserUpdate() {
       fullname: '',
       address: '',
       code: '',
-      // role: NONE,
+      role: NONE,
       phone: '',
       date_of_birth: new Date(1990, 0, 1)
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
   const { userId } = useParams()
-  const { data: userData } = useQuery({
+  const { data: userData, refetch } = useQuery({
     queryKey: ['user', userId],
     queryFn: () => userApi.getUserDetail(userId as string)
   })
@@ -82,7 +91,10 @@ export default function UserUpdate() {
         }
       }
       updateUserMutation.mutate(payload, {
-        onSuccess: (data) => toast.success(data.data.message),
+        onSuccess: (data) => {
+          toast.success(data.data.message)
+          refetch()
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
           if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -120,7 +132,7 @@ export default function UserUpdate() {
       setValue('phone', user.phone || '')
       setValue('address', user.address || '')
       setValue('code', user.code || '')
-      // setValue('role', user.role)
+      setValue('role', user.role || NONE)
       setValue('date_of_birth', user.date_of_birth ? new Date(user.date_of_birth) : new Date(1990, 0, 1))
     }
   }, [user, setValue])
@@ -186,7 +198,7 @@ export default function UserUpdate() {
                   errorMessage={errors.code?.message}
                   placeholder={t('Code user')}
                 />
-                {/* <Controller
+                <Controller
                   control={control}
                   name='role'
                   render={({ field }) => (
@@ -198,7 +210,7 @@ export default function UserUpdate() {
                       errorMessage={errors.role?.message as string}
                     />
                   )}
-                /> */}
+                />
                 <Controller
                   control={control}
                   name='phone'

@@ -62,31 +62,10 @@ export default function SearchMain({ queryConfig, value, payloadField }: Props) 
   const removeTag = (tag: string) => {
     const updatedTags = tags.filter((t) => t !== tag)
     setTags(updatedTags)
-    const textList: string[] = []
-    const numberList: string[] = []
-    const payload: { [key: string]: string } = {}
-    updatedTags.forEach((item) => {
-      const isNum = /^\d+$/.test(item)
-      if (isNum) {
-        numberList.push(item)
-      } else {
-        textList.push(item)
-      }
-    })
-
-    if (payloadField?.text) {
-      payload[payloadField.text] = textList.join(',')
-    }
-    if (payloadField?.number) {
-      payload[payloadField.number] = numberList.join(',')
-    }
 
     navigate({
       pathname: '',
-      search: createSearchParams({
-        ...queryConfig,
-        ...payload
-      }).toString()
+      search: createSearchParams().toString()
     })
   }
 

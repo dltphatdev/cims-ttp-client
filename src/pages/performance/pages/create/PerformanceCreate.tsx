@@ -131,6 +131,7 @@ export default function PerformanceCreate() {
                         <AddTagCustomer
                           labelRequired={true}
                           {...field}
+                          name=''
                           onChange={field.onChange}
                           errorMessage={errors.customer_id?.message}
                         />
