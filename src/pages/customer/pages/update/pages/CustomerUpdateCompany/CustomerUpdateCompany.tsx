@@ -17,7 +17,7 @@ import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY } from '@/constants/customerType'
 import { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import AddTagUser from '@/components/add-tag-user'
@@ -31,9 +31,10 @@ import FormattedDate from '@/components/formatted-date'
 import clsx from 'clsx'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Ellipsis } from 'lucide-react'
-import AddTagCustomerDialog from '@/components/add-tag-customer-dialog'
-import activityApi from '@/apis/activity.api'
 import TableMain from '@/components/table-main'
+import type { TQueryConfig } from '@/types/query-config'
+import { isUndefined, omitBy } from 'lodash'
+import { useQueryParams } from '@/hooks/use-query-params'
 
 const formData = customerSchema.pick([
   'name',
@@ -65,9 +66,6 @@ const CustomerUpdateCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const [isVerifyCustomer, setIsVerifyCustomer] = useState<boolean>(false)
-  const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>()
-  const [openTagCustomer, setOpenTagCustomer] = useState(false)
-  const queryClient = useQueryClient()
   const {
     register,
     handleSubmit,
@@ -103,19 +101,24 @@ const CustomerUpdateCompany = () => {
 
   const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
-  // dang handle
-  const { data: customerData, refetch } = useQuery({
-    queryKey: ['customer', customerId],
-    queryFn: () => customerApi.getCustomerDetail(customerId as string)
+
+  const queryParams: Pick<TQueryConfig, 'limit' | 'page'> = useQueryParams()
+  const customerQueryConfig: Pick<TQueryConfig, 'limit' | 'page'> = omitBy(
+    {
+      page: queryParams.page,
+      limit: queryParams.limit
+    },
+    isUndefined
+  )
+  const { data: customerData } = useQuery({
+    queryKey: ['customer', customerId, customerQueryConfig],
+    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFiles
   })
   const updateCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.updateCustomerCompany
-  })
-  const updateActivityMutation = useMutation({
-    mutationFn: activityApi.updateActivity
   })
   const customerDetail = customerData?.data?.data.customer
   const customers = customerDetail?.activityCustomers
@@ -194,29 +197,6 @@ const CustomerUpdateCompany = () => {
     setIsVerifyCustomer(!isVerifyCustomer)
     setValue('verify', VERIFIED)
     toast.success(t('Verify is choosen'))
-  }
-
-  const handleAllocation = async (activityId: number, customerId: number) => {
-    try {
-      const res = await updateActivityMutation.mutateAsync({
-        customer_id: customerId,
-        id: activityId
-      })
-      toast.success(res.data.message)
-      queryClient.invalidateQueries({ queryKey: ['activity', activityId] })
-
-      refetch()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.status === httpStatusCode.UnprocessableEntity) {
-        const formError = error.response?.data?.errors
-        if (formError) {
-          Object.keys(formError).forEach((key) => {
-            toast.error(formError[key as keyof typeof formError]?.msg || 'Có lỗi xảy ra')
-          })
-        }
-      }
-    }
   }
 
   return (
@@ -425,8 +405,10 @@ const CustomerUpdateCompany = () => {
                 </CardFooter>
               </Card>
             </form>
-            <Card className='mt-3'>
+            <Card className='mt-4'>
               <TableMain
+                classNameWrapper='px-4'
+                headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
                 headers={ACTIVITY_HEADER_TABLE}
                 data={customers}
                 page={pagination?.page_activities.toString() || PAGE}
@@ -477,14 +459,6 @@ const CustomerUpdateCompany = () => {
                           <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
                             {t('Edit')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedActivityId(item.id)
-                              setOpenTagCustomer(true)
-                            }}
-                          >
-                            {t('Allocation')}
-                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -495,13 +469,6 @@ const CustomerUpdateCompany = () => {
           </div>
         </div>
       </div>
-      <AddTagCustomerDialog
-        openPopup={openTagCustomer}
-        setOpenPopup={setOpenTagCustomer}
-        onExportId={(id) => {
-          if (selectedActivityId && id) handleAllocation(selectedActivityId, id)
-        }}
-      />
     </Fragment>
   )
 }

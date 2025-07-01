@@ -254,6 +254,7 @@ export default function CustomerRead() {
               </Button>
             </div>
             <TableMain
+              headerClassNames={['', '', '', '', '', '', '', '', '', 'text-right']}
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
               headers={CUSTOMER_HEADER_TABLE}

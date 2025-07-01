@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
@@ -26,6 +26,17 @@ import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import { formatedDate, formatedTime } from '@/utils/common'
+import type { TQueryConfig } from '@/types/query-config'
+import { useQueryParams } from '@/hooks/use-query-params'
+import { isUndefined, omitBy } from 'lodash'
+import TableMain from '@/components/table-main'
+import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
+import { TableCell, TableRow } from '@/components/ui/table'
+import FormattedDate from '@/components/formatted-date'
+import clsx from 'clsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Ellipsis } from 'lucide-react'
+import { LIMIT, PAGE } from '@/constants/pagination'
 
 const genders = [
   {
@@ -63,6 +74,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdatePersonal = () => {
+  const navigate = useNavigate()
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
@@ -101,10 +113,17 @@ const CustomerUpdatePersonal = () => {
 
   const filesAttachment = watch('attachments')
   const consultantorId = watch('consultantor_id')
-
+  const queryParams: Pick<TQueryConfig, 'limit' | 'page'> = useQueryParams()
+  const customerQueryConfig: Pick<TQueryConfig, 'limit' | 'page'> = omitBy(
+    {
+      page: queryParams.page,
+      limit: queryParams.limit
+    },
+    isUndefined
+  )
   const { data: customerData } = useQuery({
-    queryKey: ['customer', customerId],
-    queryFn: () => customerApi.getCustomerDetail(customerId as string)
+    queryKey: ['customer', customerId, customerQueryConfig],
+    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFiles
@@ -112,21 +131,26 @@ const CustomerUpdatePersonal = () => {
   const updateCustomerPersonalMutation = useMutation({
     mutationFn: customerApi.updateCustomePersonal
   })
-  const customer = customerData?.data?.data
+  const customerDetail = customerData?.data?.data.customer
+  const customers = customerDetail?.activityCustomers
+  const pagination = customerData?.data?.data
 
   useEffect(() => {
-    if (customer) {
-      setValue('name', customer.name || '')
-      setValue('cccd', customer.cccd || '')
-      setValue('email', customer.email || '')
-      setValue('phone', customer.phone || '')
-      setValue('gender', customer.gender || MALE)
-      setValue('address_personal', customer.address_personal || '')
-      setValue('date_of_birth', customer?.date_of_birth ? new Date(customer.date_of_birth) : new Date(1990, 0, 1))
-      setValue('note', customer.note || '')
-      setValue('consultantor_id', customer?.consultantor?.id?.toString() || '')
+    if (customerDetail) {
+      setValue('name', customerDetail.name || '')
+      setValue('cccd', customerDetail.cccd || '')
+      setValue('email', customerDetail.email || '')
+      setValue('phone', customerDetail.phone || '')
+      setValue('gender', customerDetail.gender || MALE)
+      setValue('address_personal', customerDetail.address_personal || '')
+      setValue(
+        'date_of_birth',
+        customerDetail?.date_of_birth ? new Date(customerDetail.date_of_birth) : new Date(1990, 0, 1)
+      )
+      setValue('note', customerDetail.note || '')
+      setValue('consultantor_id', customerDetail?.consultantor?.id?.toString() || '')
     }
-  }, [customer, setValue])
+  }, [customerDetail, setValue])
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
@@ -236,7 +260,7 @@ const CustomerUpdatePersonal = () => {
                         type='text'
                         placeholder={t('Creator')}
                         disabled={true}
-                        value={customer?.creator?.fullname || ''}
+                        value={customerDetail?.creator?.fullname || ''}
                       />
                     </div>
                     <div className='mn:col-span-12 lg:col-span-6'>
@@ -245,7 +269,7 @@ const CustomerUpdatePersonal = () => {
                         type='text'
                         placeholder={t('Status customer')}
                         disabled={true}
-                        value={customer?.verify === 'Verified' ? t('Verify') : t('Unverify')}
+                        value={customerDetail?.verify === 'Verified' ? t('Verify') : t('Unverify')}
                       />
                     </div>
                   </div>
@@ -258,7 +282,7 @@ const CustomerUpdatePersonal = () => {
                           labelRequired={true}
                           {...field}
                           onChange={field.onChange}
-                          name={customer?.consultantor?.fullname}
+                          name={customerDetail?.consultantor?.fullname}
                           errorMessage={errors.consultantor_id?.message}
                         />
                       )}
@@ -336,7 +360,7 @@ const CustomerUpdatePersonal = () => {
                     )}
                   />
                   <div className='grid gap-3'>
-                    <FileUploadMultiple defaultFiles={customer?.attachments} onChange={handleChangeFiles} />
+                    <FileUploadMultiple defaultFiles={customerDetail?.attachments} onChange={handleChangeFiles} />
                   </div>
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
@@ -350,7 +374,7 @@ const CustomerUpdatePersonal = () => {
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <div className='select-none'>
                           <InputMain
-                            value={`${formatedTime(customer?.created_at as string)} ${formatedDate(customer?.created_at as string)}`}
+                            value={`${formatedTime(customerDetail?.created_at as string)} ${formatedDate(customerDetail?.created_at as string)}`}
                             labelValue={t('Created at')}
                             type='text'
                             disabled={true}
@@ -360,7 +384,7 @@ const CustomerUpdatePersonal = () => {
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <div className='select-none'>
                           <InputMain
-                            value={`${formatedTime(customer?.updated_at as string)} ${formatedDate(customer?.updated_at as string)}`}
+                            value={`${formatedTime(customerDetail?.updated_at as string)} ${formatedDate(customerDetail?.updated_at as string)}`}
                             labelValue={t('Updated at')}
                             type='text'
                             disabled={true}
@@ -373,7 +397,7 @@ const CustomerUpdatePersonal = () => {
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
                     <Button>{t('Save')}</Button>
-                    {customer?.verify === 'Unverified' && isVerifyCustomer === false && (
+                    {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
                       <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
                         {t('Verify')}
                       </Button>
@@ -382,6 +406,66 @@ const CustomerUpdatePersonal = () => {
                 </CardFooter>
               </Card>
             </form>
+            <Card className='mt-3'>
+              <TableMain
+                headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
+                headers={ACTIVITY_HEADER_TABLE}
+                data={customers}
+                page={pagination?.page_activities.toString() || PAGE}
+                page_size={pagination?.limit_activities.toString() || LIMIT}
+                renderRow={(item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.customer.name}</TableCell>
+                    <TableCell>{item.creator.fullname}</TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.created_at as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_start as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_end as string} />
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
+                          'text-(--color-green-custom)': item.status === 'Completed',
+                          '!text-red-500': item.status === 'Cancelled',
+                          '!text-yellow-500': item.status === 'New',
+                          '!text-orange-500': item.status === 'InProgress'
+                        })}
+                      >
+                        {item.status === 'New'
+                          ? t('New')
+                          : item.status === 'InProgress'
+                            ? t('InProgress')
+                            : item.status === 'Completed'
+                              ? t('Completed')
+                              : item.status === 'Cancelled'
+                                ? t('Cancelled')
+                                : ''}
+                      </span>
+                    </TableCell>
+                    <TableCell className='ml-auto text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                            <Ellipsis className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
+                            {t('Edit')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )}
+              />
+            </Card>
           </div>
         </div>
       </div>

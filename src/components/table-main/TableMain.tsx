@@ -11,6 +11,7 @@ interface Props<T> {
   page?: string
   page_size?: string
   pageKey?: string
+  classNameWrapper?: string
 }
 
 export default function TableMain<T>({
@@ -18,13 +19,14 @@ export default function TableMain<T>({
   headers,
   headerClassNames,
   renderRow,
+  classNameWrapper = 'p-4',
   page = PAGE,
   page_size = LIMIT,
   pageKey = 'page'
 }: Props<T>) {
   const { t } = useTranslation('admin')
   return (
-    <div className='p-4'>
+    <div className={classNameWrapper}>
       <Table>
         <TableHeader>
           <TableRow>
