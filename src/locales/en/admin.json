@@ -148,5 +148,9 @@
   "Cost of sales": "Cost of sales",
   "Commission, bonus, diplomacy, handling costs": "Commission, bonus, diplomacy, handling costs",
   "Personal income tax payment costs": "Personal income tax payment costs",
-  "Total cost": "Total cost"
+  "Total cost": "Total cost",
+  "Reset": "Reset",
+  "Choose": "Choose",
+  "Notification of operation to add consultant": "Notification of operation to add consultant",
+  "Notification of consultant deletion operation": "Notification of consultant deletion operation"
 }

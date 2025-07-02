@@ -66,7 +66,6 @@ export const customerSchema = yup.object({
     .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
   type: yup.string().oneOf([COMPANY, PERSONAL], 'Customer type invalid').optional(),
-  consultantor_id: yup.string().required('Sale add tags is required'),
   tax_code: yup.string().required('Tax code is required').max(13, 'Tax code maximum length is 13 characters'),
   cccd: yup
     .string()

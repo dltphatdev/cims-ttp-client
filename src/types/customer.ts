@@ -32,20 +32,20 @@ export interface Customer {
   verify: CustomerVerify
   assign_at: string | null
   creator_id: number
-  consultantor_id: number | null
   created_at: string
   updated_at: string | null
   creator: {
     fullname: string
   } | null
   consultantor: {
-    fullname: string
-    id: number
-  } | null
+    user: {
+      fullname: string
+      id: number
+    }
+  }[]
   attachments: { filename: string }[]
   activityCustomers: Activity[]
 }
-
 export interface GetCustomerDetail {
   customer: Customer
   limit_activities: number
@@ -81,7 +81,7 @@ export interface GetListCustomer {
 export interface CreateCustomerCompanyReqBody {
   name: string
   type?: CustomerType
-  consultantor_id?: string | number
+  consultantor_ids?: number[]
   tax_code?: string
   cccd?: string
   website?: string
@@ -100,7 +100,7 @@ export interface CreateCustomerCompanyReqBody {
 export interface CreateCustomerPersonalReqBody {
   name: string
   type?: CustomerType
-  consultantor_id?: string | number
+  consultantor_ids?: string | number
   address_personal?: string
   phone?: string
   email?: string
@@ -118,7 +118,7 @@ export interface UpdateCustomerCompanyReqBody
   extends Pick<
     CreateCustomerCompanyReqBody,
     | 'type'
-    | 'consultantor_id'
+    | 'consultantor_ids'
     | 'tax_code'
     | 'website'
     | 'surrogate'
@@ -140,7 +140,7 @@ export interface UpdateCustomerPersonalReqBody
   extends Pick<
     CreateCustomerPersonalReqBody,
     | 'type'
-    | 'consultantor_id'
+    | 'consultantor_ids'
     | 'address_personal'
     | 'phone'
     | 'email'

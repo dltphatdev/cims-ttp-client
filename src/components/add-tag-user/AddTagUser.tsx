@@ -34,7 +34,7 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
   const defaultValue = value ? { id: value, name } : null
   const hasInitialized = useRef(false)
   const { t } = useTranslation('admin')
-  const [confirmAction, setConfirmAction] = useState<null | 'add' | 'remove'>(null)
+  const [action, setAction] = useState<null | 'add' | 'remove'>(null)
   const [pendingUser, setPendingUser] = useState<{ id: string; name: string } | null>(null)
   const [selectedUser, setSelectedUser] = useState(defaultValue)
   const [open, setOpen] = useState<boolean>(false)
@@ -67,10 +67,10 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
 
   const handleSelect = ({ name, id }: { name: string; id: string }) => {
     setPendingUser({ name, id })
-    setConfirmAction('add')
+    setAction('add')
   }
 
-  const handleRemove = () => setConfirmAction('remove')
+  const handleRemove = () => setAction('remove')
 
   const users = userData?.data?.data?.users
 
@@ -80,18 +80,20 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
   )
 
   const handleAlertDialogSuccessAction = () => {
-    if (confirmAction === 'add' && pendingUser) {
+    if (action === 'add' && pendingUser) {
       setSelectedUser(pendingUser)
       onChange?.(pendingUser.id)
       setOpen(false)
-    } else if (confirmAction === 'remove') {
+    } else if (action === 'remove') {
       setSelectedUser(null)
       onChange?.('')
     }
     setPendingUser(null)
-    setConfirmAction(null)
+    setAction(null)
   }
-  const handleAlertDialogCancelAction = () => setConfirmAction(null)
+
+  const handleAlertDialogCancelAction = () => setAction(null)
+
   return (
     <div className='space-y-2'>
       <label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
@@ -159,20 +161,18 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
         </Dialog>
 
         {/* Alert dialog confirm */}
-        <AlertDialog open={confirmAction !== null} onOpenChange={(open) => !open && setConfirmAction(null)}>
+        <AlertDialog open={action !== null} onOpenChange={(open) => !open && setAction(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
                 <div className='flex flex-wrap gap-2 text-red-500 items-center'>
                   <AlertTriangle className=' w-6 h-6' />{' '}
-                  {confirmAction === 'add'
-                    ? 'Thông báo thao tác thêm người tư vấn'
-                    : 'Thông báo thao tác xoá người tư vấn'}
+                  {action === 'add' ? 'Thông báo thao tác thêm người tư vấn' : 'Thông báo thao tác xoá người tư vấn'}
                 </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
             <p className='text-sm text-muted-foreground px-1'>
-              Bạn có chắc chắn muốn {confirmAction === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
+              Bạn có chắc chắn muốn {action === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
             </p>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>

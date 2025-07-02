@@ -20,7 +20,6 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
-import AddTagUser from '@/components/add-tag-user'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import { formatedDate, formatedTime } from '@/utils/common'
@@ -35,11 +34,11 @@ import TableMain from '@/components/table-main'
 import type { TQueryConfig } from '@/types/query-config'
 import { isUndefined, omitBy } from 'lodash'
 import { useQueryParams } from '@/hooks/use-query-params'
+import AddTags from '@/components/add-tags'
 
 const formData = customerSchema.pick([
   'name',
   'type',
-  'consultantor_id',
   'tax_code',
   'website',
   'surrogate',
@@ -66,6 +65,7 @@ const CustomerUpdateCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const [isVerifyCustomer, setIsVerifyCustomer] = useState<boolean>(false)
+  const [consultantorIds, setConsultantorIds] = useState<string[]>([])
   const {
     register,
     handleSubmit,
@@ -73,12 +73,11 @@ const CustomerUpdateCompany = () => {
     watch,
     setValue,
     control,
-    formState: { errors }
+    formState: { errors, isSubmitted }
   } = useForm<FormData>({
     defaultValues: {
       name: '',
       type: COMPANY,
-      consultantor_id: '',
       tax_code: '',
       website: '',
       surrogate: '',
@@ -100,7 +99,6 @@ const CustomerUpdateCompany = () => {
   })
 
   const filesAttachment = watch('attachments')
-  const consultantorId = watch('consultantor_id')
 
   const queryParams: Pick<TQueryConfig, 'limit' | 'page'> = useQueryParams()
   const customerQueryConfig: Pick<TQueryConfig, 'limit' | 'page'> = omitBy(
@@ -123,7 +121,6 @@ const CustomerUpdateCompany = () => {
   const customerDetail = customerData?.data?.data.customer
   const customers = customerDetail?.activityCustomers
   const pagination = customerData?.data?.data
-
   useEffect(() => {
     if (customerDetail) {
       setValue('name', customerDetail.name || '')
@@ -135,7 +132,6 @@ const CustomerUpdateCompany = () => {
       setValue('website', customerDetail.website || '')
       setValue('address_company', customerDetail.address_company || '')
       setValue('note', customerDetail.note || '')
-      setValue('consultantor_id', customerDetail?.consultantor?.id?.toString() || '')
     }
   }, [customerDetail, setValue])
 
@@ -151,19 +147,12 @@ const CustomerUpdateCompany = () => {
         attachments = uploadResponeArray.data.data?.map((file) => file.filename)
         setValue('attachments', attachments)
       }
-      const payload = consultantorId
-        ? {
-            ...data,
-            attachments: attachments as string[] | undefined,
-            consultantor_id: Number(data.consultantor_id),
-            assign_at: new Date()?.toISOString(),
-            id: Number(customerId)
-          }
-        : {
-            ...data,
-            attachments: attachments as string[] | undefined,
-            id: Number(customerId)
-          }
+      const payload = {
+        ...data,
+        attachments: attachments as string[] | undefined,
+        assign_at: new Date()?.toISOString(),
+        id: Number(customerId)
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -173,6 +162,7 @@ const CustomerUpdateCompany = () => {
           delete payload[key as keyof typeof payload]
         }
       }
+      if (consultantorIds.length === 0) return
       const res = await updateCustomerCompanyMutation.mutateAsync(payload)
       toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -259,7 +249,7 @@ const CustomerUpdateCompany = () => {
                       />
                     </div>
                   </div>
-                  <div className='grid gap-3'>
+                  {/* <div className='grid gap-3'>
                     <Controller
                       control={control}
                       name='consultantor_id'
@@ -273,6 +263,19 @@ const CustomerUpdateCompany = () => {
                         />
                       )}
                     />
+                  </div> */}
+                  <div className='grid gap-3'>
+                    <AddTags
+                      value={customerDetail?.consultantor?.map((item) => ({
+                        id: item.user.id.toString(),
+                        fullname: item.user.fullname
+                      }))}
+                      labelRequired
+                      onChange={(ids) => setConsultantorIds(ids)}
+                    />
+                    {consultantorIds.length === 0 && isSubmitted && (
+                      <span className='text-red-500'>Consultantor is required</span>
+                    )}
                   </div>
                   <div className='grid gap-3'>
                     <div className='grid grid-cols-12 gap-4'>

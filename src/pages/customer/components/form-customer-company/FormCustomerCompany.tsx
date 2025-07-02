@@ -11,7 +11,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useContext, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
-import AddTagUser from '@/components/add-tag-user'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -21,11 +20,11 @@ import httpStatusCode from '@/constants/httpStatusCode'
 import { useNavigate } from 'react-router-dom'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import InputNumber from '@/components/input-number'
+import AddTags from '@/components/add-tags'
 
 const formData = customerSchema.pick([
   'name',
   'type',
-  'consultantor_id',
   'tax_code',
   'website',
   'surrogate',
@@ -49,6 +48,7 @@ const FormCustomerCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
+  const [consultantorIds, setConsultantorIds] = useState<string[]>([])
   const {
     register,
     handleSubmit,
@@ -57,12 +57,11 @@ const FormCustomerCompany = () => {
     reset,
     setValue,
     control,
-    formState: { errors }
+    formState: { errors, isSubmitted }
   } = useForm<FormData>({
     defaultValues: {
       name: '',
       type: COMPANY,
-      consultantor_id: '',
       tax_code: '',
       website: '',
       surrogate: '',
@@ -82,8 +81,6 @@ const FormCustomerCompany = () => {
   })
 
   const filesAttachment = watch('attachments')
-  const consultantorId = watch('consultantor_id')
-
   const createCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.createCustomerCompany
   })
@@ -103,17 +100,12 @@ const FormCustomerCompany = () => {
         attachments = uploadResponeArray.data.data?.map((file) => file.filename)
         setValue('attachments', attachments)
       }
-      const payload = consultantorId
-        ? {
-            ...data,
-            attachments: attachments as string[] | undefined,
-            consultantor_id: Number(data.consultantor_id),
-            assign_at: new Date()?.toISOString()
-          }
-        : {
-            ...data,
-            attachments: attachments as string[] | undefined
-          }
+      const payload = {
+        ...data,
+        attachments: attachments as string[] | undefined,
+        consultantor_ids: consultantorIds.map((item) => Number(item)),
+        assign_at: new Date()?.toISOString()
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -123,6 +115,7 @@ const FormCustomerCompany = () => {
           delete payload[key as keyof typeof payload]
         }
       }
+      if (consultantorIds.length === 0) return
       const res = await createCustomerCompanyMutation.mutateAsync(payload)
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-company/${idCustomerCreated}`)
@@ -188,19 +181,10 @@ const FormCustomerCompany = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <Controller
-                control={control}
-                name='consultantor_id'
-                render={({ field }) => (
-                  <AddTagUser
-                    labelRequired={true}
-                    {...field}
-                    onChange={field.onChange}
-                    name=''
-                    errorMessage={errors.consultantor_id?.message}
-                  />
-                )}
-              />
+              <AddTags labelRequired onChange={(ids) => setConsultantorIds(ids)} />
+              {consultantorIds.length === 0 && isSubmitted && (
+                <span className='text-red-500'>Consultantor is required</span>
+              )}
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>

@@ -148,5 +148,9 @@
   "Cost of sales": "Giá vốn bán hàng",
   "Commission, bonus, diplomacy, handling costs": "Chi phí hoa hồng, thưởng, ngoại giao, xử lý",
   "Personal income tax payment costs": "Chi phí đóng thuế TNCN",
-  "Total cost": "Tổng chi phí"
+  "Total cost": "Tổng chi phí",
+  "Reset": "Làm mới",
+  "Choose": "Chọn",
+  "Notification of operation to add consultant": "Thông báo thao tác thêm người tư vấn",
+  "Notification of consultant deletion operation": "Thông báo thao tác xoá người tư vấn"
 }
