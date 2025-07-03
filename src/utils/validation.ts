@@ -88,7 +88,17 @@ export const customerSchema = yup.object({
   note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
   assign_at: yup.string().optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
-  gender: yup.string().oneOf([MALE, FEMALE], 'Gender invalid').optional()
+  gender: yup.string().oneOf([MALE, FEMALE], 'Gender invalid').optional(),
+  consultantors: yup
+    .array()
+    .of(
+      yup.object().shape({
+        id: yup.number().typeError('ID must be a number').required('ID is required'),
+        title: yup.string().typeError('Title must be a string').required('Title is required')
+      })
+    )
+    .min(1, 'You must select at least one consultant')
+    .required('This field is required')
 })
 
 export const performanceSchema = yup.object({

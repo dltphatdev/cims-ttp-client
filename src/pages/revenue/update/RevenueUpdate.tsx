@@ -107,7 +107,7 @@ export default function RevenueUpdate() {
       const res = await updateRevenueMutation.mutateAsync(payload)
       toast.success(res.data.message)
 
-      // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
         const formError = error.response?.data?.errors

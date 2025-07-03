@@ -32,7 +32,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Ellipsis } from 'lucide-react'
 import TableMain from '@/components/table-main'
 import type { TQueryConfig } from '@/types/query-config'
-import { isUndefined, omitBy } from 'lodash'
+import { isUndefined, omit, omitBy } from 'lodash'
 import { useQueryParams } from '@/hooks/use-query-params'
 import AddTags from '@/components/add-tags'
 
@@ -51,10 +51,9 @@ const formData = customerSchema.pick([
   'verify',
   'attachments',
   'note',
-  'assign_at',
-  'date_of_birth',
   'gender',
-  'cccd'
+  'cccd',
+  'consultantors'
 ])
 
 type FormData = yup.InferType<typeof formData>
@@ -65,7 +64,6 @@ const CustomerUpdateCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const [isVerifyCustomer, setIsVerifyCustomer] = useState<boolean>(false)
-  const [consultantorIds, setConsultantorIds] = useState<string[]>([])
   const {
     register,
     handleSubmit,
@@ -73,7 +71,7 @@ const CustomerUpdateCompany = () => {
     watch,
     setValue,
     control,
-    formState: { errors, isSubmitted }
+    formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -90,15 +88,15 @@ const CustomerUpdateCompany = () => {
       verify: UNVERIFIED,
       attachments: [],
       note: '',
-      assign_at: '',
-      date_of_birth: new Date(1990, 0, 1),
       gender: MALE,
-      cccd: ''
+      cccd: '',
+      consultantors: []
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
   const filesAttachment = watch('attachments')
+  const consultantors = watch('consultantors')
 
   const queryParams: Pick<TQueryConfig, 'limit' | 'page'> = useQueryParams()
   const customerQueryConfig: Pick<TQueryConfig, 'limit' | 'page'> = omitBy(
@@ -132,6 +130,16 @@ const CustomerUpdateCompany = () => {
       setValue('website', customerDetail.website || '')
       setValue('address_company', customerDetail.address_company || '')
       setValue('note', customerDetail.note || '')
+      setValue(
+        'consultantors',
+        customerDetail.consultantor.map((item) => {
+          const user = item.user
+          return {
+            id: user.id,
+            title: user.fullname
+          }
+        }) || []
+      )
     }
   }, [customerDetail, setValue])
 
@@ -150,7 +158,7 @@ const CustomerUpdateCompany = () => {
       const payload = {
         ...data,
         attachments: attachments as string[] | undefined,
-        assign_at: new Date()?.toISOString(),
+        consultantor_ids: consultantors.map((item) => item.id),
         id: Number(customerId)
       }
       for (const key in payload) {
@@ -162,8 +170,8 @@ const CustomerUpdateCompany = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      if (consultantorIds.length === 0) return
-      const res = await updateCustomerCompanyMutation.mutateAsync(payload)
+      if (consultantors.length === 0) return
+      const res = await updateCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -171,6 +179,9 @@ const CustomerUpdateCompany = () => {
         const formError = error.response?.data?.errors
         if (formError) {
           Object.keys(formError).forEach((key) => {
+            if (key === 'consultantor_ids') {
+              toast.error(formError['consultantor_ids']['msg'])
+            }
             setError(key as keyof FormData, {
               message: formError[key as keyof FormData]['msg'],
               type: 'Server'
@@ -249,33 +260,15 @@ const CustomerUpdateCompany = () => {
                       />
                     </div>
                   </div>
-                  {/* <div className='grid gap-3'>
+
+                  <div className='grid gap-3'>
                     <Controller
                       control={control}
-                      name='consultantor_id'
+                      name='consultantors'
                       render={({ field }) => (
-                        <AddTagUser
-                          labelRequired={true}
-                          {...field}
-                          onChange={field.onChange}
-                          name={customerDetail?.consultantor?.fullname}
-                          errorMessage={errors.consultantor_id?.message}
-                        />
+                        <AddTags {...field} onChange={field.onChange} errorMessage={errors.consultantors?.message} />
                       )}
                     />
-                  </div> */}
-                  <div className='grid gap-3'>
-                    <AddTags
-                      value={customerDetail?.consultantor?.map((item) => ({
-                        id: item.user.id.toString(),
-                        fullname: item.user.fullname
-                      }))}
-                      labelRequired
-                      onChange={(ids) => setConsultantorIds(ids)}
-                    />
-                    {consultantorIds.length === 0 && isSubmitted && (
-                      <span className='text-red-500'>Consultantor is required</span>
-                    )}
                   </div>
                   <div className='grid gap-3'>
                     <div className='grid grid-cols-12 gap-4'>
@@ -343,9 +336,9 @@ const CustomerUpdateCompany = () => {
                         <InputMain
                           register={register}
                           name='website'
-                          labelValue={t('Website')}
+                          labelValue='Website'
                           type='text'
-                          placeholder={t('Website')}
+                          placeholder='Website'
                           errorMessage={errors.website?.message}
                         />
                       </div>

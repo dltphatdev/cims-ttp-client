@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import InputNumber from '@/components/input-number'
 import AddTags from '@/components/add-tags'
+import { omit } from 'lodash'
 
 const formData = customerSchema.pick([
   'name',
@@ -37,8 +38,8 @@ const formData = customerSchema.pick([
   'verify',
   'attachments',
   'note',
-  'assign_at',
-  'cccd'
+  'cccd',
+  'consultantors'
 ])
 
 type FormData = yup.InferType<typeof formData>
@@ -48,7 +49,6 @@ const FormCustomerCompany = () => {
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
-  const [consultantorIds, setConsultantorIds] = useState<string[]>([])
   const {
     register,
     handleSubmit,
@@ -57,7 +57,7 @@ const FormCustomerCompany = () => {
     reset,
     setValue,
     control,
-    formState: { errors, isSubmitted }
+    formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
       name: '',
@@ -74,13 +74,14 @@ const FormCustomerCompany = () => {
       verify: UNVERIFIED,
       attachments: [],
       note: '',
-      assign_at: '',
-      cccd: ''
+      cccd: '',
+      consultantors: []
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
   const filesAttachment = watch('attachments')
+  const consultantors = watch('consultantors')
   const createCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.createCustomerCompany
   })
@@ -103,8 +104,7 @@ const FormCustomerCompany = () => {
       const payload = {
         ...data,
         attachments: attachments as string[] | undefined,
-        consultantor_ids: consultantorIds.map((item) => Number(item)),
-        assign_at: new Date()?.toISOString()
+        consultantor_ids: consultantors.map((item) => item.id)
       }
       for (const key in payload) {
         if (
@@ -115,8 +115,8 @@ const FormCustomerCompany = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      if (consultantorIds.length === 0) return
-      const res = await createCustomerCompanyMutation.mutateAsync(payload)
+      if (consultantors.length === 0) return
+      const res = await createCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-company/${idCustomerCreated}`)
       reset()
@@ -181,10 +181,19 @@ const FormCustomerCompany = () => {
               />
             </div>
             <div className='grid gap-3'>
-              <AddTags labelRequired onChange={(ids) => setConsultantorIds(ids)} />
-              {consultantorIds.length === 0 && isSubmitted && (
-                <span className='text-red-500'>Consultantor is required</span>
-              )}
+              <Controller
+                control={control}
+                name='consultantors'
+                render={({ field }) => (
+                  <AddTags
+                    {...field}
+                    value={field.value}
+                    onChange={field.onChange}
+                    labelRequired
+                    errorMessage={errors.consultantors?.message}
+                  />
+                )}
+              />
             </div>
             <div className='grid gap-3'>
               <div className='grid grid-cols-12 gap-4'>
@@ -253,9 +262,9 @@ const FormCustomerCompany = () => {
                   <InputMain
                     register={register}
                     name='website'
-                    labelValue={t('Website')}
+                    labelValue='Website'
                     type='text'
-                    placeholder={t('Website')}
+                    placeholder='Website'
                     errorMessage={errors.website?.message}
                   />
                 </div>

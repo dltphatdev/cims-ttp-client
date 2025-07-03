@@ -25,14 +25,15 @@ export default function TableMain<T>({
   pageKey = 'page'
 }: Props<T>) {
   const { t } = useTranslation('admin')
+  const safeT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   return (
     <div className={classNameWrapper}>
       <Table>
         <TableHeader>
           <TableRow>
             {headers.map((header, index) => (
-              <TableHead key={index} className={headerClassNames?.[index]}>
-                {t(header)}
+              <TableHead key={header} className={headerClassNames?.[index]}>
+                {safeT(header as string)}
               </TableHead>
             ))}
           </TableRow>
@@ -42,13 +43,15 @@ export default function TableMain<T>({
             data.map((item, index) => renderRow(item, index))
           ) : (
             <TableRow>
-              <TableCell>{t('No data available')}</TableCell>
+              <TableCell colSpan={12}>{t('No data available')}</TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
       {/* Pagination */}
-      <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />
+      {data && data?.length > 0 && (
+        <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />
+      )}
     </div>
   )
 }

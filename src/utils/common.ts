@@ -1,17 +1,9 @@
 import httpStatusCode from '@/constants/httpStatusCode'
-import STATUS from '@/constants/status'
 import type { ErrorResponseApi } from '@/types/common'
 import axios, { AxiosError } from 'axios'
-import type { TFunction } from 'i18next'
 
 export function isAxiosError<TypeError>(error: unknown): error is AxiosError<TypeError> {
   return axios.isAxiosError(error)
-}
-
-export function isAxiosUnprocessableEntityError<UnprocessableEntityError>(
-  error: unknown
-): error is AxiosError<UnprocessableEntityError> {
-  return isAxiosError(error) && error.response?.status === httpStatusCode.UnprocessableEntity
 }
 
 export function isAxiosUnauthorizedError<UnauthorizedError>(error: unknown): error is AxiosError<UnauthorizedError> {
@@ -47,25 +39,6 @@ export function formatedDate(isoDate?: string) {
         timeZone: 'Asia/Ho_Chi_Minh'
       })
     : ''
-}
-
-export function checkVerifyStatus({ statusVerify, t }: { statusVerify: string; t: TFunction }) {
-  if (statusVerify === STATUS.VERIFIED) {
-    return t('Verified')
-  } else if (statusVerify === STATUS.UNVERIFIED) {
-    return t('Unverified')
-  } else if (statusVerify === STATUS.BANNED) {
-    return t('Banned')
-  } else {
-    return ''
-  }
-}
-
-export default function checkRoleUser(role: string) {
-  if (role === 'SuperAdmin' || role === 'Admin') {
-    return true
-  }
-  return false
 }
 
 export const getAvatarUrl = (nameAvatar?: string) =>

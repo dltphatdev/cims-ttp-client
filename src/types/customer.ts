@@ -94,7 +94,6 @@ export interface CreateCustomerCompanyReqBody {
   verify?: CustomerVerify
   attachments?: string[]
   note?: string
-  assign_at?: Date | string
 }
 
 export interface CreateCustomerPersonalReqBody {
@@ -130,7 +129,6 @@ export interface UpdateCustomerCompanyReqBody
     | 'verify'
     | 'attachments'
     | 'note'
-    | 'assign_at'
   > {
   id: number | string
   name?: string

@@ -275,12 +275,10 @@ export default function CustomerRead() {
                       <span>{item.type === 'Personal' ? item.address_personal : item.address_company}</span>
                     </TableCell>
                     <TableCell>
-                      <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
-                        {t(item.type as string)}
-                      </div>
+                      <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>{t(item.type)}</div>
                     </TableCell>
                     <TableCell>{item?.creator?.fullname || ''}</TableCell>
-                    <TableCell>{item?.consultantor?.fullname || ''}</TableCell>
+                    <TableCell>{item?.consultantor?.map((item) => item.user.fullname).join(', ') || ''}</TableCell>
                     <TableCell>
                       <FormattedDate isoDate={item.created_at as string} />
                     </TableCell>

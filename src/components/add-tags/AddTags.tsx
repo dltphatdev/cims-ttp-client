@@ -20,34 +20,47 @@ import type { GetUsersParams } from '@/types/user'
 import { useQuery } from '@tanstack/react-query'
 import { isUndefined, omitBy } from 'lodash'
 import { AlertTriangle, Check, RotateCcw, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+const ADD_DIALOG_ACTION = 'add'
+const REMOVE_DIALOG_ACTION = 'remove'
 
 interface Tag {
   title: string
-  id: string
+  id: number
 }
 
 interface Props {
-  onChange?: (value: string[]) => void
+  onChange?: (value: Tag[]) => void
   labelRequired?: boolean
   errorMessage?: string
-  value?: { fullname: string; id: string }[]
+  classNameErrorMessage?: string
+  classNameWrapper?: string
+  value?: { title: string; id: number }[]
 }
 
 type DialogAction = 'add' | 'remove' | null
 
-export default function AddTags({ labelRequired, value, onChange }: Props) {
-  // const initTags = value?.map((item) => ({ id: item.id, title: item.fullname })) || []
+export default function AddTags({
+  labelRequired,
+  value,
+  errorMessage,
+  classNameWrapper = 'space-y-2',
+  classNameErrorMessage = 'text-red-600 text-sm',
+  onChange
+}: Props) {
+  const initTags = value?.map((item) => ({ id: item.id, title: item.title })) || []
   const { t } = useTranslation('admin')
   const [open, setOpen] = useState<boolean>(false)
-  const [tags, setTags] = useState<Tag[]>([])
+  const [tags, setTags] = useState<Tag[]>(initTags)
   const [pendingTags, setPendingTags] = useState<Tag[]>([])
   const [choosenAction, setChoosenAction] = useState<boolean>(false)
   const [search, setSearch] = useState<string>('')
   const [alertDialogAction, setAlertDialogAction] = useState<DialogAction>(null)
-  const [tagId, setTagId] = useState<string>('')
+  const [tagId, setTagId] = useState<number | null>(null)
   const debounceSearch = useDebounce(search, 1000)
+  const hasInitialized = useRef(false)
   const queryParams: GetUsersParams = useQueryParams()
   const queryConfig: GetUsersParams = omitBy(
     {
@@ -72,23 +85,30 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
   )
 
   useEffect(() => {
-    if (value && value.length > 0) {
-      const mappedTags = value.map((item) => ({
-        id: item.id,
-        title: item.fullname
-      }))
+    if (!hasInitialized.current && value && value.length > 0) {
+      const idsValue = value.map((item) => item.id)
+      const mappedData = items?.filter((item) => idsValue.includes(item.id))
+      const mappedTags =
+        mappedData?.map((item) => ({
+          id: item.id,
+          title: item.fullname as string
+        })) ?? []
       setTags(mappedTags)
-    } else {
-      setTags([])
+      hasInitialized.current = true
     }
-  }, [value])
+
+    if (value?.length === 0) {
+      setTags([])
+      hasInitialized.current = false
+    }
+  }, [value, items])
 
   const handleChoosenAction = () => {
     setChoosenAction(!choosenAction)
-    if (pendingTags.length > 0) setAlertDialogAction('add')
+    if (pendingTags.length > 0) setAlertDialogAction(ADD_DIALOG_ACTION)
   }
 
-  const handleChoosenTags = ({ id, title }: { id: string; title: string }) => {
+  const handleChoosenTags = ({ id, title }: { id: number; title: string }) => {
     setPendingTags((prevState) => [...prevState, { id, title }])
   }
 
@@ -97,15 +117,15 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)
 
   const handleAlertDialogSuccessAction = () => {
-    if (alertDialogAction === 'add') {
-      setTags(pendingTags)
-      const idsArr = pendingTags.map((tag) => tag.id)
-      onChange?.(idsArr)
+    if (alertDialogAction === ADD_DIALOG_ACTION) {
+      const mergeTags = [...tags, ...pendingTags]
+      setTags(mergeTags)
+      onChange?.(mergeTags)
       setOpen(!open)
-    } else if (alertDialogAction === 'remove') {
+    } else if (alertDialogAction === REMOVE_DIALOG_ACTION) {
       if (tagId) setTags((prevState) => [...prevState].filter((item) => item.id !== tagId))
-      const idsArr = tags.filter((tag) => tag.id !== tagId).map((item) => item.id)
-      onChange?.(idsArr)
+      const tagsFilter = tags.filter((tag) => tag.id !== tagId)
+      onChange?.(tagsFilter)
     }
     setPendingTags([])
     setAlertDialogAction(null)
@@ -113,14 +133,13 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
 
   const handleAlertDialogCancelAction = () => setAlertDialogAction(null)
 
-  const handleRemove = (id: string) => {
-    setAlertDialogAction('remove')
+  const handleRemove = (id: number) => {
+    setAlertDialogAction(REMOVE_DIALOG_ACTION)
     setTagId(id)
   }
-  // console.log('tags', tags)
-  // console.log(initTags)
+
   return (
-    <div className='space-y-2'>
+    <div className={classNameWrapper}>
       <Label className='text-sm font-medium text-gray-900 flex items-center gap-1'>
         {t('Sale')} {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
@@ -152,7 +171,7 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
               variant='ghost'
               className='border border-dashed border-(--color-org) text-(--color-org) hover:bg-orange-50 px-3 py-1 text-sm font-medium rounded-md'
             >
-              + Add (max 1)
+              + Add sale
             </Button>
           </DialogTrigger>
 
@@ -172,7 +191,13 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
                 <Check />
                 {t('Choose')}
               </Button>
-              <Button variant='outline' className='hover:cursor-pointer' type='button' onClick={handleResetChoosenTags}>
+              <Button
+                variant='outline'
+                className='hover:cursor-pointer'
+                type='button'
+                onClick={handleResetChoosenTags}
+                disabled={pendingTags.length === 0}
+              >
                 <RotateCcw />
                 {t('Reset')}
               </Button>
@@ -181,18 +206,25 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
             <ScrollArea className='h-40'>
               <div className='grid gap-2'>
                 {filteredItems && filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
-                    <Button
-                      type='button'
-                      key={item.id}
-                      variant='outline'
-                      className='justify-start'
-                      onClick={() => handleChoosenTags({ id: item.id.toString(), title: item.fullname as string })}
-                      disabled={pendingTags.length > 0 && pendingTags.some((tag) => tag.title === item.fullname)}
-                    >
-                      {item.fullname}
-                    </Button>
-                  ))
+                  filteredItems.map((item) => {
+                    const isAlreadyChoosenTags =
+                      tags.some((tag) => tag.id === item.id) ||
+                      pendingTags.some((pendingTag) => pendingTag.id === item.id)
+                    return (
+                      <Button
+                        type='button'
+                        key={item.id}
+                        variant='outline'
+                        className='justify-start'
+                        onClick={() =>
+                          !isAlreadyChoosenTags && handleChoosenTags({ id: item.id, title: item.fullname as string })
+                        }
+                        disabled={isAlreadyChoosenTags}
+                      >
+                        {item.fullname}
+                      </Button>
+                    )
+                  })
                 ) : (
                   <div className='text-sm text-gray-500 px-2'>{t('No data available')}</div>
                 )}
@@ -218,12 +250,13 @@ export default function AddTags({ labelRequired, value, onChange }: Props) {
               Bạn có chắc chắn muốn {alertDialogAction === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
             </p>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('OK')}</AlertDialogAction>
+              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancelled')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('Confirm')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
+      {errorMessage && <span className={classNameErrorMessage}>{errorMessage}</span>}
     </div>
   )
 }
