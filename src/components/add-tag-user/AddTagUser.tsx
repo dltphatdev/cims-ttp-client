@@ -132,7 +132,7 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
               <DialogTitle>{t('Select consultant')}</DialogTitle>
             </DialogHeader>
             <Input
-              placeholder={t('Search consultant') || 'Search consultant...'}
+              placeholder={t('Search')}
               className='mb-2'
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -175,8 +175,8 @@ export default function AddTagUser({ name = '', value, errorMessage, onChange, l
               Bạn có chắc chắn muốn {action === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
             </p>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('OK')}</AlertDialogAction>
+              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancelled')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('Confirm')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

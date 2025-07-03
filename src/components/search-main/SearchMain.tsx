@@ -18,7 +18,7 @@ interface Props {
 
 export default function SearchMain({ queryConfig, value, payloadField }: Props) {
   const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const [localValue, setLocalValue] = useState<string>(value || '')
   const [tags, setTags] = useState<string[]>([])
 

@@ -11,7 +11,7 @@ interface Props {
 }
 
 const SelectVerify = ({ labelValue, errorMessage, onChange, value }: Props) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const [verify, setVerify] = useState<string>('')
   const handleChange = (value: string) => {
     setVerify(value)

@@ -22,6 +22,7 @@ const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value, labe
     setGender(value)
     onChange?.(value)
   }
+  const convertT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   return (
     <div className='space-y-3'>
       <Label className='text-sm font-medium'>
@@ -29,13 +30,13 @@ const GenderSelect = ({ labelValue, genders, errorMessage, onChange, value, labe
       </Label>
       <Select value={value || gender} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select gender')}>{t(value as string) || t(gender)}</SelectValue>
+          <SelectValue placeholder={t('Select gender')}>{convertT(value as string) || convertT(gender)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {genders.map((item) => (
               <SelectItem key={item.gender_type} value={item.gender_type}>
-                {t(item.gender_value)}
+                {convertT(item.gender_value)}
               </SelectItem>
             ))}
           </SelectGroup>

@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function DateSelect({ errorMessage, onChange, value, labelValue, labelRequired = false }: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('admin')
   const [date, setDate] = useState({
     date: value?.getDate() || 1,
     month: value?.getMonth() || 0,

@@ -99,7 +99,7 @@ export interface CreateCustomerCompanyReqBody {
 export interface CreateCustomerPersonalReqBody {
   name: string
   type?: CustomerType
-  consultantor_ids?: string | number
+  consultantor_ids?: number[]
   address_personal?: string
   phone?: string
   email?: string
@@ -107,7 +107,6 @@ export interface CreateCustomerPersonalReqBody {
   verify?: CustomerVerify
   attachments?: string[]
   note?: string
-  assign_at?: Date | string
   date_of_birth?: Date | string
   gender?: CustomerGender
   cccd?: string
@@ -146,7 +145,6 @@ export interface UpdateCustomerPersonalReqBody
     | 'verify'
     | 'attachments'
     | 'note'
-    | 'assign_at'
     | 'date_of_birth'
     | 'gender'
   > {

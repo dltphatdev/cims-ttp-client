@@ -176,8 +176,8 @@ export default function AddTagCustomer({ onChange, errorMessage, name, value, la
               Bạn có chắc chắn muốn {confirmAction === 'add' ? 'thêm' : 'xóa'} khách hàng này không?
             </p>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('OK')}</AlertDialogAction>
+              <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancelled')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('Confirm')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

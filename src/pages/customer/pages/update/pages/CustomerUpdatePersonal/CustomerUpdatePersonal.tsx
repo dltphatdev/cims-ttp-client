@@ -17,7 +17,6 @@ import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { customerSchema } from '@/utils/validation'
-import AddTagUser from '@/components/add-tag-user'
 import GenderSelect from '@/components/gender-select'
 import DateSelect from '@/components/date-select'
 import FileUploadMultiple from '@/components/file-upload-multiple'
@@ -28,7 +27,7 @@ import { toast } from 'sonner'
 import { formatedDate, formatedTime } from '@/utils/common'
 import type { TQueryConfig } from '@/types/query-config'
 import { useQueryParams } from '@/hooks/use-query-params'
-import { isUndefined, omitBy } from 'lodash'
+import { isUndefined, omit, omitBy } from 'lodash'
 import TableMain from '@/components/table-main'
 import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -37,6 +36,7 @@ import clsx from 'clsx'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Ellipsis } from 'lucide-react'
 import { LIMIT, PAGE } from '@/constants/pagination'
+import AddTags from '@/components/add-tags'
 
 const genders = [
   {
@@ -52,11 +52,9 @@ const genders = [
 const formData = customerSchema.pick([
   'name',
   'type',
-  'consultantor_id',
-  'tax_code',
+  'consultantors',
   'website',
   'surrogate',
-  'address_company',
   'address_personal',
   'phone',
   'email',
@@ -65,7 +63,6 @@ const formData = customerSchema.pick([
   'verify',
   'attachments',
   'note',
-  'assign_at',
   'date_of_birth',
   'gender',
   'cccd'
@@ -91,11 +88,8 @@ const CustomerUpdatePersonal = () => {
     defaultValues: {
       name: '',
       type: PERSONAL,
-      consultantor_id: '',
-      tax_code: '',
       website: '',
       surrogate: '',
-      address_company: '',
       address_personal: '',
       phone: '',
       email: '',
@@ -104,7 +98,6 @@ const CustomerUpdatePersonal = () => {
       verify: UNVERIFIED,
       attachments: [],
       note: '',
-      assign_at: '',
       date_of_birth: new Date(1990, 0, 1),
       gender: MALE
     },
@@ -112,7 +105,7 @@ const CustomerUpdatePersonal = () => {
   })
 
   const filesAttachment = watch('attachments')
-  const consultantorId = watch('consultantor_id')
+  const consultantors = watch('consultantors')
   const queryParams: Pick<TQueryConfig, 'limit' | 'page'> = useQueryParams()
   const customerQueryConfig: Pick<TQueryConfig, 'limit' | 'page'> = omitBy(
     {
@@ -121,7 +114,7 @@ const CustomerUpdatePersonal = () => {
     },
     isUndefined
   )
-  const { data: customerData } = useQuery({
+  const { data: customerData, refetch } = useQuery({
     queryKey: ['customer', customerId, customerQueryConfig],
     queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
@@ -148,7 +141,17 @@ const CustomerUpdatePersonal = () => {
         customerDetail?.date_of_birth ? new Date(customerDetail.date_of_birth) : new Date(1990, 0, 1)
       )
       setValue('note', customerDetail.note || '')
-      setValue('consultantor_id', customerDetail?.consultantor?.id?.toString() || '')
+      setValue('verify', customerDetail.verify || UNVERIFIED)
+      setValue(
+        'consultantors',
+        customerDetail.consultantor.map((item) => {
+          const user = item.user
+          return {
+            id: user.id,
+            title: user.fullname
+          }
+        }) || []
+      )
     }
   }, [customerDetail, setValue])
 
@@ -164,21 +167,13 @@ const CustomerUpdatePersonal = () => {
         attachments = uploadResponeArray.data.data?.map((file) => file.filename)
         setValue('attachments', attachments)
       }
-      const payload = consultantorId
-        ? {
-            ...data,
-            date_of_birth: data.date_of_birth?.toISOString(),
-            attachments: attachments as string[] | undefined,
-            consultantor_id: Number(consultantorId),
-            assign_at: new Date()?.toISOString(),
-            id: Number(customerId)
-          }
-        : {
-            ...data,
-            date_of_birth: data.date_of_birth?.toISOString(),
-            attachments: attachments as string[] | undefined,
-            id: Number(customerId)
-          }
+      const payload = {
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        attachments: attachments as string[] | undefined,
+        consultantor_ids: consultantors.map((item) => item.id),
+        id: Number(customerId)
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -188,8 +183,10 @@ const CustomerUpdatePersonal = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      const res = await updateCustomerPersonalMutation.mutateAsync(payload)
+      if (consultantors.length === 0) return
+      const res = await updateCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
+      refetch()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -273,21 +270,13 @@ const CustomerUpdatePersonal = () => {
                       />
                     </div>
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='consultantor_id'
-                      render={({ field }) => (
-                        <AddTagUser
-                          labelRequired={true}
-                          {...field}
-                          onChange={field.onChange}
-                          name={customerDetail?.consultantor?.fullname}
-                          errorMessage={errors.consultantor_id?.message}
-                        />
-                      )}
-                    />
-                  </div>
+                  <Controller
+                    control={control}
+                    name='consultantors'
+                    render={({ field }) => (
+                      <AddTags {...field} onChange={field.onChange} errorMessage={errors.consultantors?.message} />
+                    )}
+                  />
                   <div className='grid gap-3'>
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
@@ -342,7 +331,7 @@ const CustomerUpdatePersonal = () => {
                           labelValue={t('Address personal')}
                           type='text'
                           placeholder={t('Address personal')}
-                          errorMessage={errors.tax_code?.message}
+                          errorMessage={errors.address_personal?.message}
                         />
                       </div>
                     </div>
@@ -396,7 +385,7 @@ const CustomerUpdatePersonal = () => {
                 </CardContent>
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
-                    <Button>{t('Save')}</Button>
+                    <Button disabled={updateCustomerPersonalMutation.isPending}>{t('Save')}</Button>
                     {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
                       <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
                         {t('Verify')}
@@ -408,6 +397,7 @@ const CustomerUpdatePersonal = () => {
             </form>
             <Card className='mt-3'>
               <TableMain
+                totalPage={pagination?.totalPagesActivities || 0}
                 headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
                 headers={ACTIVITY_HEADER_TABLE}
                 data={customers}

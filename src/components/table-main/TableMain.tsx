@@ -12,6 +12,7 @@ interface Props<T> {
   page_size?: string
   pageKey?: string
   classNameWrapper?: string
+  totalPage: number
 }
 
 export default function TableMain<T>({
@@ -19,10 +20,11 @@ export default function TableMain<T>({
   headers,
   headerClassNames,
   renderRow,
-  classNameWrapper = 'p-4',
+  classNameWrapper = '',
   page = PAGE,
   page_size = LIMIT,
-  pageKey = 'page'
+  pageKey = 'page',
+  totalPage
 }: Props<T>) {
   const { t } = useTranslation('admin')
   const safeT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
@@ -49,9 +51,7 @@ export default function TableMain<T>({
         </TableBody>
       </Table>
       {/* Pagination */}
-      {data && data?.length > 0 && (
-        <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />
-      )}
+      {totalPage > 0 && <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />}
     </div>
   )
 }

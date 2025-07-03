@@ -51,13 +51,15 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
   const { t } = useTranslation('admin')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<File[]>([])
-  const [serverFiles, setServerFiles] = useState<Props['defaultFiles']>([])
+  const [serverFiles, setServerFiles] = useState<Props['defaultFiles']>(defaultFiles || [])
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const sensors = useSensors(useSensor(PointerSensor))
 
   useEffect(() => {
-    if (defaultFiles && defaultFiles.length > 0) {
+    if (defaultFiles && defaultFiles?.length > 0) {
       setServerFiles(defaultFiles)
+    } else {
+      setServerFiles([])
     }
   }, [defaultFiles])
 
@@ -96,8 +98,9 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
     }
 
     if (validFiles.length > 0) {
-      onChange?.(validFiles)
-      setFiles(validFiles)
+      const newFiles = [...files, ...validFiles]
+      onChange?.(newFiles)
+      setFiles(newFiles)
       setServerFiles([])
     }
   }
@@ -159,7 +162,23 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
             <DialogTitle>{t('List file')}</DialogTitle>
           </DialogHeader>
           <ScrollArea className='h-60 pr-4'>
-            {files.length > 0 ? (
+            {serverFiles && serverFiles.length > 0 && (
+              <>
+                {serverFiles.map((file) => (
+                  <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
+                    <Link
+                      to={getFilesUrl(file.filename)}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='truncate flex items-center gap-1 hover:underline text-blue-600'
+                    >
+                      <File width={15} /> <span>{file.filename}</span>
+                    </Link>
+                  </div>
+                ))}
+              </>
+            )}
+            {(!serverFiles || serverFiles.length === 0) && files.length > 0 && (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={files.map((f) => f.name)} strategy={verticalListSortingStrategy}>
                   {files.map((file, index) => (
@@ -167,20 +186,9 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
                   ))}
                 </SortableContext>
               </DndContext>
-            ) : serverFiles && serverFiles.length > 0 ? (
-              serverFiles?.map((file) => (
-                <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
-                  <Link
-                    to={getFilesUrl(file.filename)}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='truncate flex items-center gap-1 hover:underline text-blue-600'
-                  >
-                    <File width={15} /> <span>{file.filename}</span>
-                  </Link>
-                </div>
-              ))
-            ) : (
+            )}
+
+            {files.length === 0 && (!serverFiles || serverFiles.length === 0) && (
               <div className='text-red-500'>{t('Empty file')}</div>
             )}
           </ScrollArea>

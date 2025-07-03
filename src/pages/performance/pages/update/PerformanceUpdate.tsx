@@ -65,6 +65,7 @@ const statuses = [
 
 export default function PerformanceUpdate() {
   const { t } = useTranslation('admin')
+  const translateToStr = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   const { performanceId } = useParams()
   const navigate = useNavigate()
   const {
@@ -374,43 +375,46 @@ export default function PerformanceUpdate() {
                       </Button>
                     </div>
                     <TableMain
+                      totalPage={performanceDetail?.totalRevenueInput || 0}
                       pageKey='input_page'
                       headers={REVENUE_INPUT_HEADER_TABLE}
                       page={performanceDetail?.inputPage.toString() || PAGE}
                       page_size={performanceDetail?.inputLimit.toString() || LIMIT}
                       data={revenuesInput}
-                      renderRow={(item, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>
-                            <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
-                              {t(item.type)}
-                            </div>
-                          </TableCell>
-                          <TableCell>{item.description}</TableCell>
-                          <TableCell>{item.unit_caculate}</TableCell>
-                          <TableCell>{formatNumberCurrency(Number(item.price))} đ</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>
-                            <FormattedDate isoDate={item.created_at as string} />
-                          </TableCell>
-                          <TableCell className='ml-auto text-end'>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
-                                  <Ellipsis className='w-4 h-4' />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align='end'>
-                                <DropdownMenuItem onClick={() => navigate(`/revenue/update/${item.id}?direction=In`)}>
-                                  {t('Edit')}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      )}
+                      renderRow={(item, index) => {
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>
+                              <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
+                                {translateToStr(item.type)}
+                              </div>
+                            </TableCell>
+                            <TableCell>{item.description}</TableCell>
+                            <TableCell>{item.unit_caculate}</TableCell>
+                            <TableCell>{formatNumberCurrency(Number(item.price))} đ</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>
+                              <FormattedDate isoDate={item.created_at as string} />
+                            </TableCell>
+                            <TableCell className='ml-auto text-end'>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                                    <Ellipsis className='w-4 h-4' />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuItem onClick={() => navigate(`/revenue/update/${item.id}?direction=In`)}>
+                                    {t('Edit')}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      }}
                     />
 
                     <div className='grid grid-cols-12 gap-4'>
@@ -452,43 +456,48 @@ export default function PerformanceUpdate() {
                       </Button>
                     </div>
                     <TableMain
+                      totalPage={performanceDetail?.totalRevenueOutput || 0}
                       pageKey='output_page'
                       headers={REVENUE_OUTPUT_HEADER_TABLE}
                       page={performanceDetail?.outputPage.toString() || PAGE}
                       page_size={performanceDetail?.outputLimit.toString() || LIMIT}
                       data={revenuesOutput}
-                      renderRow={(item, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>
-                            <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
-                              {t(item.type)}
-                            </div>
-                          </TableCell>
-                          <TableCell>{item.description}</TableCell>
-                          <TableCell>{item.unit_caculate}</TableCell>
-                          <TableCell>{formatNumberCurrency(Number(item.price))} đ</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>
-                            <FormattedDate isoDate={item.created_at as string} />
-                          </TableCell>
-                          <TableCell className='ml-auto text-end'>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
-                                  <Ellipsis className='w-4 h-4' />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align='end'>
-                                <DropdownMenuItem onClick={() => navigate(`/revenue/update/${item.id}?direction=Out`)}>
-                                  {t('Edit')}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      )}
+                      renderRow={(item, index) => {
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>
+                              <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
+                                {translateToStr(item.type)}
+                              </div>
+                            </TableCell>
+                            <TableCell>{item.description}</TableCell>
+                            <TableCell>{item.unit_caculate}</TableCell>
+                            <TableCell>{formatNumberCurrency(Number(item.price))} đ</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>
+                              <FormattedDate isoDate={item.created_at as string} />
+                            </TableCell>
+                            <TableCell className='ml-auto text-end'>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                                    <Ellipsis className='w-4 h-4' />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align='end'>
+                                  <DropdownMenuItem
+                                    onClick={() => navigate(`/revenue/update/${item.id}?direction=Out`)}
+                                  >
+                                    {t('Edit')}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      }}
                     />
                     <div className='grid gap-3'>
                       <div className='grid grid-cols-12 gap-4'>

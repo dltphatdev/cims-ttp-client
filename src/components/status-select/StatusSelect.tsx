@@ -22,6 +22,7 @@ const StatusSelect = ({ labelValue, statuses, errorMessage, onChange, value, lab
     setStatus(value)
     onChange?.(value)
   }
+  const convertT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   return (
     <div className='space-y-3'>
       <Label className='text-sm font-medium'>
@@ -29,7 +30,7 @@ const StatusSelect = ({ labelValue, statuses, errorMessage, onChange, value, lab
       </Label>
       <Select value={value || status} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select status')}>{t(value as string) || t(status)}</SelectValue>
+          <SelectValue placeholder={t('Select status')}>{convertT(value as string) || convertT(status)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>

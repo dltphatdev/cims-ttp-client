@@ -43,7 +43,6 @@ const formData = customerSchema.pick([
   'website',
   'surrogate',
   'address_company',
-  'address_personal',
   'phone',
   'email',
   'contact_name',
@@ -80,7 +79,6 @@ const CustomerUpdateCompany = () => {
       website: '',
       surrogate: '',
       address_company: '',
-      address_personal: '',
       phone: '',
       email: '',
       contact_name: '',
@@ -106,7 +104,7 @@ const CustomerUpdateCompany = () => {
     },
     isUndefined
   )
-  const { data: customerData } = useQuery({
+  const { data: customerData, refetch } = useQuery({
     queryKey: ['customer', customerId, customerQueryConfig],
     queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
@@ -130,6 +128,7 @@ const CustomerUpdateCompany = () => {
       setValue('website', customerDetail.website || '')
       setValue('address_company', customerDetail.address_company || '')
       setValue('note', customerDetail.note || '')
+      setValue('verify', customerDetail.verify || UNVERIFIED)
       setValue(
         'consultantors',
         customerDetail.consultantor.map((item) => {
@@ -173,6 +172,7 @@ const CustomerUpdateCompany = () => {
       if (consultantors.length === 0) return
       const res = await updateCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
+      refetch()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -349,7 +349,7 @@ const CustomerUpdateCompany = () => {
                           labelValue={t('Address company')}
                           type='text'
                           placeholder={t('Address company')}
-                          errorMessage={errors.tax_code?.message}
+                          errorMessage={errors.address_company?.message}
                         />
                       </div>
                     </div>
@@ -391,7 +391,7 @@ const CustomerUpdateCompany = () => {
                 </CardContent>
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
-                    <Button>{t('Save')}</Button>
+                    <Button disabled={updateCustomerCompanyMutation.isPending}>{t('Save')}</Button>
                     {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
                       <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
                         {t('Verify')}
@@ -403,6 +403,7 @@ const CustomerUpdateCompany = () => {
             </form>
             <Card className='mt-4'>
               <TableMain
+                totalPage={pagination?.totalPagesActivities || 0}
                 classNameWrapper='px-4'
                 headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
                 headers={ACTIVITY_HEADER_TABLE}

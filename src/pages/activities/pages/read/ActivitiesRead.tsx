@@ -93,6 +93,7 @@ export default function ActivitiesRead() {
               </Button>
             </div>
             <TableMain
+              totalPage={pagination?.totalPages || 0}
               headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
               headers={ACTIVITY_HEADER_TABLE}
               data={activities}

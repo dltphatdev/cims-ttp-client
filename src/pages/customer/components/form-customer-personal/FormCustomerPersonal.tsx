@@ -1,5 +1,5 @@
 import customerApi from '@/apis/customer.api'
-import AddTagUser from '@/components/add-tag-user'
+import AddTags from '@/components/add-tags'
 import DateSelect from '@/components/date-select'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import GenderSelect from '@/components/gender-select'
@@ -19,6 +19,7 @@ import { AppContext } from '@/contexts/app-context'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
+import { omit } from 'lodash'
 import { useContext, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -39,10 +40,9 @@ const genders = [
 const formData = customerSchema.pick([
   'name',
   'type',
-  'consultantor_id',
+  'consultantors',
   'website',
   'surrogate',
-  'address_company',
   'address_personal',
   'phone',
   'email',
@@ -51,7 +51,6 @@ const formData = customerSchema.pick([
   'verify',
   'attachments',
   'note',
-  'assign_at',
   'date_of_birth',
   'gender',
   'cccd'
@@ -77,10 +76,8 @@ const FormCustomerPersonal = () => {
     defaultValues: {
       name: '',
       type: PERSONAL,
-      consultantor_id: '',
       website: '',
       surrogate: '',
-      address_company: '',
       address_personal: '',
       phone: '',
       email: '',
@@ -89,15 +86,15 @@ const FormCustomerPersonal = () => {
       verify: UNVERIFIED,
       attachments: [],
       note: '',
-      assign_at: '',
       date_of_birth: new Date(1990, 0, 1),
-      gender: MALE
+      gender: MALE,
+      consultantors: []
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
 
   const filesAttachment = watch('attachments')
-  const consultantorId = watch('consultantor_id')
+  const consultantors = watch('consultantors')
 
   const createCustomerPersonalMutation = useMutation({
     mutationFn: customerApi.createCustomerPersonal
@@ -118,19 +115,12 @@ const FormCustomerPersonal = () => {
         setValue('attachments', attachments)
       }
 
-      const payload = consultantorId
-        ? {
-            ...data,
-            date_of_birth: data.date_of_birth?.toISOString(),
-            attachments: attachments as string[] | undefined,
-            consultantor_id: Number(consultantorId),
-            assign_at: new Date()?.toISOString()
-          }
-        : {
-            ...data,
-            date_of_birth: data.date_of_birth?.toISOString(),
-            attachments: attachments as string[] | undefined
-          }
+      const payload = {
+        ...data,
+        date_of_birth: data.date_of_birth?.toISOString(),
+        attachments: attachments as string[] | undefined,
+        consultantor_ids: consultantors.map((item) => item.id)
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -140,7 +130,8 @@ const FormCustomerPersonal = () => {
           delete payload[key as keyof typeof payload]
         }
       }
-      const res = await createCustomerPersonalMutation.mutateAsync(payload)
+      if (consultantors.length === 0) return
+      const res = await createCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
       const idCustomerCreated = res.data.id
       navigate(`/customer/update-personal/${idCustomerCreated}`)
       reset()
@@ -207,14 +198,14 @@ const FormCustomerPersonal = () => {
             <div className='grid gap-3'>
               <Controller
                 control={control}
-                name='consultantor_id'
+                name='consultantors'
                 render={({ field }) => (
-                  <AddTagUser
-                    labelRequired={true}
+                  <AddTags
                     {...field}
-                    name=''
+                    value={field.value}
                     onChange={field.onChange}
-                    errorMessage={errors.consultantor_id?.message}
+                    labelRequired
+                    errorMessage={errors.consultantors?.message}
                   />
                 )}
               />

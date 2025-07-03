@@ -72,6 +72,7 @@ export default function PerformanceRead() {
               </Button>
             </div>
             <TableMain
+              totalPage={pagination?.totalPages || 0}
               headerClassNames={['', '', '', '', '', '', '', '', '', 'text-right']}
               headers={PERFORMANCE_HEADER_TABLE}
               page={pagination?.page.toString() || PAGE}

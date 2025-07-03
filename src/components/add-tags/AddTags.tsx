@@ -37,7 +37,7 @@ interface Props {
   errorMessage?: string
   classNameErrorMessage?: string
   classNameWrapper?: string
-  value?: { title: string; id: number }[]
+  value?: Tag[]
 }
 
 type DialogAction = 'add' | 'remove' | null
@@ -240,14 +240,14 @@ export default function AddTags({
               <AlertDialogTitle>
                 <div className='flex flex-wrap gap-2 text-red-500 items-center'>
                   <AlertTriangle className=' w-6 h-6' />{' '}
-                  {alertDialogAction === 'add'
+                  {alertDialogAction === ADD_DIALOG_ACTION
                     ? t('Notification of operation to add consultant')
                     : t('Notification of consultant deletion operation')}
                 </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
             <p className='text-sm text-muted-foreground px-1'>
-              Bạn có chắc chắn muốn {alertDialogAction === 'add' ? 'thêm' : 'xóa'} người tư vấn này không?
+              Bạn có chắc chắn muốn {alertDialogAction === ADD_DIALOG_ACTION ? 'thêm' : 'xóa'} người tư vấn này không?
             </p>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancelled')}</AlertDialogCancel>

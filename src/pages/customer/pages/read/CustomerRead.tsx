@@ -33,12 +33,12 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 
 export default function CustomerRead() {
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
   const { t } = useTranslation('admin')
   const navigate = useNavigate()
-  const [openTagSale, setOpenTagSale] = useState(false)
-  const [type, setType] = useState<CustomerType>()
-  const [selectedCustomerId, setSelectedCustomerId] = useState<number | undefined>()
+  const [openTagSale, setOpenTagSale] = useState<boolean>(false)
+  // const [type, setType] = useState<CustomerType>()
+  // const [selectedCustomerId, setSelectedCustomerId] = useState<number | undefined>()
   const queryParams: GetCustomersParams = useQueryParams()
   const queryConfig: GetCustomersParams = omitBy(
     {
@@ -170,67 +170,68 @@ export default function CustomerRead() {
       }
     }
 
-  const handleAllocation = async ({
-    customerId,
-    saleId,
-    type
-  }: {
-    customerId: number
-    saleId: number
-    type: CustomerType
-  }) => {
-    if (type === 'Company') {
-      updateCustomerCompanyMutation.mutate(
-        {
-          consultantor_id: saleId,
-          id: customerId
-        },
-        {
-          onSuccess: (data) => {
-            toast.success(data.data.message)
-            queryClient.invalidateQueries({ queryKey: ['customer', customerId] })
-            refetch()
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onError: (error: any) => {
-            if (error.status === httpStatusCode.UnprocessableEntity) {
-              const formError = error.response?.data?.errors
-              if (formError) {
-                Object.keys(formError).forEach((key) => {
-                  toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
-                })
-              }
-            }
-          }
-        }
-      )
-    } else if (type === 'Personal') {
-      updateCustomerPersonalMutation.mutate(
-        {
-          consultantor_id: saleId,
-          id: customerId
-        },
-        {
-          onSuccess: (data) => {
-            toast.success(data.data.message)
-            queryClient.invalidateQueries({ queryKey: ['customer', customerId] })
-            refetch()
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onError: (error: any) => {
-            if (error.status === httpStatusCode.UnprocessableEntity) {
-              const formError = error.response?.data?.errors
-              if (formError) {
-                Object.keys(formError).forEach((key) => {
-                  toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
-                })
-              }
-            }
-          }
-        }
-      )
-    }
-  }
+  // const handleAllocation = async ({
+  //   customerId,
+  //   saleId,
+  //   type
+  // }: {
+  //   customerId: number
+  //   saleId: number
+  //   type: CustomerType
+  // }) => {
+  //   if (type === 'Company') {
+  //     updateCustomerCompanyMutation.mutate(
+  //       {
+  //         consultantor_id: saleId,
+  //         id: customerId
+  //       },
+  //       {
+  //         onSuccess: (data) => {
+  //           toast.success(data.data.message)
+  //           queryClient.invalidateQueries({ queryKey: ['customer', customerId] })
+  //           refetch()
+  //         },
+  //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //         onError: (error: any) => {
+  //           if (error.status === httpStatusCode.UnprocessableEntity) {
+  //             const formError = error.response?.data?.errors
+  //             if (formError) {
+  //               Object.keys(formError).forEach((key) => {
+  //                 toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+  //               })
+  //             }
+  //           }
+  //         }
+  //       }
+  //     )
+  //   } else if (type === 'Personal') {
+  //     updateCustomerPersonalMutation.mutate(
+  //       {
+  //         consultantor_id: saleId,
+  //         id: customerId
+  //       },
+  //       {
+  //         onSuccess: (data) => {
+  //           toast.success(data.data.message)
+  //           queryClient.invalidateQueries({ queryKey: ['customer', customerId] })
+  //           refetch()
+  //         },
+  //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //         onError: (error: any) => {
+  //           if (error.status === httpStatusCode.UnprocessableEntity) {
+  //             const formError = error.response?.data?.errors
+  //             if (formError) {
+  //               Object.keys(formError).forEach((key) => {
+  //                 toast.error(formError[key as keyof FormData]['msg'] || 'Có lỗi xảy ra')
+  //               })
+  //             }
+  //           }
+  //         }
+  //       }
+  //     )
+  //   }
+  // }
+
   return (
     <Fragment>
       <Helmet>
@@ -254,6 +255,7 @@ export default function CustomerRead() {
               </Button>
             </div>
             <TableMain
+              totalPage={pagination?.totalPages || 0}
               headerClassNames={['', '', '', '', '', '', '', '', '', 'text-right']}
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
@@ -278,7 +280,16 @@ export default function CustomerRead() {
                       <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>{t(item.type)}</div>
                     </TableCell>
                     <TableCell>{item?.creator?.fullname || ''}</TableCell>
-                    <TableCell>{item?.consultantor?.map((item) => item.user.fullname).join(', ') || ''}</TableCell>
+                    <TableCell>
+                      {item?.consultantor?.map((item) => (
+                        <div
+                          key={item.user.id}
+                          className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5 m-2'
+                        >
+                          {item.user.fullname}
+                        </div>
+                      ))}
+                    </TableCell>
                     <TableCell>
                       <FormattedDate isoDate={item.created_at as string} />
                     </TableCell>
@@ -314,9 +325,9 @@ export default function CustomerRead() {
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger
                               onClick={() => {
-                                setSelectedCustomerId(item.id)
+                                // setSelectedCustomerId(item.id)
                                 setOpenTagSale(true)
-                                setType(item.type)
+                                // setType(item.type)
                               }}
                               className='[&>svg]:hidden'
                             >
@@ -342,10 +353,13 @@ export default function CustomerRead() {
       <AddTagUserDialog
         openPopup={openTagSale}
         setOpenPopup={setOpenTagSale}
-        onExportId={(id) => {
-          if (selectedCustomerId && id)
-            handleAllocation({ saleId: id, customerId: selectedCustomerId, type: type as CustomerType })
-        }}
+        // onChange={
+        //   //   (id) => {
+        //   //   if (selectedCustomerId && id)
+        //   //     handleAllocation({ saleId: id, customerId: selectedCustomerId, type: type as CustomerType })
+        //   // }
+        //   (value) => console.log(value)
+        // }
       />
     </Fragment>
   )

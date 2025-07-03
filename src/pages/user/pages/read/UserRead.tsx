@@ -62,6 +62,7 @@ export default function UserRead() {
               </Button>
             </div>
             <TableMain
+              totalPage={pagination?.totalPages || 0}
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
               headers={USER_HEADER_TABLE}
