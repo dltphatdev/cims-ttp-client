@@ -17,11 +17,11 @@ import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { useNavigate } from 'react-router-dom'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import InputNumber from '@/components/input-number'
 import AddTags from '@/components/add-tags'
 import { omit } from 'lodash'
+import { toast } from 'sonner'
 
 const formData = customerSchema.pick([
   'name',
@@ -44,7 +44,6 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const FormCustomerCompany = () => {
-  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
@@ -115,8 +114,7 @@ const FormCustomerCompany = () => {
       }
       if (consultantors.length === 0) return
       const res = await createCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
-      const idCustomerCreated = res.data.id
-      navigate(`/customer/update-company/${idCustomerCreated}`)
+      toast.success(res.data.message)
       reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -290,7 +288,7 @@ const FormCustomerCompany = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button>{t('Save')}</Button>
+            <Button disabled={createCustomerCompanyMutation.isPending}>{t('Save')}</Button>
           </CardFooter>
         </Card>
       </TabsContent>

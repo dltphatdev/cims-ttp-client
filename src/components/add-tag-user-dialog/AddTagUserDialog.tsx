@@ -35,12 +35,11 @@ interface Props {
   classNameWrapper?: string
 }
 
-type DialogAction = 'add' | 'remove' | null
+type DialogAction = 'add' | null
 
 export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, classNameWrapper = 'space-y-2' }: Props) {
   const { t } = useTranslation('admin')
   const [tags, setTags] = useState<Tag[]>([])
-  const [pendingTags, setPendingTags] = useState<Tag[]>([])
   const [choosenAction, setChoosenAction] = useState<boolean>(false)
   const [alertDialogAction, setAlertDialogAction] = useState<DialogAction>(null)
   const [search, setSearch] = useState<string>('')
@@ -60,7 +59,7 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
     queryFn: () => userApi.getUsers(queryConfig)
   })
 
-  const items = data?.data.data.users
+  const items = data?.data.data.users.filter((item) => item.role !== 'SuperAdmin')
 
   const filteredItems = useMemo(
     () => items?.filter((item) => item.fullname?.toLowerCase().includes(debounceSearch.toLowerCase())),
@@ -68,35 +67,31 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
   )
 
   const handleChoosenTags = ({ id, title }: { id: number; title: string }) => {
-    setPendingTags((prevState) => [...prevState, { id, title }])
+    setTags((prevState) => [...prevState, { id, title }])
   }
 
   const handleChoosenAction = () => {
     setChoosenAction(!choosenAction)
-    if (pendingTags.length > 0) setAlertDialogAction(ADD_DIALOG_ACTION)
+    if (tags.length > 0) setAlertDialogAction(ADD_DIALOG_ACTION)
   }
 
-  const handleResetChoosenTags = () => setPendingTags([])
+  const handleResetChoosenTags = () => setTags([])
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)
 
   const handleAlertDialogSuccessAction = () => {
     if (alertDialogAction === ADD_DIALOG_ACTION) {
-      setTags(pendingTags)
-      onChange?.(pendingTags)
+      setTags(tags)
+      onChange?.(tags)
       setOpenPopup(!openPopup)
     }
-    setPendingTags([])
+    setTags([])
+    onChange?.([])
     setAlertDialogAction(null)
   }
 
-  // const handleRemove = (id: number) => () => {
-  //   setAlertDialogAction(REMOVE_DIALOG_ACTION)
-  //   setTagId(id)
-  // }
-
   const handleAlertDialogCancelAction = () => setAlertDialogAction(null)
-  console.log(filteredItems)
+
   return (
     <div className={classNameWrapper}>
       <div className='flex items-center flex-wrap gap-2'>
@@ -112,7 +107,7 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
                 className='hover:cursor-pointer'
                 type='button'
                 onClick={handleChoosenAction}
-                disabled={pendingTags.length === 0}
+                disabled={tags.length === 0}
               >
                 <Check />
                 {t('Choose')}
@@ -122,7 +117,7 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
                 className='hover:cursor-pointer'
                 type='button'
                 onClick={handleResetChoosenTags}
-                disabled={pendingTags.length === 0}
+                disabled={tags.length === 0}
               >
                 <RotateCcw />
                 {t('Reset')}
@@ -133,7 +128,7 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
                 {filteredItems &&
                   filteredItems.length > 0 &&
                   filteredItems.map((item) => {
-                    const isAlreadyChoosenTags = pendingTags.some((pendingTag) => pendingTag.id === item.id)
+                    const isAlreadyChoosenTags = tags.some((tag) => tag.id === item.id)
                     return (
                       <Button
                         type='button'
@@ -160,16 +155,11 @@ export default function AddTagUserDialog({ openPopup, setOpenPopup, onChange, cl
             <AlertDialogHeader>
               <AlertDialogTitle>
                 <div className='flex flex-wrap gap-2 text-red-500 items-center'>
-                  <AlertTriangle className=' w-6 h-6' />{' '}
-                  {alertDialogAction === ADD_DIALOG_ACTION
-                    ? t('Notification of operation to add consultant')
-                    : t('Notification of consultant deletion operation')}
+                  <AlertTriangle className=' w-6 h-6' /> {t('Notification of operation to add consultant')}
                 </div>
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <p className='text-sm text-muted-foreground px-1'>
-              Bạn có chắc chắn muốn {alertDialogAction === ADD_DIALOG_ACTION ? 'thêm' : 'xóa'} người tư vấn này không?
-            </p>
+            <p className='text-sm text-muted-foreground px-1'>Bạn có chắc chắn muốn thêm người tư vấn này không?</p>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={handleAlertDialogCancelAction}>{t('Cancelled')}</AlertDialogCancel>
               <AlertDialogAction onClick={handleAlertDialogSuccessAction}>{t('Confirm')}</AlertDialogAction>

@@ -2,7 +2,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } fr
 import { Link } from 'react-router-dom'
 import NavItem from '@/components/nav-item'
 import PATH from '@/constants/path'
-import { CircleDollarSign, FileCheck2, UserRound, UsersRound, Gauge } from 'lucide-react'
+import { CircleDollarSign, FileCheck2, UserRound, UsersRound, Gauge, File } from 'lucide-react'
 import { NavUser } from '@/components/nav-user'
 
 const data = [
@@ -43,6 +43,11 @@ const data = [
         title: 'Member',
         url: PATH.USER,
         icon: <UserRound />
+      },
+      {
+        title: 'Documents',
+        url: PATH.PAGE_DOCUMENT,
+        icon: <File />
       }
     ]
   }

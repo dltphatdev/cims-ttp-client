@@ -1,5 +1,6 @@
 import type { Activity } from '@/types/activity'
 import type { TQueryConfig } from '@/types/query-config'
+import type { UserRole } from '@/types/user'
 
 export type CustomerType = 'Personal' | 'Company'
 type CustomerVerify = 'Unverified' | 'Verified'
@@ -36,11 +37,13 @@ export interface Customer {
   updated_at: string | null
   creator: {
     fullname: string
+    id: number
   } | null
   consultantor: {
     user: {
       fullname: string
       id: number
+      role: UserRole
     }
   }[]
   attachments: { filename: string }[]
@@ -69,6 +72,7 @@ type Customers = Pick<
   | 'consultantor'
   | 'address_company'
   | 'address_personal'
+  | 'creator_id'
 >[]
 
 export interface GetListCustomer {

@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import clsx from 'clsx'
 import { Eye, Trash2, UploadCloud, GripVertical, File } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -20,6 +18,7 @@ interface Props {
     filename: string
   }[]
   labelRequired?: boolean
+  resetSignal?: boolean
 }
 
 function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRemove: () => void }) {
@@ -47,30 +46,39 @@ function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRe
   )
 }
 
-export default function FileUploadMultiple({ onChange, defaultFiles, labelRequired = false }: Props) {
+export default function FileUploadMultiple({ onChange, defaultFiles, labelRequired = false, resetSignal }: Props) {
   const { t } = useTranslation('admin')
+  const [fileInputKey, setFileInputKey] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<File[]>([])
   const [serverFiles, setServerFiles] = useState<Props['defaultFiles']>(defaultFiles || [])
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const sensors = useSensors(useSensor(PointerSensor))
-
   useEffect(() => {
     if (defaultFiles && defaultFiles?.length > 0) {
       setServerFiles(defaultFiles)
+      setFiles([])
     } else {
       setServerFiles([])
     }
   }, [defaultFiles])
 
+  useEffect(() => {
+    setFiles([])
+    setServerFiles([])
+  }, [resetSignal])
+
   const handleClick = () => {
-    fileInputRef.current?.click()
+    setFileInputKey((prev) => prev + 1)
+    setTimeout(() => {
+      fileInputRef.current?.click()
+    }, 0)
   }
 
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = e.target.files
-    if (!fileFromLocal) return
 
+    if (!fileFromLocal) return
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -122,24 +130,21 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
   }
 
   return (
-    <div className='flex flex-col space-y-4 w-fit mb-2'>
+    <div className='flex flex-col space-y-4 mn:w-full lg:w-fit mb-2'>
       <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-        {t('Unified scan')} {labelRequired === true && <span className='text-red-500'>*</span>}
+        Files upload: {labelRequired === true && <span className='text-red-500'>*</span>}
       </Label>
       <Button type='button' variant='outline' onClick={handleClick} className='flex items-center gap-2'>
         <UploadCloud className='w-4 h-4' />
         {t('Select file')}
       </Button>
-      <Input
+      <input
         type='file'
         ref={fileInputRef}
         onChange={handleChangeFile}
         className='hidden'
         multiple
-        onClick={(e) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(e.target as any).value = null
-        }}
+        key={fileInputKey}
       />
       <div className='mb-1'>
         {t('Maximum file size upload:')} <strong className='text-red-500'>15 MB</strong>
@@ -157,32 +162,33 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
             <Eye /> {t('View file choosen')} ({serverFiles?.length || files.length})
           </Button>
         </DialogTrigger>
-        <DialogContent className='max-w-lg'>
+        <DialogContent className='max-w-lg w-full p-6'>
           <DialogHeader>
             <DialogTitle>{t('List file')}</DialogTitle>
           </DialogHeader>
-          <ScrollArea className='h-60 pr-4'>
-            {serverFiles && serverFiles.length > 0 && (
-              <>
-                {serverFiles.map((file) => (
-                  <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
-                    <Link
-                      to={getFilesUrl(file.filename)}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='truncate flex items-center gap-1 hover:underline text-blue-600'
-                    >
-                      <File width={15} /> <span>{file.filename}</span>
-                    </Link>
-                  </div>
-                ))}
-              </>
-            )}
-            {(!serverFiles || serverFiles.length === 0) && files.length > 0 && (
+
+          {/* Gói toàn bộ phần có thể kéo thả bên trong 1 div scroll cố định */}
+          <div className='mt-4 max-h-[300px] overflow-y-auto space-y-2 pr-1'>
+            {serverFiles &&
+              serverFiles?.length > 0 &&
+              serverFiles.map((file) => (
+                <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
+                  <Link
+                    to={getFilesUrl(file.filename)}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='truncate line-clamp-1 flex items-center gap-1 hover:underline text-blue-600'
+                  >
+                    <File width={15} /> <span>{file.filename}</span>
+                  </Link>
+                </div>
+              ))}
+
+            {!serverFiles?.length && files.length > 0 && (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={files.map((f) => f.name)} strategy={verticalListSortingStrategy}>
                   {files.map((file, index) => (
-                    <SortableFileItem key={file.name} id={file.name} file={file} onRemove={() => removeFile(index)} />
+                    <SortableFileItem key={index} id={file.name} file={file} onRemove={() => removeFile(index)} />
                   ))}
                 </SortableContext>
               </DndContext>
@@ -191,9 +197,10 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
             {files.length === 0 && (!serverFiles || serverFiles.length === 0) && (
               <div className='text-red-500'>{t('Empty file')}</div>
             )}
-          </ScrollArea>
+          </div>
+
           <div className='flex justify-end pt-4'>
-            {serverFiles?.length === 0 && (
+            {serverFiles?.length === 0 && files.length > 0 && (
               <Button variant='destructive' onClick={clearAll}>
                 {t('Delete all')}
               </Button>

@@ -93,10 +93,10 @@ export default function UserProfile() {
         }
       }
       const res = await updateProfileMutation.mutateAsync(payload)
-      refetch()
       setProfile(res.data.data)
       setProfileToLS(res.data.data)
       toast.success(res.data.message)
+      refetch()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -183,11 +183,7 @@ export default function UserProfile() {
                 <div className='mn:col-span-12 lg:col-span-6'>
                   <div className='flex flex-col items-center px-10 py-20 border border-gray-200 rounded-md'>
                     <div className='my-5 h-40 w-40'>
-                      <img
-                        src={previewImage || getAvatarUrl(avatar)}
-                        className='w-full h-full object-cover rounded-full'
-                        alt=''
-                      />
+                      <img src={previewImage || getAvatarUrl(avatar)} className='w-full h-full object-cover' alt='' />
                     </div>
                     <InputFileMain onChange={handleChangeFile} />
                     <div className='mt-3 text-gray-400'>{t('Maximum size 1 MB')}</div>
@@ -195,7 +191,12 @@ export default function UserProfile() {
                   </div>
                 </div>
               </div>
-              <ButtonMain type='submit' classNameWrapper='mt-4'>
+              <ButtonMain
+                isLoading={updateProfileMutation.isPending}
+                disabled={updateProfileMutation.isPending}
+                type='submit'
+                classNameWrapper='mt-4'
+              >
                 {t('Save')}
               </ButtonMain>
             </form>

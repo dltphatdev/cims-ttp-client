@@ -6,7 +6,7 @@ export interface GetUsersParams extends Pick<TQueryConfig, 'limit' | 'page'> {
   phone?: string[]
 }
 
-export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale' | 'None'
+export type UserRole = 'SuperAdmin' | 'Admin' | 'Sale' | 'None' | 'Technician'
 export type UserVerifyStatus = 'Unverified' | 'Verified' | 'Banned'
 
 export interface UserCreateReqBody {
@@ -78,4 +78,24 @@ export interface BodyUserProfile extends Omit<BodyUpdateProfile, 'password' | 'v
 export interface ChangePasswordUserReqBody {
   old_password?: string
   password?: string
+}
+
+export interface GetDocumentFilesParams extends Pick<TQueryConfig, 'limit' | 'page'> {
+  filename?: string | string[] | undefined
+}
+
+export interface GetDocumentFiles {
+  galleries: {
+    id: number
+    created_at: Date | string
+    filename: string
+    user: {
+      id: number
+      role: UserRole
+      fullname: string
+    }
+  }[]
+  page: number
+  limit: number
+  totalPages: number
 }

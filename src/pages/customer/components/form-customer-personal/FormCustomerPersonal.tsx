@@ -23,7 +23,7 @@ import { omit } from 'lodash'
 import { useContext, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import * as yup from 'yup'
 
 const genders = [
@@ -59,7 +59,6 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const FormCustomerPersonal = () => {
-  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
@@ -132,8 +131,7 @@ const FormCustomerPersonal = () => {
       }
       if (consultantors.length === 0) return
       const res = await createCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
-      const idCustomerCreated = res.data.id
-      navigate(`/customer/update-personal/${idCustomerCreated}`)
+      toast.success(res.data.message)
       reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

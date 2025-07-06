@@ -21,6 +21,8 @@ import { useMutation } from '@tanstack/react-query'
 import activityApi from '@/apis/activity.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
+import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import type { UserRole } from '@/types/user'
 
 const formData = activitySchema.pick([
   'name',
@@ -257,22 +259,24 @@ export default function ActivitiesCreate() {
                       value={profile?.fullname}
                     />
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field }) => (
-                        <StatusSelect
-                          {...field}
-                          onChange={field.onChange}
-                          statuses={statuses}
-                          labelValue={t('Select status')}
-                          errorMessage={errors.status?.message as string}
-                          labelRequired={true}
-                        />
-                      )}
-                    />
-                  </div>
+                  {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
+                    <div className='grid gap-3'>
+                      <Controller
+                        control={control}
+                        name='status'
+                        render={({ field }) => (
+                          <StatusSelect
+                            {...field}
+                            onChange={field.onChange}
+                            statuses={statuses}
+                            labelValue={t('Select status')}
+                            errorMessage={errors.status?.message as string}
+                            labelRequired={true}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               <CardFooter className='mt-6 p-0'>

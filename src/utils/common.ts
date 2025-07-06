@@ -1,5 +1,6 @@
 import httpStatusCode from '@/constants/httpStatusCode'
 import type { ErrorResponseApi } from '@/types/common'
+import type { UserRole } from '@/types/user'
 import axios, { AxiosError } from 'axios'
 
 export function isAxiosError<TypeError>(error: unknown): error is AxiosError<TypeError> {
@@ -42,11 +43,19 @@ export function formatedDate(isoDate?: string) {
 }
 
 export const getAvatarUrl = (nameAvatar?: string) =>
-  nameAvatar ? `${import.meta.env.VITE_SERVER_URL}image/${nameAvatar}` : '/images/empty.svg'
+  nameAvatar ? `${import.meta.env.VITE_SERVER_URL}image/${nameAvatar}` : '/images/empty.png'
 
 export const getFilesUrl = (filename?: string) =>
   filename ? `${import.meta.env.VITE_SERVER_URL}files/${filename}` : ''
 
 export function formatNumberCurrency(currency: number) {
   return Intl.NumberFormat('de-DE').format(currency)
+}
+
+export function isSuperAdminRole(role: UserRole) {
+  return role === 'SuperAdmin' ? true : false
+}
+
+export function isSupperAdminAndSaleAdmin(role: UserRole) {
+  return role === 'SuperAdmin' || role === 'Admin' ? true : false
 }

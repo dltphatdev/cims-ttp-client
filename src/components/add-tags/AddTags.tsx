@@ -77,31 +77,37 @@ export default function AddTags({
     queryFn: () => userApi.getUsers(queryConfig)
   })
 
-  const items = data?.data.data.users
+  const items = data?.data.data.users.filter((item) => item.role !== 'SuperAdmin')
 
   const filteredItems = useMemo(
     () => items?.filter((item) => item.fullname?.toLowerCase().includes(debounceSearch.toLowerCase())),
     [debounceSearch, items]
   )
 
+  // Đồng bộ giá trị khởi tạo từ `value` và `items`
   useEffect(() => {
-    if (!hasInitialized.current && value && value.length > 0) {
+    if (!items || !value || hasInitialized.current) return
+    if (value.length > 0) {
       const idsValue = value.map((item) => item.id)
-      const mappedData = items?.filter((item) => idsValue.includes(item.id))
-      const mappedTags =
-        mappedData?.map((item) => ({
+      const mappedTags = items
+        .filter((item) => idsValue.includes(item.id))
+        .map((item) => ({
           id: item.id,
           title: item.fullname as string
-        })) ?? []
+        }))
+
       setTags(mappedTags)
       hasInitialized.current = true
     }
+  }, [items, value])
 
+  // Reset nếu value bị xoá hết
+  useEffect(() => {
     if (value?.length === 0) {
       setTags([])
       hasInitialized.current = false
     }
-  }, [value, items])
+  }, [value])
 
   const handleChoosenAction = () => {
     setChoosenAction(!choosenAction)

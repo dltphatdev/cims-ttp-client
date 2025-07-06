@@ -20,19 +20,21 @@ import StatusSelect from '@/components/status-select'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { Ellipsis, Plus } from 'lucide-react'
 import TableMain from '@/components/table-main'
 import { REVENUE_INPUT_HEADER_TABLE, REVENUE_OUTPUT_HEADER_TABLE } from '@/constants/table'
 import { TableCell, TableRow } from '@/components/ui/table'
 import FormattedDate from '@/components/formatted-date'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { formatNumberCurrency } from '@/utils/common'
+import { formatNumberCurrency, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import InputNumber from '@/components/input-number'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import RevenueTagsPrice from '@/pages/performance/components/revenue-tags-price'
 import PATH from '@/constants/path'
+import type { UserRole } from '@/types/user'
+import { AppContext } from '@/contexts/app-context'
 
 const formData = performanceSchema.pick([
   'name',
@@ -64,6 +66,7 @@ const statuses = [
 ]
 
 export default function PerformanceUpdate() {
+  const { profile } = useContext(AppContext)
   const { t } = useTranslation('admin')
   const translateToStr = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   const { performanceId } = useParams()
@@ -328,22 +331,24 @@ export default function PerformanceUpdate() {
                       value={performanceDetail?.performance.creator.fullname || ''}
                     />
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field }) => (
-                        <StatusSelect
-                          {...field}
-                          onChange={field.onChange}
-                          statuses={statuses}
-                          labelValue={t('Select status')}
-                          errorMessage={errors.status?.message as string}
-                          labelRequired={true}
-                        />
-                      )}
-                    />
-                  </div>
+                  {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
+                    <div className='grid gap-3'>
+                      <Controller
+                        control={control}
+                        name='status'
+                        render={({ field }) => (
+                          <StatusSelect
+                            {...field}
+                            onChange={field.onChange}
+                            statuses={statuses}
+                            labelValue={t('Select status')}
+                            errorMessage={errors.status?.message as string}
+                            labelRequired={true}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
                       {t('Note')}

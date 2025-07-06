@@ -3,7 +3,9 @@ import ButtonMain from '@/components/button-main'
 import DateSelect from '@/components/date-select'
 import InputMain from '@/components/input-main/InputMain'
 import InputNumber from '@/components/input-number'
+import SelectRole from '@/components/select-role'
 import httpStatusCode from '@/constants/httpStatusCode'
+import { ADMIN, NONE, SALE, SUPERADMIN, TECHNICIAN } from '@/constants/role'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -14,7 +16,30 @@ import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
-const formData = userSchema.pick(['email', 'fullname', 'address', 'phone', 'code', 'date_of_birth', 'password'])
+const roles = [
+  {
+    role_type: ADMIN,
+    role_value: 'Admin'
+  },
+  {
+    role_type: SALE,
+    role_value: 'Sale'
+  },
+  {
+    role_type: SUPERADMIN,
+    role_value: 'Super admin'
+  },
+  {
+    role_type: NONE,
+    role_value: 'None'
+  },
+  {
+    role_type: TECHNICIAN,
+    role_value: 'Technician'
+  }
+]
+
+const formData = userSchema.pick(['email', 'fullname', 'address', 'phone', 'code', 'date_of_birth', 'password', 'role'])
 type FormData = yup.InferType<typeof formData>
 
 export default function UserCreate() {
@@ -30,7 +55,7 @@ export default function UserCreate() {
     resolver: yupResolver(formData),
     defaultValues: {
       email: '',
-      password: import.meta.env.VITE_PASSWORD_DEFAULT,
+      password: '',
       fullname: '',
       address: '',
       phone: '',
@@ -45,6 +70,7 @@ export default function UserCreate() {
     try {
       const payload = {
         ...data,
+        password: import.meta.env.VITE_PASSWORD_DEFAULT,
         date_of_birth: data.date_of_birth?.toISOString()
       }
       for (const key in payload) {
@@ -131,7 +157,7 @@ export default function UserCreate() {
                   errorMessage={errors.code?.message}
                   placeholder={t('Code user')}
                 />
-                {/* <Controller
+                <Controller
                   control={control}
                   name='role'
                   render={({ field }) => (
@@ -143,7 +169,7 @@ export default function UserCreate() {
                       errorMessage={errors.role?.message as string}
                     />
                   )}
-                /> */}
+                />
                 <Controller
                   control={control}
                   name='phone'

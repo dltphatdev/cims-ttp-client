@@ -18,9 +18,12 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import activityApi from '@/apis/activity.api'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { toast } from 'sonner'
 import httpStatusCode from '@/constants/httpStatusCode'
+import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { AppContext } from '@/contexts/app-context'
+import type { UserRole } from '@/types/user'
 
 const statuses = [
   {
@@ -56,6 +59,7 @@ const formData = activitySchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 export default function ActivitiesUpdate() {
+  const { profile } = useContext(AppContext)
   const { t } = useTranslation('admin')
   const { activityId } = useParams()
   const {
@@ -280,22 +284,24 @@ export default function ActivitiesUpdate() {
                       value={activityDetail?.creator?.fullname || ''}
                     />
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field }) => (
-                        <StatusSelect
-                          {...field}
-                          onChange={field.onChange}
-                          statuses={statuses}
-                          labelValue={t('Select status')}
-                          errorMessage={errors.status?.message as string}
-                          labelRequired={true}
-                        />
-                      )}
-                    />
-                  </div>
+                  {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
+                    <div className='grid gap-3'>
+                      <Controller
+                        control={control}
+                        name='status'
+                        render={({ field }) => (
+                          <StatusSelect
+                            {...field}
+                            onChange={field.onChange}
+                            statuses={statuses}
+                            labelValue={t('Select status')}
+                            errorMessage={errors.status?.message as string}
+                            labelRequired={true}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               <CardFooter className='mt-6 p-0'>

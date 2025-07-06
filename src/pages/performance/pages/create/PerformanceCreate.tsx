@@ -19,6 +19,8 @@ import { useMutation } from '@tanstack/react-query'
 import performanceApi from '@/apis/performance.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
+import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import type { UserRole } from '@/types/user'
 
 const formData = performanceSchema.pick(['name', 'customer_id', 'note', 'status'])
 type FormData = yup.InferType<typeof formData>
@@ -147,22 +149,24 @@ export default function PerformanceCreate() {
                       value={profile?.fullname}
                     />
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field }) => (
-                        <StatusSelect
-                          {...field}
-                          onChange={field.onChange}
-                          statuses={statuses}
-                          labelValue={t('Select status')}
-                          errorMessage={errors.status?.message as string}
-                          labelRequired={true}
-                        />
-                      )}
-                    />
-                  </div>
+                  {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
+                    <div className='grid gap-3'>
+                      <Controller
+                        control={control}
+                        name='status'
+                        render={({ field }) => (
+                          <StatusSelect
+                            {...field}
+                            onChange={field.onChange}
+                            statuses={statuses}
+                            labelValue={t('Select status')}
+                            errorMessage={errors.status?.message as string}
+                            labelRequired={true}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
                       {t('Note')}

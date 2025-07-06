@@ -10,7 +10,7 @@ import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { PERSONAL } from '@/constants/customerType'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
@@ -24,7 +24,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { formatedDate, formatedTime } from '@/utils/common'
+import { formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { TQueryConfig } from '@/types/query-config'
 import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omit, omitBy } from 'lodash'
@@ -37,6 +37,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Ellipsis } from 'lucide-react'
 import { LIMIT, PAGE } from '@/constants/pagination'
 import AddTags from '@/components/add-tags'
+import { AppContext } from '@/contexts/app-context'
+import type { UserRole } from '@/types/user'
 
 const genders = [
   {
@@ -71,6 +73,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdatePersonal = () => {
+  const { profile } = useContext(AppContext)
   const navigate = useNavigate()
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
@@ -386,16 +389,18 @@ const CustomerUpdatePersonal = () => {
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
                     <Button disabled={updateCustomerPersonalMutation.isPending}>{t('Save')}</Button>
-                    {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
-                      <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
-                        {t('Verify')}
-                      </Button>
-                    )}
+                    {isSupperAdminAndSaleAdmin(profile?.role as UserRole) &&
+                      customerDetail?.verify === 'Unverified' &&
+                      isVerifyCustomer === false && (
+                        <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
+                          {t('Verify')}
+                        </Button>
+                      )}
                   </div>
                 </CardFooter>
               </Card>
             </form>
-            <Card className='mt-3'>
+            <Card className='mt-3 py-2'>
               <TableMain
                 totalPage={pagination?.totalPagesActivities || 0}
                 headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}

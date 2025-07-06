@@ -3,6 +3,8 @@ import type {
   BodyUpdateProfile,
   BodyUserProfile,
   ChangePasswordUserReqBody,
+  GetDocumentFiles,
+  GetDocumentFilesParams,
   GetListUser,
   GetUsersParams,
   ResetPasswordReqBody,
@@ -59,6 +61,27 @@ const userApi = {
   },
   changePasswordUser(body: ChangePasswordUserReqBody) {
     return http.put<{ message: string }>('user/change-password', body)
+  },
+  createDocumentFiles(body: { attachments: string[] | undefined }) {
+    return http.post<{ message: string }>('user/create-document', body)
+  },
+  getListDocumentFiles(params: GetDocumentFilesParams) {
+    return http.get<SuccessResponseApi<GetDocumentFiles>>('user/list-document-files', { params })
+  },
+  uploadDocumentFiles(body: FormData) {
+    return http.post<
+      SuccessResponseApi<
+        {
+          url: string
+          filename: string
+          type: 'image' | 'video' | 'file'
+        }[]
+      >
+    >('user/upload-document', body, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
   }
 }
 

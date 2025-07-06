@@ -1,5 +1,6 @@
 import type { TQueryConfig } from '@/types/query-config'
 import type { Revenue } from '@/types/revenue'
+import type { UserRole } from '@/types/user'
 
 type PerformanceStatus = 'New' | 'Approved' | 'Cancelled'
 
@@ -58,6 +59,13 @@ export interface Performance {
   customer: {
     name: string
     id: number
+    consultantor: {
+      user: {
+        fullname: string
+        id: number
+        role: UserRole
+      }
+    }[]
   }
   revenues: Revenue[]
 }

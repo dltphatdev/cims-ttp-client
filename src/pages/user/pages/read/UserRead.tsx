@@ -8,17 +8,21 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { LIMIT, PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
 import { USER_HEADER_TABLE } from '@/constants/table'
+import { AppContext } from '@/contexts/app-context'
 import { useQueryParams } from '@/hooks/use-query-params'
-import type { GetUsersParams } from '@/types/user'
+import type { GetUsersParams, UserRole } from '@/types/user'
+import { isSupperAdminAndSaleAdmin } from '@/utils/common'
 import { useQuery } from '@tanstack/react-query'
 import { isUndefined, omitBy } from 'lodash'
 import { Ellipsis, Plus } from 'lucide-react'
+import { useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 
 export default function UserRead() {
+  const { profile } = useContext(AppContext)
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const queryParams: GetUsersParams = useQueryParams()
@@ -35,10 +39,28 @@ export default function UserRead() {
     queryKey: ['users', queryConfig],
     queryFn: () => userApi.getUsers(queryConfig)
   })
-  const users = userData?.data?.data?.users
+  const users = userData?.data?.data?.users.filter((item) => item.role !== 'SuperAdmin')
   const pagination = userData?.data?.data
 
   const handleNavigateEditUser = (id: number) => navigate(`${PATH.USER}/${id}`)
+
+  const createAction = () => {
+    if (isSupperAdminAndSaleAdmin(profile?.role as UserRole)) {
+      return (
+        <Button variant='outline' onClick={() => navigate(PATH.USER_CREATE)}>
+          <Plus /> {t('Create user')}
+        </Button>
+      )
+    }
+    return null
+  }
+
+  const handleCheckRuleHeaderTable = () => {
+    if (isSupperAdminAndSaleAdmin(profile?.role as UserRole)) {
+      return USER_HEADER_TABLE
+    }
+    return USER_HEADER_TABLE.filter((item) => item !== 'Action')
+  }
   return (
     <Fragment>
       <Helmet>
@@ -57,15 +79,13 @@ export default function UserRead() {
                   number: 'phone'
                 }}
               />
-              <Button variant='outline' onClick={() => navigate(PATH.USER_CREATE)}>
-                <Plus /> {t('Create user')}
-              </Button>
+              {createAction()}
             </div>
             <TableMain
               totalPage={pagination?.totalPages || 0}
               page={pagination?.page.toString() || PAGE}
               page_size={pagination?.limit.toString() || LIMIT}
-              headers={USER_HEADER_TABLE}
+              headers={handleCheckRuleHeaderTable()}
               headerClassNames={['', '', '', '', '', '', 'text-right']}
               data={users}
               renderRow={(item, index) => (
@@ -78,18 +98,22 @@ export default function UserRead() {
                   <TableCell>
                     <FormattedDate isoDate={item.created_at as string} />
                   </TableCell>
-                  <TableCell className='ml-auto text-end'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
-                          <Ellipsis className='w-4 h-4' />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align='end'>
-                        <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>{t('Edit')}</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
+                    <TableCell className='ml-auto text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                            <Ellipsis className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => handleNavigateEditUser(item.id)}>
+                            {t('Edit')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               )}
             />

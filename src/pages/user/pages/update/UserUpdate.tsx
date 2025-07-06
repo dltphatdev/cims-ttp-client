@@ -6,12 +6,14 @@ import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
 import { Button } from '@/components/ui/button'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
-import { formatedDate, formatedTime } from '@/utils/common'
+import { ADMIN, NONE, SALE, TECHNICIAN } from '@/constants/role'
+import { AppContext } from '@/contexts/app-context'
+import type { UserRole } from '@/types/user'
+import { formatedDate, formatedTime, isSuperAdminRole } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -34,18 +36,18 @@ const roles = [
     role_value: 'Sale'
   },
   {
-    role_type: SUPERADMIN,
-    role_value: 'Super admin'
-  },
-  {
     role_type: NONE,
     role_value: 'None'
+  },
+  {
+    role_type: TECHNICIAN,
+    role_value: 'Technician'
   }
 ]
 
 export default function UserUpdate() {
+  const { profile } = useContext(AppContext)
   const { t } = useTranslation('admin')
-  const [isResetPassword, setIsResetPassword] = useState<boolean>(false)
   const {
     register,
     control,
@@ -138,7 +140,6 @@ export default function UserUpdate() {
   }, [user, setValue])
 
   const handleClickResetPassword = () => {
-    setIsResetPassword(!isResetPassword)
     const payload = { password: import.meta.env.VITE_PASSWORD_DEFAULT, id: Number(userId) }
     resetPasswordMutation.mutate(payload, {
       onSuccess: (data) => toast.success(data.data.message),
@@ -263,14 +264,16 @@ export default function UserUpdate() {
                 >
                   {t('Save')}
                 </ButtonMain>
-                <Button
-                  type='button'
-                  className='mt-4 text-base select-none'
-                  onClick={handleClickResetPassword}
-                  disabled={isResetPassword === true}
-                >
-                  {t('Reset password')}
-                </Button>
+                {isSuperAdminRole(profile?.role as UserRole) && (
+                  <Button
+                    type='button'
+                    className='mt-4 text-base select-none'
+                    onClick={handleClickResetPassword}
+                    disabled={resetPasswordMutation.isPending}
+                  >
+                    {t('Reset password')}
+                  </Button>
+                )}
               </div>
             </form>
           </div>

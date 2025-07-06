@@ -16,13 +16,13 @@ import { MALE } from '@/constants/gender'
 import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY } from '@/constants/customerType'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { formatedDate, formatedTime } from '@/utils/common'
+import { formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
 import { LIMIT, PAGE } from '@/constants/pagination'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -35,6 +35,8 @@ import type { TQueryConfig } from '@/types/query-config'
 import { isUndefined, omit, omitBy } from 'lodash'
 import { useQueryParams } from '@/hooks/use-query-params'
 import AddTags from '@/components/add-tags'
+import { AppContext } from '@/contexts/app-context'
+import type { UserRole } from '@/types/user'
 
 const formData = customerSchema.pick([
   'name',
@@ -58,6 +60,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdateCompany = () => {
+  const { profile } = useContext(AppContext)
   const navigate = useNavigate()
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
@@ -392,11 +395,13 @@ const CustomerUpdateCompany = () => {
                 <CardFooter>
                   <div className='flex flex-wrap gap-2'>
                     <Button disabled={updateCustomerCompanyMutation.isPending}>{t('Save')}</Button>
-                    {customerDetail?.verify === 'Unverified' && isVerifyCustomer === false && (
-                      <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
-                        {t('Verify')}
-                      </Button>
-                    )}
+                    {isSupperAdminAndSaleAdmin(profile?.role as UserRole) &&
+                      customerDetail?.verify === 'Unverified' &&
+                      isVerifyCustomer === false && (
+                        <Button type='button' className='text-base select-none' onClick={handleClickVerifyCustomer}>
+                          {t('Verify')}
+                        </Button>
+                      )}
                   </div>
                 </CardFooter>
               </Card>

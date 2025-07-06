@@ -6,7 +6,7 @@ import { FEMALE, MALE } from '@/constants/gender'
 import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
 import { NEW as NEW_ACTIVITY, IN_PROGRESS, COMPLETED, CANCELLED as CANCELLED_ACTIVITY } from '@/constants/activity'
 import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
-import { ADMIN, NONE, SALE, SUPERADMIN } from '@/constants/role'
+import { ADMIN, NONE, SALE, SUPERADMIN, TECHNICIAN } from '@/constants/role'
 
 function handleConfirmPasswordYup(field: string) {
   return yup
@@ -45,7 +45,7 @@ export const userSchema = yup.object({
   avatar: yup.string().max(1000, 'Avatar maximum length is 1000 characters').optional(),
   code: yup.string().max(1000, 'Code maximum length is 6 characters').optional(),
   date_of_birth: yup.date().max(new Date(), 'Please select a date in the past').optional(),
-  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE], 'Invalid role account').optional(),
+  role: yup.string().oneOf([SUPERADMIN, ADMIN, SALE, NONE, TECHNICIAN], 'Invalid role account').optional(),
   password: yup.string().max(160, 'Password maximum length 160 characters').optional()
 })
 
@@ -59,6 +59,12 @@ export const changePasswordSchema = yup.object({
   confirm_password: handleConfirmPasswordYup('password')
 })
 
+export const documentFileSchema = yup.object({
+  attachments: yup
+    .array()
+    .of(yup.string().max(255, 'Each file maximum 255 characters').max(5, 'Only attach up to 5 files'))
+    .required('File upload is required')
+})
 export const customerSchema = yup.object({
   name: yup
     .string()
