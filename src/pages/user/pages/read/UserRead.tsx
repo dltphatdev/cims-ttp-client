@@ -39,7 +39,7 @@ export default function UserRead() {
     queryKey: ['users', queryConfig],
     queryFn: () => userApi.getUsers(queryConfig)
   })
-  const users = userData?.data?.data?.users.filter((item) => item.role !== 'SuperAdmin')
+  const users = userData?.data?.data?.users
   const pagination = userData?.data?.data
 
   const handleNavigateEditUser = (id: number) => navigate(`${PATH.USER}/${id}`)

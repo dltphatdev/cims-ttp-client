@@ -16,18 +16,14 @@ import { LIMIT, PAGE } from '@/constants/pagination'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import SearchMain from '@/components/search-main'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
 import AddTagCustomerDialog from '@/components/add-tag-customer-dialog'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { AppContext } from '@/contexts/app-context'
-import { isSupperAdminAndSaleAdmin } from '@/utils/common'
-import type { UserRole } from '@/types/user'
 
 export default function ActivitiesRead() {
-  const { profile } = useContext(AppContext)
   const { t } = useTranslation('admin')
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -49,11 +45,7 @@ export default function ActivitiesRead() {
   const updateActivityMutation = useMutation({
     mutationFn: activityApi.updateActivity
   })
-  const activities = activitiesData?.data.data.activities.filter((item) => {
-    const isCreator = item.creator_id === profile?.id
-    const isRule = isSupperAdminAndSaleAdmin(profile?.role as UserRole)
-    return isCreator || isRule ? item : undefined
-  })
+  const activities = activitiesData?.data.data.activities
   const pagination = activitiesData?.data.data
 
   const handleAllocation = async (activityId: number, customerId: number) => {

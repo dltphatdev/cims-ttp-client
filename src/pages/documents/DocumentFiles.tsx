@@ -27,8 +27,8 @@ type FormData = yup.InferType<typeof formData>
 
 export default function DocumentFiles() {
   const queryClient = useQueryClient()
+  const [resetFileUpload, setResetFileUpload] = useState(false)
   const [files, setFiles] = useState<File[] | undefined>()
-  const [resetSignal, setResetSignal] = useState(false)
   const queryParams: GetDocumentFilesParams = useQueryParams()
   const queryConfig: GetDocumentFilesParams = omitBy(
     {
@@ -38,7 +38,7 @@ export default function DocumentFiles() {
     },
     isUndefined
   )
-  const { handleSubmit, setError, watch, setValue } = useForm<FormData>({
+  const { handleSubmit, setError } = useForm<FormData>({
     defaultValues: {
       attachments: []
     },
@@ -47,15 +47,10 @@ export default function DocumentFiles() {
 
   const { data: documentFiles } = useQuery({
     queryKey: ['documentFiles', queryConfig],
-    queryFn: () => userApi.getListDocumentFiles(queryConfig),
-    staleTime: 0
+    queryFn: () => userApi.getListDocumentFiles(queryConfig)
   })
-  const galleries = documentFiles?.data?.data?.galleries.filter((i) => i.user !== null)
+  const galleries = documentFiles?.data?.data?.galleries
   const pagination = documentFiles?.data?.data
-
-  console.log(galleries)
-
-  const filesAttachment = watch('attachments')
 
   const createDocumentFilesMutation = useMutation({
     mutationFn: userApi.createDocumentFiles
@@ -66,21 +61,18 @@ export default function DocumentFiles() {
   })
 
   const handleSubmitForm = handleSubmit(async (data) => {
-    console.log(123)
     try {
-      let attachments = filesAttachment
+      let attachments: string[] | undefined = undefined
       if (files) {
         const form = new FormData()
-        Array.from(files).forEach((file) => {
-          form.append('attachments', file)
-        })
+        Array.from(files).forEach((file) => form.append('attachments', file))
         const uploadResponeArray = await uploadFileAttachmentMutation.mutateAsync(form)
         attachments = uploadResponeArray.data.data?.map((file) => file.filename)
-        setValue('attachments', attachments)
+        // setValue('attachments', attachments)
       }
       const payload = {
         ...data,
-        attachments: attachments as string[] | undefined
+        attachments
       }
       for (const key in payload) {
         const value = payload[key as keyof typeof payload]
@@ -88,14 +80,15 @@ export default function DocumentFiles() {
           delete payload[key as keyof typeof payload]
         }
       }
-      if (attachments.length === 0) {
+
+      if (attachments?.length === 0) {
         toast.error('Files is required')
         return
       }
       const res = await createDocumentFilesMutation.mutateAsync(payload)
       toast.success(res.data.message)
-      setResetSignal(!resetSignal)
-      queryClient.invalidateQueries({ queryKey: ['documentFiles', queryConfig] })
+      queryClient.invalidateQueries({ queryKey: ['documentFiles'] })
+      setResetFileUpload((prev) => !prev)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -113,6 +106,7 @@ export default function DocumentFiles() {
   })
 
   const handleChangeFiles = (files?: File[]) => setFiles(files)
+
   return (
     <Fragment>
       <Helmet>
@@ -166,7 +160,7 @@ export default function DocumentFiles() {
                   <Card className='gap-3'>
                     <CardContent className='grid gap-3'>
                       <div className='grid gap-3'>
-                        <FileUploadMultiple resetSignal={resetSignal} labelRequired onChange={handleChangeFiles} />
+                        <FileUploadMultiple resetSignal={resetFileUpload} labelRequired onChange={handleChangeFiles} />
                       </div>
                     </CardContent>
                     <CardFooter>

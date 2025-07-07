@@ -19,6 +19,7 @@ interface Props {
   }[]
   labelRequired?: boolean
   resetSignal?: boolean
+  viewFileUploaded?: boolean
 }
 
 function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRemove: () => void }) {
@@ -28,7 +29,6 @@ function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRe
     transform: CSS.Transform.toString(transform),
     transition
   }
-
   return (
     <div ref={setNodeRef} style={style} className='flex justify-between items-center border-b py-2 text-sm'>
       <div className='flex items-center gap-2 truncate'>
@@ -46,38 +46,32 @@ function SortableFileItem({ file, id, onRemove }: { file: File; id: string; onRe
   )
 }
 
-export default function FileUploadMultiple({ onChange, defaultFiles, labelRequired = false, resetSignal }: Props) {
+export default function FileUploadMultiple({
+  onChange,
+  defaultFiles,
+  labelRequired = false,
+  resetSignal,
+  viewFileUploaded
+}: Props) {
   const { t } = useTranslation('admin')
-  const [fileInputKey, setFileInputKey] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<File[]>([])
-  const [serverFiles, setServerFiles] = useState<Props['defaultFiles']>(defaultFiles || [])
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false)
+  const [dialogOpen, setDialogOpen] = useState<null | 'server' | 'local'>(null)
   const sensors = useSensors(useSensor(PointerSensor))
-  useEffect(() => {
-    if (defaultFiles && defaultFiles?.length > 0) {
-      setServerFiles(defaultFiles)
-      setFiles([])
-    } else {
-      setServerFiles([])
-    }
-  }, [defaultFiles])
+  const resetRef = useRef<boolean | undefined>(undefined)
+  const initFiles = defaultFiles || []
 
   useEffect(() => {
+    if (resetSignal === resetRef.current) return
+    resetRef.current = resetSignal
     setFiles([])
-    setServerFiles([])
-  }, [resetSignal])
+    onChange?.([])
+  }, [resetSignal, onChange])
 
-  const handleClick = () => {
-    setFileInputKey((prev) => prev + 1)
-    setTimeout(() => {
-      fileInputRef.current?.click()
-    }, 0)
-  }
+  const handleClick = () => fileInputRef.current?.click()
 
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileFromLocal = e.target.files
-
     if (!fileFromLocal) return
     const allowedTypes = [
       'application/pdf',
@@ -106,26 +100,20 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
     }
 
     if (validFiles.length > 0) {
-      const newFiles = [...files, ...validFiles]
-      onChange?.(newFiles)
-      setFiles(newFiles)
-      setServerFiles([])
+      onChange?.(validFiles)
+      setFiles(validFiles)
     }
   }
 
-  const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
-  }
+  const removeFile = (index: number) => setFiles((prev) => prev.filter((_, i) => i !== index))
 
   const clearAll = () => setFiles([])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!active || !over || active.id === over.id) return
-
     const oldIndex = files.findIndex((file) => file.name === active.id)
     const newIndex = files.findIndex((file) => file.name === over.id)
-
     setFiles((files) => arrayMove(files, oldIndex, newIndex))
   }
 
@@ -144,34 +132,35 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
         onChange={handleChangeFile}
         className='hidden'
         multiple
-        key={fileInputKey}
+        onClick={(e) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(e.target as any).value = null
+        }}
       />
       <div className='mb-1'>
         {t('Maximum file size upload:')} <strong className='text-red-500'>15 MB</strong>
       </div>
       <strong>{t('Allow file: .docs | .pp | .pdf | .xlsx')}</strong>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild>
-          <Button
-            type='button'
-            className={clsx({
-              'hover:cursor-not-allowed opacity-80': files.length === 0 && serverFiles?.length === 0
-            })}
-            disabled={files.length === 0 && serverFiles?.length === 0}
-          >
-            <Eye /> {t('View file choosen')} ({serverFiles?.length || files.length})
-          </Button>
-        </DialogTrigger>
-        <DialogContent className='max-w-lg w-full p-6'>
-          <DialogHeader>
-            <DialogTitle>{t('List file')}</DialogTitle>
-          </DialogHeader>
 
-          {/* Gói toàn bộ phần có thể kéo thả bên trong 1 div scroll cố định */}
-          <div className='mt-4 max-h-[300px] overflow-y-auto space-y-2 pr-1'>
-            {serverFiles &&
-              serverFiles?.length > 0 &&
-              serverFiles.map((file) => (
+      {viewFileUploaded && (
+        <Dialog open={dialogOpen === 'server'} onOpenChange={(v) => setDialogOpen(v ? 'server' : null)}>
+          <DialogTrigger asChild>
+            <Button
+              type='button'
+              className={clsx({
+                'hover:cursor-not-allowed opacity-80': initFiles?.length === 0
+              })}
+              disabled={initFiles?.length === 0}
+            >
+              <Eye /> {t('View file uploaded')} ({initFiles?.length})
+            </Button>
+          </DialogTrigger>
+          <DialogContent className='max-w-lg w-full p-6'>
+            <DialogHeader>
+              <DialogTitle>{t('List file')}</DialogTitle>
+            </DialogHeader>
+            <div className='mt-4 max-h-[300px] overflow-y-auto space-y-2 pr-1'>
+              {initFiles?.map((file) => (
                 <div key={file.filename} className='flex justify-between items-center border-b py-2 text-sm'>
                   <Link
                     to={getFilesUrl(file.filename)}
@@ -183,24 +172,38 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
                   </Link>
                 </div>
               ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
-            {!serverFiles?.length && files.length > 0 && (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={files.map((f) => f.name)} strategy={verticalListSortingStrategy}>
-                  {files.map((file, index) => (
-                    <SortableFileItem key={index} id={file.name} file={file} onRemove={() => removeFile(index)} />
-                  ))}
-                </SortableContext>
-              </DndContext>
-            )}
-
-            {files.length === 0 && (!serverFiles || serverFiles.length === 0) && (
-              <div className='text-red-500'>{t('Empty file')}</div>
-            )}
+      <Dialog open={dialogOpen === 'local'} onOpenChange={(v) => setDialogOpen(v ? 'local' : null)}>
+        <DialogTrigger asChild>
+          <Button
+            type='button'
+            className={clsx({
+              'hover:cursor-not-allowed opacity-80': files.length === 0
+            })}
+            disabled={files.length === 0}
+          >
+            <Eye /> {t('View file choosen')} ({files.length})
+          </Button>
+        </DialogTrigger>
+        <DialogContent className='max-w-lg w-full p-6'>
+          <DialogHeader>
+            <DialogTitle>{t('List file')}</DialogTitle>
+          </DialogHeader>
+          <div className='mt-4 max-h-[300px] overflow-y-auto space-y-2 pr-1'>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={files.map((f) => f.name)} strategy={verticalListSortingStrategy}>
+                {files.map((file, index) => (
+                  <SortableFileItem key={index} id={file.name} file={file} onRemove={() => removeFile(index)} />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
-
           <div className='flex justify-end pt-4'>
-            {serverFiles?.length === 0 && files.length > 0 && (
+            {files.length > 0 && (
               <Button variant='destructive' onClick={clearAll}>
                 {t('Delete all')}
               </Button>
@@ -211,14 +214,3 @@ export default function FileUploadMultiple({ onChange, defaultFiles, labelRequir
     </div>
   )
 }
-
-/**
-Note:
-Thành phần	Vai trò
-DndContext	Wrapper để kích hoạt tính năng kéo thả
-SortableContext	Khai báo danh sách có thể sắp xếp
-useSortable	Hook giúp từng item có thể kéo
-arrayMove()	Sắp xếp lại mảng files[] theo thứ tự mới
-GripVertical	Icon bạn muốn kéo, gán với listeners
-transform + transition	Hiệu ứng khi kéo item
- * */

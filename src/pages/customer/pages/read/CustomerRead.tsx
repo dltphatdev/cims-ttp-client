@@ -51,11 +51,7 @@ export default function CustomerRead() {
     queryFn: () => customerApi.getCustomers(queryConfig)
   })
   const pagination = customerData?.data?.data
-  const customers = customerData?.data?.data?.customers.filter((item) => {
-    const isCreator = item.creator_id === profile?.id
-    const isRule = isSupperAdminAndSaleAdmin(profile?.role as UserRole)
-    return isCreator || isRule ? item : undefined
-  })
+  const customers = customerData?.data?.data?.customers
 
   const updateCustomerCompanyMutation = useMutation({
     mutationFn: customerApi.updateCustomerCompany
@@ -377,14 +373,14 @@ export default function CustomerRead() {
                           </DropdownMenuItem>
                           {renderConsultantorDrop(item)}
                           {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
-                            <>
+                            <Fragment>
                               <DropdownMenuItem onClick={handleRevokeCustomer({ id: item.id, type: item.type })}>
                                 {t('Revoke')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={handleVerifyCustomer({ id: item.id, type: item.type })}>
                                 {t('Verify')}
                               </DropdownMenuItem>
-                            </>
+                            </Fragment>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>

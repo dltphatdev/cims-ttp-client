@@ -17,7 +17,7 @@ import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { COMPANY } from '@/constants/customerType'
 import { useContext, useEffect, useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import httpStatusCode from '@/constants/httpStatusCode'
@@ -60,8 +60,10 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdateCompany = () => {
+  const queryClient = useQueryClient()
   const { profile } = useContext(AppContext)
   const navigate = useNavigate()
+  const [resetFileUpload, setResetFileUpload] = useState(false)
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
@@ -107,8 +109,8 @@ const CustomerUpdateCompany = () => {
     },
     isUndefined
   )
-  const { data: customerData, refetch } = useQuery({
-    queryKey: ['customer', customerId, customerQueryConfig],
+  const { data: customerData } = useQuery({
+    queryKey: ['customerCompanyUpdate', customerId, customerQueryConfig],
     queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
@@ -175,7 +177,11 @@ const CustomerUpdateCompany = () => {
       if (consultantors.length === 0) return
       const res = await updateCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
-      refetch()
+      queryClient.refetchQueries({
+        queryKey: ['customerCompanyUpdate']
+      })
+      setResetFileUpload((prev) => !prev)
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -358,7 +364,12 @@ const CustomerUpdateCompany = () => {
                     </div>
                   </div>
                   <div className='grid gap-3'>
-                    <FileUploadMultiple defaultFiles={customerDetail?.attachments} onChange={handleChangeFiles} />
+                    <FileUploadMultiple
+                      resetSignal={resetFileUpload}
+                      defaultFiles={customerDetail?.attachments}
+                      onChange={handleChangeFiles}
+                      viewFileUploaded
+                    />
                   </div>
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>

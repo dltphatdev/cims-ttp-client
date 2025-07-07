@@ -710,7 +710,7 @@ export default function PerformanceUpdate() {
                       <div className='mn:col-span-12 lg:col-span-4'>
                         <div className='py-2 px-4 rounded-md border border-color-[rgba(240,240,240,1)]'>
                           <strong>{t('Ratio profit')}:</strong>
-                          <strong className='text-gray-500'> {ratioProfit + '%'}</strong>
+                          <strong className='text-gray-500'> {ratioProfit || 0 + '%'}</strong>
                         </div>
                       </div>
                       <div className='mn:col-span-12 lg:col-span-4'>
@@ -718,7 +718,10 @@ export default function PerformanceUpdate() {
                           <strong>
                             {t('Cost of sales')} / {t('Revenue')}:
                           </strong>
-                          <strong className='text-gray-500'> {Math.round(ratioCostOfSalesRevenuePrice) + '%'}</strong>
+                          <strong className='text-gray-500'>
+                            {' '}
+                            {Math.round(ratioCostOfSalesRevenuePrice) || 0 + '%'}
+                          </strong>
                         </div>
                       </div>
                     </div>

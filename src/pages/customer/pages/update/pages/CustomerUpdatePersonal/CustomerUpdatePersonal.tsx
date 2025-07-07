@@ -20,7 +20,7 @@ import { customerSchema } from '@/utils/validation'
 import GenderSelect from '@/components/gender-select'
 import DateSelect from '@/components/date-select'
 import FileUploadMultiple from '@/components/file-upload-multiple'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
@@ -74,7 +74,9 @@ type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdatePersonal = () => {
   const { profile } = useContext(AppContext)
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const [resetFileUpload, setResetFileUpload] = useState(false)
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
@@ -117,8 +119,8 @@ const CustomerUpdatePersonal = () => {
     },
     isUndefined
   )
-  const { data: customerData, refetch } = useQuery({
-    queryKey: ['customer', customerId, customerQueryConfig],
+  const { data: customerData } = useQuery({
+    queryKey: ['customerPersonalUpdate', customerId, customerQueryConfig],
     queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
@@ -189,7 +191,11 @@ const CustomerUpdatePersonal = () => {
       if (consultantors.length === 0) return
       const res = await updateCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
-      refetch()
+
+      queryClient.refetchQueries({
+        queryKey: ['customerPersonalUpdate']
+      })
+      setResetFileUpload((prev) => !prev)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -352,7 +358,12 @@ const CustomerUpdatePersonal = () => {
                     )}
                   />
                   <div className='grid gap-3'>
-                    <FileUploadMultiple defaultFiles={customerDetail?.attachments} onChange={handleChangeFiles} />
+                    <FileUploadMultiple
+                      viewFileUploaded
+                      defaultFiles={customerDetail?.attachments}
+                      onChange={handleChangeFiles}
+                      resetSignal={resetFileUpload}
+                    />
                   </div>
                   <div className='grid gap-3'>
                     <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
