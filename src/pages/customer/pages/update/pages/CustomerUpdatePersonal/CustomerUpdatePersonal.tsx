@@ -163,7 +163,7 @@ const CustomerUpdatePersonal = () => {
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
       let attachments = filesAttachment
-      if (files) {
+      if (files && files.length > 0) {
         const form = new FormData()
         Array.from(files).forEach((file) => {
           form.append('attachments', file)
