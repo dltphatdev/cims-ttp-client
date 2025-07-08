@@ -21,9 +21,10 @@ interface Props {
 export default function NavItem({ data, sideBarLabel }: Props) {
   const { t } = useTranslation('admin')
   const { pathname } = useLocation()
+  const safeT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{t(sideBarLabel)}</SidebarGroupLabel>
+      <SidebarGroupLabel>{safeT(sideBarLabel)}</SidebarGroupLabel>
       <SidebarMenu>
         {data.map((item) => (
           <SidebarMenuItem key={item.title}>
@@ -33,9 +34,9 @@ export default function NavItem({ data, sideBarLabel }: Props) {
               })}
               asChild
             >
-              <Link to={item.url} title={t(item.title)}>
+              <Link to={item.url} title={safeT(item.title)}>
                 {item.icon}
-                <span>{t(item.title)}</span>
+                <span>{safeT(item.title)}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
