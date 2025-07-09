@@ -80,10 +80,16 @@ export const customerSchema = yup.object({
     .max(12, 'Citizen identification card maximum length is 12 characters'),
   website: yup.string().max(50, 'Website maximum length is 50 characters').optional(),
   surrogate: yup.string().max(160, 'Surrogate maximum length is 160 characters').optional(),
-  address_company: yup.string().max(160, 'Address company maximum length is 160 characters').optional(),
-  address_personal: yup.string().max(160, 'Address personal maximum length is 160 characters').optional(),
-  phone: yup.string().max(10, 'Phone maximum length is 10 characters').optional(),
-  email: yup.string().max(160, 'Email max length 160 characters').email('Email invalid').optional(),
+  address_company: yup
+    .string()
+    .required('Address company is required')
+    .max(160, 'Address company maximum length is 160 characters'),
+  address_personal: yup
+    .string()
+    .required('Address personal is required')
+    .max(160, 'Address personal maximum length is 160 characters'),
+  phone: yup.string().required('Phone number is required').max(10, 'Phone maximum length is 10 characters'),
+  email: yup.string().required('Email is required').max(160, 'Email max length 160 characters').email('Email invalid'),
   contact_name: yup.string().max(10, 'Contact name maximum length is 10 characters').optional(),
   status: yup.string().oneOf([DEACTIVATED, ACTIVE], 'Invalid customer status').optional(),
   verify: yup.string().oneOf([UNVERIFIED_CUSTOMER, VERIFIED_CUSTOMER], 'Invalid verify customer').optional(),

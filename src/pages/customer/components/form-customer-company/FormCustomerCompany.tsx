@@ -22,6 +22,8 @@ import InputNumber from '@/components/input-number'
 import AddTags from '@/components/add-tags'
 import { omit } from 'lodash'
 import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
 
 const formData = customerSchema.pick([
   'name',
@@ -44,6 +46,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const FormCustomerCompany = () => {
+  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
@@ -115,6 +118,7 @@ const FormCustomerCompany = () => {
       if (consultantors.length === 0) return
       const res = await createCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
+      navigate(PATH.CUSTOMER)
       reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -217,6 +221,7 @@ const FormCustomerCompany = () => {
                     render={({ field }) => (
                       <InputNumber
                         type='text'
+                        labelRequired
                         placeholder={t('Phone')}
                         labelValue={t('Phone')}
                         {...field}
@@ -246,6 +251,7 @@ const FormCustomerCompany = () => {
                     name='email'
                     labelValue={t('Email')}
                     type='email'
+                    labelRequired
                     placeholder={t('Email')}
                     errorMessage={errors.email?.message}
                   />
@@ -270,8 +276,9 @@ const FormCustomerCompany = () => {
                     name='address_company'
                     labelValue={t('Address company')}
                     type='text'
+                    labelRequired
                     placeholder={t('Address company')}
-                    errorMessage={errors.tax_code?.message}
+                    errorMessage={errors.address_company?.message}
                   />
                 </div>
               </div>

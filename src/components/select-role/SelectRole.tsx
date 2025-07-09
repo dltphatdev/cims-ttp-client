@@ -22,6 +22,7 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
     setRole(value)
     onChange?.(value)
   }
+  const convertT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   return (
     <div className='space-y-3'>
       <Label className='text-sm font-medium'>
@@ -29,13 +30,13 @@ export default function SelectRole({ labelValue, roles, onChange, value, errorMe
       </Label>
       <Select value={value || role} onValueChange={handleChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue placeholder={t('Select role')}>{value || role}</SelectValue>
+          <SelectValue placeholder={t('Select role')}>{convertT(value || role)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             {roles.map((item) => (
               <SelectItem key={item.role_type} value={item.role_type}>
-                {item.role_value}
+                {convertT(item.role_value)}
               </SelectItem>
             ))}
           </SelectGroup>

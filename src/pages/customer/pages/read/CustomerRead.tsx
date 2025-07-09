@@ -9,7 +9,7 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { LIMIT, PAGE } from '@/constants/pagination'
+import { PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
 import { CUSTOMER_HEADER_TABLE } from '@/constants/table'
 import { AppContext } from '@/contexts/app-context'
@@ -304,10 +304,9 @@ export default function CustomerRead() {
               </Button>
             </div>
             <TableMain
-              totalPage={customers && customers.length > 0 ? (pagination?.totalPages as number) : 0}
               headerClassNames={['', '', '', '', '', '', '', '', '', 'text-right']}
               page={pagination?.page.toString() || PAGE}
-              page_size={pagination?.limit.toString() || LIMIT}
+              page_size={customers && customers.length > 0 ? (pagination?.totalPages.toString() as string) : '0'}
               headers={CUSTOMER_HEADER_TABLE}
               data={customers}
               renderRow={(item, index) => {

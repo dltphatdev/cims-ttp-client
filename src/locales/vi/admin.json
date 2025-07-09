@@ -154,5 +154,7 @@
   "Notification of operation to add consultant": "Thông báo thao tác thêm người tư vấn",
   "Notification of consultant deletion operation": "Thông báo thao tác xoá người tư vấn",
   "Confirm": "Đồng ý",
-  "View file uploaded": "Xem các file đã upload"
+  "View file uploaded": "Xem các file đã upload",
+  "Technician": "Kỹ thuật",
+  "None Role": "Không quyền"
 }

@@ -1,6 +1,6 @@
 import PaginationMain from '@/components/pagination-main'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { LIMIT, PAGE } from '@/constants/pagination'
+import { PAGE } from '@/constants/pagination'
 import { useTranslation } from 'react-i18next'
 
 interface Props<T> {
@@ -9,10 +9,10 @@ interface Props<T> {
   data: T[] | undefined
   renderRow: (item: T, index: number) => React.ReactNode
   page?: string
-  page_size?: string
+  page_size: string
   pageKey?: string
   classNameWrapper?: string
-  totalPage: number
+  totalPage?: number
 }
 
 export default function TableMain<T>({
@@ -22,9 +22,8 @@ export default function TableMain<T>({
   renderRow,
   classNameWrapper = '',
   page = PAGE,
-  page_size = LIMIT,
-  pageKey = 'page',
-  totalPage
+  page_size,
+  pageKey = 'page'
 }: Props<T>) {
   const { t } = useTranslation('admin')
   const safeT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
@@ -51,7 +50,7 @@ export default function TableMain<T>({
         </TableBody>
       </Table>
       {/* Pagination */}
-      {totalPage > 0 && <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />}
+      {Number(page_size) > 0 && <PaginationMain pageKey={pageKey} page={Number(page)} page_size={Number(page_size)} />}
     </div>
   )
 }

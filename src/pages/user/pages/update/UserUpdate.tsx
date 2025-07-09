@@ -29,7 +29,7 @@ type FormData = yup.InferType<typeof formData>
 const roles = [
   {
     role_type: ADMIN,
-    role_value: 'Admin'
+    role_value: 'Sale Admin'
   },
   {
     role_type: SALE,
@@ -37,7 +37,7 @@ const roles = [
   },
   {
     role_type: NONE,
-    role_value: 'None'
+    role_value: 'None Role'
   },
   {
     role_type: TECHNICIAN,

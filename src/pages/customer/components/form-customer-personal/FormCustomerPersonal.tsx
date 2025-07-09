@@ -15,6 +15,7 @@ import { PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED } from '@/constants/customerVerify'
 import { FEMALE, MALE } from '@/constants/gender'
 import httpStatusCode from '@/constants/httpStatusCode'
+import PATH from '@/constants/path'
 import { AppContext } from '@/contexts/app-context'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -23,6 +24,7 @@ import { omit } from 'lodash'
 import { useContext, useState } from 'react'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as yup from 'yup'
 
@@ -60,6 +62,7 @@ type FormData = yup.InferType<typeof formData>
 
 const FormCustomerPersonal = () => {
   const { t } = useTranslation('admin')
+  const navigate = useNavigate()
   const [files, setFiles] = useState<File[]>()
   const { profile } = useContext(AppContext)
   const {
@@ -132,6 +135,7 @@ const FormCustomerPersonal = () => {
       if (consultantors.length === 0) return
       const res = await createCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
       toast.success(res.data.message)
+      navigate(PATH.CUSTOMER)
       reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -216,6 +220,7 @@ const FormCustomerPersonal = () => {
                     name='email'
                     labelValue={t('Email')}
                     type='email'
+                    labelRequired
                     placeholder={t('Email')}
                     errorMessage={errors.email?.message}
                   />
@@ -230,6 +235,7 @@ const FormCustomerPersonal = () => {
                         placeholder={t('Phone')}
                         labelValue={t('Phone')}
                         {...field}
+                        labelRequired
                         onChange={field.onChange}
                         errorMessage={errors.phone?.message}
                       />
@@ -261,6 +267,7 @@ const FormCustomerPersonal = () => {
                     name='address_personal'
                     labelValue={t('Address personal')}
                     type='text'
+                    labelRequired
                     placeholder={t('Address personal')}
                     errorMessage={errors.address_personal?.message}
                   />
@@ -284,7 +291,7 @@ const FormCustomerPersonal = () => {
             </div>
             <div className='grid gap-3'>
               <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                {t('Note')} <span className='text-red-500'>*</span>
+                {t('Note')}
               </Label>
               <Textarea {...register('note')} placeholder={t('Note')} />
               {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}

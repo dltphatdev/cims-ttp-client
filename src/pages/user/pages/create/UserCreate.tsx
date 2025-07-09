@@ -5,13 +5,15 @@ import InputMain from '@/components/input-main/InputMain'
 import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, NONE, SALE, SUPERADMIN, TECHNICIAN } from '@/constants/role'
+import PATH from '@/constants/path'
+import { ADMIN, NONE, SALE, TECHNICIAN } from '@/constants/role'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
@@ -19,19 +21,15 @@ import * as yup from 'yup'
 const roles = [
   {
     role_type: ADMIN,
-    role_value: 'Admin'
+    role_value: 'Sale Admin'
   },
   {
     role_type: SALE,
     role_value: 'Sale'
   },
   {
-    role_type: SUPERADMIN,
-    role_value: 'Super admin'
-  },
-  {
     role_type: NONE,
-    role_value: 'None'
+    role_value: 'None Role'
   },
   {
     role_type: TECHNICIAN,
@@ -44,6 +42,7 @@ type FormData = yup.InferType<typeof formData>
 
 export default function UserCreate() {
   const { t } = useTranslation('admin')
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -81,6 +80,7 @@ export default function UserCreate() {
       createUserMutation.mutateAsync(payload, {
         onSuccess: (data) => {
           toast.success(data.data.message)
+          navigate(PATH.USER)
           reset()
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

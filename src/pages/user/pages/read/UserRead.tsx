@@ -82,9 +82,8 @@ export default function UserRead() {
               {createAction()}
             </div>
             <TableMain
-              totalPage={pagination?.totalPages || 0}
               page={pagination?.page.toString() || PAGE}
-              page_size={pagination?.limit.toString() || LIMIT}
+              page_size={pagination?.totalPages.toString() || '0'}
               headers={handleCheckRuleHeaderTable()}
               headerClassNames={['', '', '', '', '', '', 'text-right']}
               data={users}
