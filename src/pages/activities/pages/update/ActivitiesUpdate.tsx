@@ -1,5 +1,4 @@
 import * as yup from 'yup'
-import AddTagCustomer from '@/components/add-tag-customer'
 import DateTimePicker from '@/components/date-time-picker'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
@@ -46,14 +45,12 @@ const statuses = [
 
 const formData = activitySchema.pick([
   'name',
-  'customer_id',
   'contact_name',
   'address',
   'phone',
   'status',
   'time_start',
   'time_end',
-  'assign_at',
   'content'
 ])
 type FormData = yup.InferType<typeof formData>
@@ -67,25 +64,21 @@ export default function ActivitiesUpdate() {
     handleSubmit,
     setError,
     setValue,
-    watch,
     control,
     formState: { errors }
   } = useForm<FormData>({
     resolver: yupResolver(formData) as Resolver<FormData>,
     defaultValues: {
       name: '',
-      customer_id: '',
       contact_name: '',
       address: '',
       phone: '',
       status: NEW,
       time_start: new Date(),
       time_end: new Date(),
-      assign_at: '',
       content: ''
     }
   })
-  const customerId = watch('customer_id')
 
   const { data: activity } = useQuery({
     queryKey: ['activity', activityId],
@@ -101,7 +94,6 @@ export default function ActivitiesUpdate() {
   useEffect(() => {
     if (activityDetail) {
       setValue('name', activityDetail.name || '')
-      setValue('customer_id', activityDetail.customer.id.toString() || '')
       setValue('contact_name', activityDetail.contact_name || '')
       setValue('address', activityDetail.address || '')
       setValue('phone', activityDetail.phone || '')
@@ -116,21 +108,12 @@ export default function ActivitiesUpdate() {
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      const payload = customerId
-        ? {
-            ...data,
-            id: Number(activityId),
-            customer_id: Number(data.customer_id),
-            assign_at: new Date().toISOString(),
-            time_start: data.time_start.toISOString(),
-            time_end: data.time_end.toISOString()
-          }
-        : {
-            ...data,
-            id: Number(activityId),
-            time_start: data.time_start.toISOString(),
-            time_end: data.time_end.toISOString()
-          }
+      const payload = {
+        ...data,
+        id: Number(activityId),
+        time_start: data.time_start.toISOString(),
+        time_end: data.time_end.toISOString()
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -180,21 +163,6 @@ export default function ActivitiesUpdate() {
                       type='text'
                       placeholder={t('Title')}
                       errorMessage={errors.name?.message}
-                    />
-                  </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='customer_id'
-                      render={({ field }) => (
-                        <AddTagCustomer
-                          labelRequired={true}
-                          {...field}
-                          onChange={field.onChange}
-                          name={activityDetail?.customer?.name || ''}
-                          errorMessage={errors.customer_id?.message}
-                        />
-                      )}
                     />
                   </div>
                   <div className='grid gap-3'>

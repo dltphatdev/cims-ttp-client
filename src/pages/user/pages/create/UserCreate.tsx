@@ -29,7 +29,7 @@ const roles = [
   },
   {
     role_type: NONE,
-    role_value: 'None Role'
+    role_value: 'None'
   },
   {
     role_type: TECHNICIAN,

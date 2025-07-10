@@ -6,29 +6,22 @@ import { Ellipsis, Plus } from 'lucide-react'
 import activityApi from '@/apis/activity.api'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetListActivityParams } from '@/types/activity'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { isUndefined, omitBy } from 'lodash'
 import { Helmet } from 'react-helmet-async'
 import { Fragment } from 'react/jsx-runtime'
 import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
 import FormattedDate from '@/components/formatted-date'
-import { LIMIT, PAGE } from '@/constants/pagination'
+import { PAGE } from '@/constants/pagination'
 import { useTranslation } from 'react-i18next'
 import clsx from 'clsx'
 import SearchMain from '@/components/search-main'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
-import AddTagCustomerDialog from '@/components/add-tag-customer-dialog'
-import httpStatusCode from '@/constants/httpStatusCode'
-import { toast } from 'sonner'
 
 export default function ActivitiesRead() {
   const { t } = useTranslation('admin')
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const [openTagCustomer, setOpenTagCustomer] = useState(false)
-  const [selectedActivityId, setSelectedActivityId] = useState<number | undefined>()
   const queryParams: GetListActivityParams = useQueryParams()
   const queryConfig: GetListActivityParams = omitBy(
     {
@@ -38,38 +31,12 @@ export default function ActivitiesRead() {
     },
     isUndefined
   )
-  const { data: activitiesData, refetch } = useQuery({
+  const { data: activitiesData } = useQuery({
     queryKey: ['activities', queryConfig],
     queryFn: () => activityApi.getListActivity(queryConfig)
   })
-  const updateActivityMutation = useMutation({
-    mutationFn: activityApi.updateActivity
-  })
   const activities = activitiesData?.data.data.activities
   const pagination = activitiesData?.data.data
-
-  const handleAllocation = async (activityId: number, customerId: number) => {
-    try {
-      const res = await updateActivityMutation.mutateAsync({
-        customer_id: customerId,
-        id: activityId
-      })
-      toast.success(res.data.message)
-      queryClient.invalidateQueries({ queryKey: ['activity', activityId] })
-
-      refetch()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      if (error.status === httpStatusCode.UnprocessableEntity) {
-        const formError = error.response?.data?.errors
-        if (formError) {
-          Object.keys(formError).forEach((key) => {
-            toast.error(formError[key as keyof typeof formError]?.msg || 'Có lỗi xảy ra')
-          })
-        }
-      }
-    }
-  }
 
   return (
     <Fragment>
@@ -93,12 +60,11 @@ export default function ActivitiesRead() {
               </Button>
             </div>
             <TableMain
-              totalPage={activities && activities.length > 0 ? (pagination?.totalPages as number) : 0}
               headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
               headers={ACTIVITY_HEADER_TABLE}
               data={activities}
               page={pagination?.page.toString() || PAGE}
-              page_size={pagination?.limit.toString() || LIMIT}
+              page_size={activities && activities.length > 0 ? (pagination?.totalPages as number).toString() : '0'}
               renderRow={(item, index) => (
                 <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>
@@ -145,14 +111,6 @@ export default function ActivitiesRead() {
                         <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
                           {t('Edit')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedActivityId(item.id)
-                            setOpenTagCustomer(true)
-                          }}
-                        >
-                          {t('Allocation')}
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -162,13 +120,6 @@ export default function ActivitiesRead() {
           </div>
         </div>
       </div>
-      <AddTagCustomerDialog
-        openPopup={openTagCustomer}
-        setOpenPopup={setOpenTagCustomer}
-        onExportId={(id) => {
-          if (selectedActivityId && id) handleAllocation(selectedActivityId, id)
-        }}
-      />
     </Fragment>
   )
 }

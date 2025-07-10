@@ -3,9 +3,19 @@ import AddTagUserDialog from '@/components/add-tag-user-dialog'
 import FormattedDate from '@/components/formatted-date'
 import SearchMain from '@/components/search-main'
 import TableMain from '@/components/table-main'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { ACTION_ALERT } from '@/constants/action'
 import { COMPANY, PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
 import httpStatusCode from '@/constants/httpStatusCode'
@@ -20,15 +30,25 @@ import { isSupperAdminAndSaleAdmin } from '@/utils/common'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
-import { Ellipsis, Plus } from 'lucide-react'
-import { useContext, useState } from 'react'
+import { AlertTriangle, Ellipsis, Plus } from 'lucide-react'
+import { useContext, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 
+type Action = 'verify' | 'revoke' | null
+
+interface AlertAction {
+  id: number
+  type: CustomerType
+  action: Action
+}
+
 export default function CustomerRead() {
+  const [alertAction, setAlertAction] = useState<AlertAction | null>(null)
+  const [pendingAlertAction, setPendingAlertAction] = useState<AlertAction | null>(null)
   const { profile } = useContext(AppContext)
   const queryClient = useQueryClient()
   const { t } = useTranslation('admin')
@@ -61,9 +81,10 @@ export default function CustomerRead() {
     mutationFn: customerApi.updateCustomePersonal
   })
 
-  const handleVerifyCustomer =
-    ({ id, type }: { id: number; type: CustomerType }) =>
-    () => {
+  useEffect(() => {
+    if (!alertAction) return
+    const payload = { id: alertAction.id, type: alertAction.type }
+    const handleVerifyCustomer = ({ id, type }: { id: number; type: CustomerType }) => {
       if (type === COMPANY) {
         updateCustomerCompanyMutation.mutate(
           {
@@ -116,9 +137,7 @@ export default function CustomerRead() {
       }
     }
 
-  const handleRevokeCustomer =
-    ({ id, type }: { id: number; type: CustomerType }) =>
-    () => {
+    const handleRevokeCustomer = ({ id, type }: { id: number; type: CustomerType }) => {
       if (type === 'Company') {
         updateCustomerCompanyMutation.mutate(
           {
@@ -173,6 +192,14 @@ export default function CustomerRead() {
         )
       }
     }
+
+    if (alertAction.action === 'verify') {
+      handleVerifyCustomer(payload)
+    } else if (alertAction.action === 'revoke') {
+      handleRevokeCustomer(payload)
+    }
+    setAlertAction(null)
+  }, [alertAction, navigate, refetch, updateCustomerCompanyMutation, updateCustomerPersonalMutation])
 
   const handleAllocation = async ({
     customerId,
@@ -281,6 +308,21 @@ export default function CustomerRead() {
     return
   }
 
+  const handleAlertAction =
+    ({ action, id, type }: { id: number; type: CustomerType; action: Action }) =>
+    () =>
+      setPendingAlertAction({ id, type, action })
+
+  const handleSuccessAction = () => {
+    if (pendingAlertAction && pendingAlertAction.action === ACTION_ALERT.verify) {
+      setAlertAction({ id: pendingAlertAction.id, type: pendingAlertAction.type, action: ACTION_ALERT.verify })
+    } else if (pendingAlertAction && pendingAlertAction.action === ACTION_ALERT.revoke) {
+      setAlertAction({ id: pendingAlertAction.id, type: pendingAlertAction.type, action: ACTION_ALERT.revoke })
+    }
+    setPendingAlertAction(null)
+  }
+
+  const handleCancelAction = () => setAlertAction(null)
   return (
     <Fragment>
       <Helmet>
@@ -373,12 +415,28 @@ export default function CustomerRead() {
                           {renderConsultantorDrop(item)}
                           {isSupperAdminAndSaleAdmin(profile?.role as UserRole) && (
                             <Fragment>
-                              <DropdownMenuItem onClick={handleRevokeCustomer({ id: item.id, type: item.type })}>
-                                {t('Revoke')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={handleVerifyCustomer({ id: item.id, type: item.type })}>
-                                {t('Verify')}
-                              </DropdownMenuItem>
+                              {item.verify === 'Verified' && (
+                                <DropdownMenuItem
+                                  onClick={handleAlertAction({
+                                    id: item.id,
+                                    type: item.type,
+                                    action: ACTION_ALERT.revoke
+                                  })}
+                                >
+                                  {t('Revoke')}
+                                </DropdownMenuItem>
+                              )}
+                              {item.verify === 'Unverified' && (
+                                <DropdownMenuItem
+                                  onClick={handleAlertAction({
+                                    id: item.id,
+                                    type: item.type,
+                                    action: ACTION_ALERT.verify
+                                  })}
+                                >
+                                  {t('Verify')}
+                                </DropdownMenuItem>
+                              )}
                             </Fragment>
                           )}
                         </DropdownMenuContent>
@@ -401,6 +459,26 @@ export default function CustomerRead() {
           }
         }}
       />
+      {/* Alert action */}
+      <Fragment>
+        <AlertDialog open={pendingAlertAction !== null} onOpenChange={(open) => !open && setPendingAlertAction(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                <div className='flex flex-wrap gap-2 text-red-500 items-center'>
+                  <AlertTriangle className=' w-6 h-6' /> Thông báo thao tác{' '}
+                  {pendingAlertAction?.action === ACTION_ALERT.verify ? 'xác minh' : 'thu hồi'}
+                </div>
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <p className='text-sm text-muted-foreground px-1'>Bạn có chắc chắn muốn thực hiện thao tác này không?</p>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleCancelAction}>{t('Cancelled')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleSuccessAction}>{t('Confirm')}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </Fragment>
     </Fragment>
   )
 }

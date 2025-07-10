@@ -5,7 +5,7 @@ import TableMain from '@/components/table-main'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { LIMIT, PAGE } from '@/constants/pagination'
+import { PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
 import { PERFORMANCE_HEADER_TABLE } from '@/constants/table'
 import { AppContext } from '@/contexts/app-context'
@@ -82,13 +82,14 @@ export default function PerformanceRead() {
               </Button>
             </div>
             <TableMain
-              totalPage={
-                extendedPerformances && extendedPerformances?.length > 0 ? (pagination?.totalPages as number) : 0
-              }
               headerClassNames={['', '', '', '', '', '', '', '', '', 'text-right']}
               headers={PERFORMANCE_HEADER_TABLE}
               page={pagination?.page.toString() || PAGE}
-              page_size={pagination?.limit.toString() || LIMIT}
+              page_size={
+                extendedPerformances && extendedPerformances?.length > 0
+                  ? (pagination?.totalPages as number).toString()
+                  : '0'
+              }
               data={extendedPerformances}
               renderRow={(item, index) => {
                 const revenuePrice = item.revenueInput.reduce(

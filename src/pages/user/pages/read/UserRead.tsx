@@ -25,6 +25,7 @@ export default function UserRead() {
   const { profile } = useContext(AppContext)
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
+  const safeT = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   const queryParams: GetUsersParams = useQueryParams()
   const queryConfig: GetUsersParams = omitBy(
     {
@@ -92,7 +93,12 @@ export default function UserRead() {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.fullname}</TableCell>
                   <TableCell>{item.email}</TableCell>
-                  <TableCell>{item.role}</TableCell>
+                  <TableCell>
+                    <div className='bg-[#E6F7FF] rounded-sm text-[#1890FF] w-fit px-2 py-1.5'>
+                      {' '}
+                      {safeT(item.role as string)}
+                    </div>
+                  </TableCell>
                   <TableCell>{item.phone}</TableCell>
                   <TableCell>
                     <FormattedDate isoDate={item.created_at as string} />

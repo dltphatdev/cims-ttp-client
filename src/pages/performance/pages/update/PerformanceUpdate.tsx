@@ -221,7 +221,7 @@ export default function PerformanceUpdate() {
   ) // Giá vốn bán hàng
 
   const revenueTax = useMemo(
-    () => revenuePrice - costOfSales - revenueCommissionCostPrice,
+    () => (revenuePrice - costOfSales - revenueCommissionCostPrice) * 0.2,
     [revenuePrice, costOfSales, revenueCommissionCostPrice]
   ) // Chi phí đóng thuế TNCN
 
@@ -729,7 +729,7 @@ export default function PerformanceUpdate() {
                 </Card>
               </div>
               <CardFooter className='mt-6 p-0'>
-                <Button>{t('Save')}</Button>
+                <Button disabled={updatePerformanceMutation.isPending}>{t('Save')}</Button>
               </CardFooter>
             </form>
           </div>

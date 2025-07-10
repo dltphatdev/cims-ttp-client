@@ -1,4 +1,4 @@
-import { useForm, Controller, type Resolver } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Lock, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -7,9 +7,7 @@ import AuthInput from '@/components/auth-input'
 import AuthSidebar from '@/components/auth-sidebar'
 import SelectLang from '@/components/select-lang'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Fragment, useContext } from 'react'
 import { Helmet } from 'react-helmet-async'
@@ -21,7 +19,7 @@ import httpStatusCode from '@/constants/httpStatusCode'
 import * as yup from 'yup'
 import { schema } from '@/utils/validation'
 
-const formData = schema.pick(['email', 'password', 'terms'])
+const formData = schema.pick(['email', 'password'])
 type FormData = yup.InferType<typeof formData>
 
 export default function Login() {
@@ -32,14 +30,12 @@ export default function Login() {
     register,
     handleSubmit,
     setValue,
-    control,
     setError,
     formState: { errors }
   } = useForm<FormData>({
     defaultValues: {
       email: '',
-      password: '',
-      terms: false
+      password: ''
     },
     resolver: yupResolver(formData) as Resolver<FormData>
   })
@@ -123,32 +119,6 @@ export default function Login() {
                     <AuthButton isLoading={loginMutation.isPending} disabled={loginMutation.isPending}>
                       {t('Login')}
                     </AuthButton>
-                    {/* Terms Checkbox */}
-                    <div className='flex items-start space-x-1 mb-3'>
-                      <Controller
-                        name='terms'
-                        control={control}
-                        render={({ field }) => (
-                          <Checkbox
-                            id='terms'
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className='mt-1 light:border-(--color-org) data-[state=checked]:bg-(--color-org) data-[state=checked]:border-(--color-org)'
-                          />
-                        )}
-                      />
-                      <Label htmlFor='terms' className='light:text-gray-600 leading-relaxed text-sm block'>
-                        {t('I have read and accept')} {''}
-                        <Link to='' className='text-(--color-org) hover:text-orange-500'>
-                          {t('terms of service')}
-                        </Link>{' '}
-                        và{' '}
-                        <Link to='' className='text-(--color-org) hover:text-orange-500'>
-                          {t('privacy policy')}
-                        </Link>
-                      </Label>
-                    </div>
-                    {errors.terms && <span className='text-red-600 text-sm'>{errors.terms.message}</span>}
                   </form>
                 </CardContent>
               </Card>

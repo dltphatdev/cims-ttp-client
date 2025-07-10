@@ -21,6 +21,8 @@ import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import { isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { UserRole } from '@/types/user'
+import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
 
 const formData = performanceSchema.pick(['name', 'customer_id', 'note', 'status'])
 type FormData = yup.InferType<typeof formData>
@@ -41,6 +43,7 @@ const statuses = [
 ]
 
 export default function PerformanceCreate() {
+  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const { profile } = useContext(AppContext)
   const {
@@ -83,8 +86,9 @@ export default function PerformanceCreate() {
         }
       }
       const res = await createPerformanceMutation.mutateAsync(payload)
-      reset()
       toast.success(res.data.message)
+      navigate(PATH.PERFORMANCE)
+      reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -176,7 +180,7 @@ export default function PerformanceCreate() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button>{t('Save')}</Button>
+                  <Button disabled={createPerformanceMutation.isPending}>{t('Save')}</Button>
                 </CardFooter>
               </Card>
             </form>

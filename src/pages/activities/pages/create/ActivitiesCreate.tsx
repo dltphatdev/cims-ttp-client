@@ -10,7 +10,6 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import InputMain from '@/components/input-main'
 import { useContext } from 'react'
 import { AppContext } from '@/contexts/app-context'
-import AddTagCustomer from '@/components/add-tag-customer'
 import InputNumber from '@/components/input-number'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -23,17 +22,17 @@ import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
 import { isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { UserRole } from '@/types/user'
+import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
 
 const formData = activitySchema.pick([
   'name',
-  'customer_id',
   'contact_name',
   'address',
   'phone',
   'status',
   'time_start',
   'time_end',
-  'assign_at',
   'content'
 ])
 type FormData = yup.InferType<typeof formData>
@@ -58,6 +57,7 @@ const statuses = [
 ]
 
 export default function ActivitiesCreate() {
+  const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const { profile } = useContext(AppContext)
   const {
@@ -72,18 +72,15 @@ export default function ActivitiesCreate() {
     resolver: yupResolver(formData) as Resolver<FormData>,
     defaultValues: {
       name: '',
-      customer_id: '',
       contact_name: '',
       address: '',
       phone: '',
       status: NEW,
       time_start: new Date(),
       time_end: new Date(),
-      assign_at: '',
       content: ''
     }
   })
-  const customerId = watch('customer_id')
   const timeStart = watch('time_start')
   const timeEnd = watch('time_end')
 
@@ -93,19 +90,11 @@ export default function ActivitiesCreate() {
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      const payload = customerId
-        ? {
-            ...data,
-            customer_id: customerId ? Number(data.customer_id) : '',
-            assign_at: customerId ? new Date().toISOString() : '',
-            time_start: timeStart ? data.time_start.toISOString() : '',
-            time_end: timeEnd ? data.time_end.toISOString() : ''
-          }
-        : {
-            ...data,
-            time_start: timeStart ? data.time_start.toISOString() : '',
-            time_end: timeEnd ? data.time_end.toISOString() : ''
-          }
+      const payload = {
+        ...data,
+        time_start: timeStart ? data.time_start.toISOString() : '',
+        time_end: timeEnd ? data.time_end.toISOString() : ''
+      }
       for (const key in payload) {
         if (
           payload[key as keyof typeof payload] === undefined ||
@@ -116,8 +105,9 @@ export default function ActivitiesCreate() {
         }
       }
       const res = await createActivityMutation.mutateAsync(payload)
-      reset()
       toast.success(res.data.message)
+      navigate(PATH.ACTIVITIES)
+      reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -158,20 +148,7 @@ export default function ActivitiesCreate() {
                       errorMessage={errors.name?.message}
                     />
                   </div>
-                  <div className='grid gap-3'>
-                    <Controller
-                      control={control}
-                      name='customer_id'
-                      render={({ field }) => (
-                        <AddTagCustomer
-                          labelRequired={true}
-                          value={field.value}
-                          onChange={field.onChange}
-                          errorMessage={errors.customer_id?.message}
-                        />
-                      )}
-                    />
-                  </div>
+
                   <div className='grid gap-3'>
                     <InputMain
                       register={register}

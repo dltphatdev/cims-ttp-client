@@ -28,8 +28,7 @@ export const schema = yup.object({
     .string()
     .required('Password is required')
     .min(6, 'Password min length is 6 characters')
-    .max(160, 'Password max length is 160 characters'),
-  terms: yup.boolean().oneOf([true], 'You must accept the terms and conditions')
+    .max(160, 'Password max length is 160 characters')
 })
 
 export const userSchema = yup.object({
@@ -152,7 +151,6 @@ export const activitySchema = yup.object({
     .required('Name is required')
     .min(2, 'Name min length is 2 characters')
     .max(160, 'Name maximum length is 160 characters'),
-  customer_id: yup.string().required('Customer is required'),
   contact_name: yup
     .string()
     .required('Contact name is required')
@@ -170,6 +168,5 @@ export const activitySchema = yup.object({
     .optional(),
   time_start: yup.date().required('Time start is required'),
   time_end: yup.date().required('Time end is required'),
-  assign_at: yup.string().optional(),
   content: yup.string().max(2000, 'Content maximum length is 2000 characters').optional()
 })
