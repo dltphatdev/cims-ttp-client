@@ -121,12 +121,24 @@ export const performanceSchema = yup.object({
   customer_id: yup.string().required('Customer is required'),
   note: yup.string().max(2000, 'Note maximum length is 2000 characters').optional(),
   status: yup.string().oneOf([NEW, APPROVED, CANCELLED], 'Status performance invalid').optional(),
-  operating_cost: yup.string().max(100, 'Operating cost max length 100 characters'),
-  customer_care_cost: yup.string().max(100, 'Customer care cost max length 100 characters'),
-  commission_cost: yup.string().max(100, 'Commission cost max length 100 characters'),
-  diplomatic_cost: yup.string().max(100, 'Diplomatic cost max length 100 characters'),
-  reserve_cost: yup.string().max(100, 'Reserve cost max length 100 characters'),
-  customer_cost: yup.string().max(100, 'Customer cost max length 100 characters')
+  operating_cost: yup
+    .string()
+    .required('Operating cost is required')
+    .max(100, 'Operating cost max length 100 characters'),
+  customer_care_cost: yup
+    .string()
+    .required('Customer care cost is required')
+    .max(100, 'Customer care cost max length 100 characters'),
+  commission_cost: yup
+    .string()
+    .required('Commission cost is required')
+    .max(100, 'Commission cost max length 100 characters'),
+  diplomatic_cost: yup
+    .string()
+    .required('Diplomatic cost is required')
+    .max(100, 'Diplomatic cost max length 100 characters'),
+  reserve_cost: yup.string().required('Reserve cost is required').max(100, 'Reserve cost max length 100 characters'),
+  customer_cost: yup.string().required('Customer cost is required').max(100, 'Customer cost max length 100 characters')
 })
 
 export const revenueSchema = yup.object({

@@ -1,5 +1,4 @@
 import type { TQueryConfig } from '@/types/query-config'
-import type { UserRole } from '@/types/user'
 
 export type ActivityStatus = 'New' | 'InProgress' | 'Completed' | 'Cancelled'
 
@@ -45,17 +44,6 @@ export interface Activity {
   updated_at: string
   creator: {
     fullname: string
-  }
-  customer: {
-    name: string
-    id: number
-    consultantor: {
-      user: {
-        fullname: string
-        id: number
-        role: UserRole
-      }
-    }[]
   }
 }
 

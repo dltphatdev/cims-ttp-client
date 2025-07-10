@@ -12,7 +12,6 @@ interface Props<T> {
   page_size: string
   pageKey?: string
   classNameWrapper?: string
-  totalPage?: number
 }
 
 export default function TableMain<T>({

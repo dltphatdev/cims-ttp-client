@@ -27,19 +27,19 @@ import type { UserRole } from '@/types/user'
 const statuses = [
   {
     status_type: NEW,
-    status_value: 'Mới'
+    status_value: 'New'
   },
   {
     status_type: IN_PROGRESS,
-    status_value: 'Đang thực hiện'
+    status_value: 'InProgress'
   },
   {
     status_type: COMPLETED,
-    status_value: 'Hoàn thành'
+    status_value: 'Completed'
   },
   {
     status_type: CANCELLED,
-    status_value: 'Hủy'
+    status_value: 'Cancelled'
   }
 ]
 

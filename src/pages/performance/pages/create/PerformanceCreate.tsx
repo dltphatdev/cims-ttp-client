@@ -30,15 +30,15 @@ type FormData = yup.InferType<typeof formData>
 const statuses = [
   {
     status_type: NEW,
-    status_value: 'Mới'
+    status_value: 'New'
   },
   {
     status_type: APPROVED,
-    status_value: 'Đã duyệt'
+    status_value: 'Approved'
   },
   {
     status_type: CANCELLED,
-    status_value: 'Hủy'
+    status_value: 'Cancelled'
   }
 ]
 

@@ -9,11 +9,13 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   classNameLabel?: string
   labelValue?: string
   labelRequired?: boolean
+  isPercent?: boolean
 }
 
 const InputNumber = forwardRef<HTMLInputElement, Props>(function InputNumberInner(
   {
     errorMessage,
+    isPercent = false,
     labelRequired = false,
     classNameWrapper = 'space-y-2 mn:mb-2 lg:mb-3',
     classNameLabel = 'text-sm font-medium light:text-gray-700',
@@ -36,9 +38,42 @@ const InputNumber = forwardRef<HTMLInputElement, Props>(function InputNumberInne
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
-    if (/^\d+/.test(value) || value === '') {
-      onChange?.(e)
-      setLocalValue(value)
+    if (isPercent) {
+      const number = parseFloat(value)
+      if (value === '') {
+        setLocalValue('')
+        onChange?.(e)
+        return
+      }
+      if (!isNaN(number) && number >= 0 && number <= 100) {
+        onChange?.(e)
+        setLocalValue(value)
+      } else if (number > 100) {
+        setLocalValue('100')
+        const customEvent = {
+          ...e,
+          target: {
+            ...e.target,
+            value: '100'
+          }
+        } as React.ChangeEvent<HTMLInputElement>
+        onChange?.(customEvent)
+      } else if (number < 0) {
+        setLocalValue('0')
+        const customEvent = {
+          ...e,
+          target: {
+            ...e.target,
+            value: '0'
+          }
+        } as React.ChangeEvent<HTMLInputElement>
+        onChange?.(customEvent)
+      }
+    } else {
+      if (/^\d+/.test(value) || value === '') {
+        onChange?.(e)
+        setLocalValue(value)
+      }
     }
   }
   return (

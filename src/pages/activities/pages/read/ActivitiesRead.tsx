@@ -60,7 +60,7 @@ export default function ActivitiesRead() {
               </Button>
             </div>
             <TableMain
-              headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
+              headerClassNames={['', '', '', '', '', '', '', 'text-right']}
               headers={ACTIVITY_HEADER_TABLE}
               data={activities}
               page={pagination?.page.toString() || PAGE}
@@ -69,7 +69,6 @@ export default function ActivitiesRead() {
                 <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.customer.name}</TableCell>
                   <TableCell>{item.creator.fullname}</TableCell>
                   <TableCell>
                     <FormattedDate isoDate={item.created_at as string} />

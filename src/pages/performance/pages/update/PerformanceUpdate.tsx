@@ -53,15 +53,15 @@ type FormData = yup.InferType<typeof formData>
 const statuses = [
   {
     status_type: NEW,
-    status_value: 'Mới'
+    status_value: 'New'
   },
   {
     status_type: APPROVED,
-    status_value: 'Đã duyệt'
+    status_value: 'Approved'
   },
   {
     status_type: CANCELLED,
-    status_value: 'Hủy'
+    status_value: 'Cancelled'
   }
 ]
 
@@ -71,10 +71,12 @@ export default function PerformanceUpdate() {
   const translateToStr = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   const { performanceId } = useParams()
   const navigate = useNavigate()
+
   const {
     register,
     handleSubmit,
     setError,
+    watch,
     setValue,
     control,
     formState: { errors }
@@ -114,6 +116,14 @@ export default function PerformanceUpdate() {
   const performanceDetail = performanceData?.data?.data
   const revenuesInput = performanceDetail?.revenueInput
   const revenuesOutput = performanceDetail?.revenueOutput
+
+  const operatingCostWatch = watch('operating_cost')
+  const customerCareCostWatch = watch('customer_care_cost')
+  const commissionCostWatch = watch('commission_cost')
+  const diplomaticCostWatch = watch('diplomatic_cost')
+  const customerCostWatch = watch('customer_cost')
+  const reserveCostWatch = watch('reserve_cost')
+
   useEffect(() => {
     if (performanceDetail) {
       setValue('name', performanceDetail.performance.name || '')
@@ -183,34 +193,58 @@ export default function PerformanceUpdate() {
     () => Number(revenueInputPriceEveryMonth) + Number(revenueInputPriceOneTime),
     [revenueInputPriceEveryMonth, revenueInputPriceOneTime]
   ) // doanh thu
-  const revenueOperatingCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance.operating_cost),
-    [performanceDetail?.performance.operating_cost, revenuePrice]
-  ) // chi phi van hanh
-  const revenueCustomerCareCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance.customer_care_cost),
-    [revenuePrice, performanceDetail?.performance.customer_care_cost]
-  ) // chi phi CSKH
+  const revenueOperatingCostPrice = useMemo(() => {
+    if (performanceDetail?.performance.operating_cost) {
+      return revenuePrice * Number(performanceDetail?.performance.operating_cost)
+    } else {
+      return revenuePrice * Number(operatingCostWatch)
+    }
+  }, [performanceDetail?.performance.operating_cost, revenuePrice, operatingCostWatch]) // chi phi van hanh
+  const revenueCustomerCareCostPrice = useMemo(() => {
+    if (performanceDetail?.performance.customer_care_cost) {
+      return revenuePrice * Number(performanceDetail?.performance.customer_care_cost)
+    } else {
+      return revenuePrice * Number(customerCareCostWatch)
+    }
+  }, [revenuePrice, performanceDetail?.performance.customer_care_cost, customerCareCostWatch]) // chi phi CSKH
+
   const revenueManagerCompany = useMemo(
     () => revenueOperatingCostPrice + revenueCustomerCareCostPrice,
     [revenueOperatingCostPrice, revenueCustomerCareCostPrice]
   ) // chi phi quan ly cong ty
-  const revenueCommissionCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance?.commission_cost),
-    [revenuePrice, performanceDetail?.performance?.commission_cost]
-  ) // chi phi hoa hong
-  const revenueDiplomaticCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance?.diplomatic_cost),
-    [revenuePrice, performanceDetail?.performance?.diplomatic_cost]
-  ) // chi phi ngoai giao
-  const revenueCustomerCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance?.customer_cost),
-    [revenuePrice, performanceDetail?.performance?.customer_cost]
-  ) // chi phi khach hang
-  const revenueReserveCostPrice = useMemo(
-    () => revenuePrice * Number(performanceDetail?.performance?.reserve_cost),
-    [revenuePrice, performanceDetail?.performance?.reserve_cost]
-  ) // chi phi du phong
+
+  const revenueCommissionCostPrice = useMemo(() => {
+    if (performanceDetail?.performance?.commission_cost) {
+      return revenuePrice * Number(performanceDetail?.performance?.commission_cost)
+    } else {
+      return revenuePrice * Number(commissionCostWatch)
+    }
+  }, [revenuePrice, performanceDetail?.performance?.commission_cost, commissionCostWatch]) // chi phi hoa hong
+
+  const revenueDiplomaticCostPrice = useMemo(() => {
+    if (performanceDetail?.performance?.diplomatic_cost) {
+      return revenuePrice * Number(performanceDetail?.performance?.diplomatic_cost)
+    } else {
+      return revenuePrice * Number(diplomaticCostWatch)
+    }
+  }, [revenuePrice, performanceDetail?.performance?.diplomatic_cost, diplomaticCostWatch]) // chi phi ngoai giao
+
+  const revenueCustomerCostPrice = useMemo(() => {
+    if (performanceDetail?.performance?.customer_cost) {
+      return revenuePrice * Number(performanceDetail?.performance?.customer_cost)
+    } else {
+      return revenuePrice * Number(customerCostWatch)
+    }
+  }, [revenuePrice, performanceDetail?.performance?.customer_cost, customerCostWatch]) // chi phi khach hang
+
+  const revenueReserveCostPrice = useMemo(() => {
+    if (performanceDetail?.performance?.reserve_cost) {
+      return revenuePrice * Number(performanceDetail?.performance?.reserve_cost)
+    } else {
+      return revenuePrice * Number(reserveCostWatch)
+    }
+  }, [revenuePrice, performanceDetail?.performance?.reserve_cost, reserveCostWatch]) // chi phi du phong
+
   const revenueCommissionDiplomaticCustomerReserve = useMemo(
     () => revenueCommissionCostPrice + revenueDiplomaticCostPrice + revenueCustomerCostPrice + revenueReserveCostPrice,
     [revenueCommissionCostPrice, revenueDiplomaticCostPrice, revenueCustomerCostPrice, revenueReserveCostPrice]
@@ -380,11 +414,10 @@ export default function PerformanceUpdate() {
                       </Button>
                     </div>
                     <TableMain
-                      totalPage={performanceDetail?.totalRevenueInput || 0}
                       pageKey='input_page'
                       headers={REVENUE_INPUT_HEADER_TABLE}
                       page={performanceDetail?.inputPage.toString() || PAGE}
-                      page_size={performanceDetail?.inputLimit.toString() || LIMIT}
+                      page_size={performanceDetail?.totalRevenueInput.toString() || '0'}
                       data={revenuesInput}
                       renderRow={(item, index) => {
                         return (
@@ -421,7 +454,6 @@ export default function PerformanceUpdate() {
                         )
                       }}
                     />
-
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice label={t('One-time cost') + ':'} price={revenueInputPriceOneTime as number} />
@@ -461,11 +493,10 @@ export default function PerformanceUpdate() {
                       </Button>
                     </div>
                     <TableMain
-                      totalPage={performanceDetail?.totalRevenueOutput || 0}
                       pageKey='output_page'
                       headers={REVENUE_OUTPUT_HEADER_TABLE}
                       page={performanceDetail?.outputPage.toString() || PAGE}
-                      page_size={performanceDetail?.outputLimit.toString() || LIMIT}
+                      page_size={performanceDetail?.totalRevenueOutput.toString() || '0'}
                       data={revenuesOutput}
                       renderRow={(item, index) => {
                         return (
@@ -513,8 +544,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
+                                isPercent
                                 placeholder={t('Enter operating costs')}
-                                labelValue={t('Operating costs') + '(%)'}
+                                labelValue={t('Operating costs') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.operating_cost?.message}
@@ -530,8 +562,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
-                                placeholder={t('Enter customer service costs')}
-                                labelValue={t('Customer care costs')}
+                                isPercent
+                                placeholder={t('Customer care costs')}
+                                labelValue={t('Customer care costs') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.customer_care_cost?.message}
@@ -551,8 +584,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
+                                isPercent
                                 placeholder={t('Enter commission cost')}
-                                labelValue={t('Commission costs')}
+                                labelValue={t('Commission costs') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.commission_cost?.message}
@@ -568,8 +602,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
+                                isPercent
                                 placeholder={t('Enter diplomatic expenses')}
-                                labelValue={t('Diplomatic expenses')}
+                                labelValue={t('Diplomatic expenses') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.diplomatic_cost?.message}
@@ -589,8 +624,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
+                                isPercent
                                 placeholder={t('Enter contingency costs')}
-                                labelValue={t('Contingency costs')}
+                                labelValue={t('Contingency costs') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.reserve_cost?.message}
@@ -606,8 +642,9 @@ export default function PerformanceUpdate() {
                             render={({ field }) => (
                               <InputNumber
                                 type='text'
+                                isPercent
                                 placeholder={t('Enter customer costs')}
-                                labelValue={t('Customer costs')}
+                                labelValue={t('Customer costs') + ' (%)'}
                                 {...field}
                                 onChange={field.onChange}
                                 errorMessage={errors.customer_cost?.message}
@@ -619,22 +656,16 @@ export default function PerformanceUpdate() {
                       </div>
                     </div>
                     <div className='grid gap-3'>
-                      <RevenueTagsPrice
-                        label={`1. ${t('Company management costs')}:`}
-                        price={revenueManagerCompany as number}
-                      />
+                      <RevenueTagsPrice label={`1. ${t('Company management costs')}:`} price={revenueManagerCompany} />
                     </div>
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice
-                          label={`1.1 ${t('Operating costs')}:`}
-                          price={revenueOperatingCostPrice as number}
-                        />
+                        <RevenueTagsPrice label={`1.1 ${t('Operating costs')}:`} price={revenueOperatingCostPrice} />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice
                           label={`1.2 ${t('Customer care costs')}:`}
-                          price={revenueCustomerCareCostPrice as number}
+                          price={revenueCustomerCareCostPrice}
                         />
                       </div>
                     </div>
@@ -645,7 +676,7 @@ export default function PerformanceUpdate() {
 
                     <div className='grid grid-cols-12 gap-4'>
                       <div className='mn:col-span-12 lg:col-span-6'>
-                        <RevenueTagsPrice label={`2.1 ${t('Revenue input')}:`} price={revenueOutputPrice as number} />
+                        <RevenueTagsPrice label={`2.1 ${t('Revenue input')}:`} price={revenueOutputPrice} />
                       </div>
                       <div className='mn:col-span-12 lg:col-span-6'>
                         <RevenueTagsPrice

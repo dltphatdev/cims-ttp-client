@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
 import { useContext, useEffect, useState } from 'react'
@@ -28,14 +28,6 @@ import { formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/c
 import type { TQueryConfig } from '@/types/query-config'
 import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omit, omitBy } from 'lodash'
-import TableMain from '@/components/table-main'
-import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
-import { TableCell, TableRow } from '@/components/ui/table'
-import FormattedDate from '@/components/formatted-date'
-import clsx from 'clsx'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Ellipsis } from 'lucide-react'
-import { LIMIT, PAGE } from '@/constants/pagination'
 import AddTags from '@/components/add-tags'
 import { AppContext } from '@/contexts/app-context'
 import type { UserRole } from '@/types/user'
@@ -75,7 +67,6 @@ type FormData = yup.InferType<typeof formData>
 const CustomerUpdatePersonal = () => {
   const { profile } = useContext(AppContext)
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const [resetFileUpload, setResetFileUpload] = useState(false)
   const { customerId } = useParams()
   const { t } = useTranslation('admin')
@@ -121,7 +112,7 @@ const CustomerUpdatePersonal = () => {
   )
   const { data: customerData } = useQuery({
     queryKey: ['customerPersonalUpdate', customerId, customerQueryConfig],
-    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
+    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string })
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFiles
@@ -130,8 +121,6 @@ const CustomerUpdatePersonal = () => {
     mutationFn: customerApi.updateCustomePersonal
   })
   const customerDetail = customerData?.data?.data.customer
-  const customers = customerDetail?.activityCustomers
-  const pagination = customerData?.data?.data
 
   useEffect(() => {
     if (customerDetail) {
@@ -411,67 +400,6 @@ const CustomerUpdatePersonal = () => {
                 </CardFooter>
               </Card>
             </form>
-            <Card className='mt-3 py-2'>
-              <TableMain
-                totalPage={pagination?.totalPagesActivities || 0}
-                headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
-                headers={ACTIVITY_HEADER_TABLE}
-                data={customers}
-                page={pagination?.page_activities.toString() || PAGE}
-                page_size={pagination?.limit_activities.toString() || LIMIT}
-                renderRow={(item, index) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.customer.name}</TableCell>
-                    <TableCell>{item.creator.fullname}</TableCell>
-                    <TableCell>
-                      <FormattedDate isoDate={item.created_at as string} />
-                    </TableCell>
-                    <TableCell>
-                      <FormattedDate isoDate={item.time_start as string} />
-                    </TableCell>
-                    <TableCell>
-                      <FormattedDate isoDate={item.time_end as string} />
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
-                          'text-(--color-green-custom)': item.status === 'Completed',
-                          '!text-red-500': item.status === 'Cancelled',
-                          '!text-yellow-500': item.status === 'New',
-                          '!text-orange-500': item.status === 'InProgress'
-                        })}
-                      >
-                        {item.status === 'New'
-                          ? t('New')
-                          : item.status === 'InProgress'
-                            ? t('InProgress')
-                            : item.status === 'Completed'
-                              ? t('Completed')
-                              : item.status === 'Cancelled'
-                                ? t('Cancelled')
-                                : ''}
-                      </span>
-                    </TableCell>
-                    <TableCell className='ml-auto text-end'>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
-                            <Ellipsis className='w-4 h-4' />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
-                          <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
-                            {t('Edit')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )}
-              />
-            </Card>
           </div>
         </div>
       </div>

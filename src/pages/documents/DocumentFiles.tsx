@@ -128,9 +128,8 @@ export default function DocumentFiles() {
                   />
                 </div>
                 <TableMain
-                  totalPage={galleries && galleries.length > 0 ? (pagination?.totalPages as number) : 0}
                   page={pagination?.page.toString() || PAGE}
-                  page_size={pagination?.limit.toString() || LIMIT}
+                  page_size={galleries && galleries.length > 0 ? (pagination?.totalPages as number).toString() : '0'}
                   headers={DOCUMENT_FILES_HEADER_TABLE}
                   headerClassNames={['', '', '', 'text-right']}
                   data={galleries}

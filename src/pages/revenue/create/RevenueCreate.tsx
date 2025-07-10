@@ -9,7 +9,7 @@ import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
 import { revenueSchema } from '@/utils/validation'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useTranslation } from 'react-i18next'
@@ -39,7 +39,7 @@ const RevenueCreate = () => {
   const { state } = useLocation()
   const performanceId = state.performanceId
   const revenueDirection = state.revenueDirection
-
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -73,8 +73,9 @@ const RevenueCreate = () => {
         type: data.type as TypeRevenue
       }
       const res = await createRevenueMutation.mutateAsync(payload)
-      reset()
       toast.success(res.data.message)
+      reset()
+      navigate(`/performance/update/${performanceId}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {

@@ -51,7 +51,6 @@ export const REVENUE_OUTPUT_HEADER_TABLE = [
 export const ACTIVITY_HEADER_TABLE = [
   'STT',
   'Title',
-  'Customer',
   'Creator',
   'Created at',
   'Time start',

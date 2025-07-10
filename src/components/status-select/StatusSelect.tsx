@@ -36,7 +36,7 @@ const StatusSelect = ({ labelValue, statuses, errorMessage, onChange, value, lab
           <SelectGroup>
             {statuses.map((item) => (
               <SelectItem key={item.status_type} value={item.status_type}>
-                {item.status_value}
+                {convertT(item.status_value)}
               </SelectItem>
             ))}
           </SelectGroup>

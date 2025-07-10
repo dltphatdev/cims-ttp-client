@@ -8,23 +8,20 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { PAGE } from '@/constants/pagination'
 import PATH from '@/constants/path'
 import { PERFORMANCE_HEADER_TABLE } from '@/constants/table'
-import { AppContext } from '@/contexts/app-context'
 import { useQueryParams } from '@/hooks/use-query-params'
 import type { GetPerformancesParams } from '@/types/performance'
-import type { UserRole } from '@/types/user'
-import { formatNumberCurrency, isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { formatNumberCurrency } from '@/utils/common'
 import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { isUndefined, omitBy } from 'lodash'
 import { Ellipsis, Plus } from 'lucide-react'
-import { useContext, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 
 export default function PerformanceRead() {
-  const { profile } = useContext(AppContext)
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
   const queryParams: GetPerformancesParams = useQueryParams()
@@ -46,20 +43,12 @@ export default function PerformanceRead() {
 
   const extendedPerformances = useMemo(() => {
     if (performances)
-      return performances
-        .map((item) => ({
-          ...item,
-          revenueInput: item.revenues.filter((i) => i.direction === 'In'),
-          revenueOutput: item.revenues.filter((i) => i.direction === 'Out')
-        }))
-        .filter((item) => {
-          const profileId = profile?.id
-          const profileRole = profile?.role
-          const isCreator = item.creator_id === profileId
-          const isRule = isSupperAdminAndSaleAdmin(profileRole as UserRole)
-          return isCreator || isRule ? item : undefined
-        })
-  }, [performances, profile?.role, profile?.id])
+      return performances.map((item) => ({
+        ...item,
+        revenueInput: item.revenues.filter((i) => i.direction === 'In'),
+        revenueOutput: item.revenues.filter((i) => i.direction === 'Out')
+      }))
+  }, [performances])
   return (
     <Fragment>
       <Helmet>

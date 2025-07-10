@@ -8,7 +8,6 @@ import type {
   UpdateCustomerCompanyReqBody,
   UpdateCustomerPersonalReqBody
 } from '@/types/customer'
-import type { TQueryConfig } from '@/types/query-config'
 import http from '@/utils/http'
 
 const customerApi = {
@@ -42,8 +41,8 @@ const customerApi = {
   updateCustomePersonal(body: UpdateCustomerPersonalReqBody) {
     return http.patch<{ message: string }>('customer/update-personal', body)
   },
-  getCustomerDetail({ id, params }: { id: string; params: Pick<TQueryConfig, 'limit' | 'page'> }) {
-    return http.get<SuccessResponseApi<GetCustomerDetail>>(`customer/detail/${id}`, { params })
+  getCustomerDetail({ id }: { id: string }) {
+    return http.get<SuccessResponseApi<GetCustomerDetail>>(`customer/detail/${id}`)
   }
 }
 
