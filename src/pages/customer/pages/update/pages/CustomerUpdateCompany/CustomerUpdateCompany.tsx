@@ -296,6 +296,7 @@ const CustomerUpdateCompany = () => {
                               placeholder={t('Phone')}
                               labelValue={t('Phone')}
                               {...field}
+                              labelRequired
                               onChange={field.onChange}
                               errorMessage={errors.phone?.message}
                             />
@@ -323,6 +324,7 @@ const CustomerUpdateCompany = () => {
                           labelValue={t('Email')}
                           type='email'
                           placeholder={t('Email')}
+                          labelRequired
                           errorMessage={errors.email?.message}
                         />
                       </div>
@@ -344,6 +346,7 @@ const CustomerUpdateCompany = () => {
                         <InputMain
                           register={register}
                           name='address_company'
+                          labelRequired
                           labelValue={t('Address company')}
                           type='text'
                           placeholder={t('Address company')}

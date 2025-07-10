@@ -281,6 +281,7 @@ const CustomerUpdatePersonal = () => {
                         <InputMain
                           register={register}
                           name='email'
+                          labelRequired
                           labelValue={t('Email')}
                           type='email'
                           placeholder={t('Email')}
@@ -294,6 +295,7 @@ const CustomerUpdatePersonal = () => {
                           render={({ field }) => (
                             <InputNumber
                               type='text'
+                              labelRequired
                               placeholder={t('Phone')}
                               labelValue={t('Phone')}
                               {...field}
@@ -326,6 +328,7 @@ const CustomerUpdatePersonal = () => {
                         <InputMain
                           register={register}
                           name='address_personal'
+                          labelRequired
                           labelValue={t('Address personal')}
                           type='text'
                           placeholder={t('Address personal')}
