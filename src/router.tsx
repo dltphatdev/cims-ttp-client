@@ -9,7 +9,8 @@ const Login = lazy(() => import('@/pages/login'))
 const Dashboard = lazy(() => import('@/pages/dashboard'))
 const NotFound = lazy(() => import('@/pages/not-found'))
 const CustomerRead = lazy(() => import('@/pages/customer/pages/read'))
-const DocumentFiles = lazy(() => import('@/pages/documents'))
+const DocumentRead = lazy(() => import('@/pages/documents/pages/read'))
+const DocumentCreate = lazy(() => import('@/pages/documents/pages/create'))
 const CustomerCreate = lazy(() => import('@/pages/customer/pages/create'))
 const PerformanceRead = lazy(() => import('@/pages/performance/pages/read'))
 const PerformanceCreate = lazy(() => import('@/pages/performance/pages/create'))
@@ -216,7 +217,15 @@ const Router = () => {
               path: PATH.PAGE_DOCUMENT,
               element: (
                 <Suspense>
-                  <DocumentFiles />
+                  <DocumentRead />
+                </Suspense>
+              )
+            },
+            {
+              path: PATH.CREATE_DOCUMENT,
+              element: (
+                <Suspense>
+                  <DocumentCreate />
                 </Suspense>
               )
             }

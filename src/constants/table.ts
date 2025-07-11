@@ -11,7 +11,7 @@ export const CUSTOMER_HEADER_TABLE = [
   'Status',
   'Action'
 ]
-export const DOCUMENT_FILES_HEADER_TABLE = ['STT', 'File', 'Creator', 'Created at']
+export const DOCUMENT_FILES_HEADER_TABLE = ['STT', 'Filename', 'Creator', 'Created at', 'Updated at', 'Action']
 
 export const PERFORMANCE_HEADER_TABLE = [
   'STT',

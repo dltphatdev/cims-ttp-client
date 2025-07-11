@@ -156,5 +156,8 @@
   "Confirm": "Đồng ý",
   "View file uploaded": "Xem các file đã upload",
   "Technician": "Kỹ thuật",
-  "None": "Không quyền"
+  "None": "Không quyền",
+  "Documents": "Tài liệu",
+  "Filename": "Tên tài liệu",
+  "Create document": "Thêm tài liệu"
 }

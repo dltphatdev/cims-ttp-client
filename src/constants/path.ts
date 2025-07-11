@@ -18,7 +18,8 @@ const PATH = {
   USER_UPDATE: '/user/profile',
   REVENUE_CREATE: '/revenue/create',
   REVENUE_UPDATE: '/revenue/update/:revenueId',
-  PAGE_DOCUMENT: '/document-files'
+  PAGE_DOCUMENT: '/documents',
+  CREATE_DOCUMENT: '/documents/create'
 } as const
 
 export default PATH

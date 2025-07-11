@@ -59,10 +59,16 @@ export const changePasswordSchema = yup.object({
 })
 
 export const documentFileSchema = yup.object({
-  attachments: yup
-    .array()
-    .of(yup.string().max(255, 'Each file maximum 255 characters').max(5, 'Only attach up to 5 files'))
-    .required('File upload is required')
+  attachment: yup.string().required('Attachment is required').max(255, 'Avatar maximum length is 255 characters'),
+  name: yup
+    .string()
+    .required('Name is required')
+    .min(2, 'Name min length is 3 characters')
+    .max(160, 'Name maximum length is 160 characters'),
+  description: yup
+    .string()
+    .required('Description is required')
+    .max(2000, 'Description maximum length is 2000 characters')
 })
 export const customerSchema = yup.object({
   name: yup

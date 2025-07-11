@@ -156,5 +156,8 @@
   "Confirm": "Confirm",
   "View file uploaded": "View file uploaded",
   "Technician": "Technician",
-  "None": "None Role"
+  "None": "None Role",
+  "Documents": "Documents",
+  "Filename": "Filename",
+  "Create document": "Create document"
 }

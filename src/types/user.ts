@@ -79,23 +79,3 @@ export interface ChangePasswordUserReqBody {
   old_password?: string
   password?: string
 }
-
-export interface GetDocumentFilesParams extends Pick<TQueryConfig, 'limit' | 'page'> {
-  filename?: string | string[] | undefined
-}
-
-export interface GetDocumentFiles {
-  galleries: {
-    id: number
-    created_at: Date | string
-    filename: string
-    user: {
-      id: number
-      role: UserRole
-      fullname: string
-    }
-  }[]
-  page: number
-  limit: number
-  totalPages: number
-}
