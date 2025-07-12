@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -29,6 +29,14 @@ import { useQueryParams } from '@/hooks/use-query-params'
 import AddTags from '@/components/add-tags'
 import { AppContext } from '@/contexts/app-context'
 import type { UserRole } from '@/types/user'
+import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
+import { PAGE } from '@/constants/pagination'
+import { TableCell, TableRow } from '@/components/ui/table'
+import FormattedDate from '@/components/formatted-date'
+import clsx from 'clsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Ellipsis } from 'lucide-react'
+import TableMain from '@/components/table-main'
 
 const formData = customerSchema.pick([
   'name',
@@ -52,6 +60,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdateCompany = () => {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { profile } = useContext(AppContext)
   const [resetFileUpload, setResetFileUpload] = useState(false)
@@ -102,7 +111,7 @@ const CustomerUpdateCompany = () => {
   )
   const { data: customerData } = useQuery({
     queryKey: ['customerCompanyUpdate', customerId, customerQueryConfig],
-    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string })
+    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFiles
@@ -111,6 +120,9 @@ const CustomerUpdateCompany = () => {
     mutationFn: customerApi.updateCustomerCompany
   })
   const customerDetail = customerData?.data?.data.customer
+  const customers = customerDetail?.activityCustomers
+  const pagination = customerData?.data?.data
+  console.log(customerDetail)
   useEffect(() => {
     if (customerDetail) {
       setValue('name', customerDetail.name || '')
@@ -291,8 +303,8 @@ const CustomerUpdateCompany = () => {
                               placeholder={t('Tax code')}
                               labelValue={t('Tax code')}
                               {...field}
-                              labelRequired={customerDetail?.verify === 'Unverified'}
                               onChange={field.onChange}
+                              labelRequired={customerDetail?.verify === 'Unverified'}
                               disabled={customerDetail?.verify === 'Verified'}
                               errorMessage={errors.tax_code?.message}
                             />
@@ -309,7 +321,8 @@ const CustomerUpdateCompany = () => {
                               placeholder={t('Phone')}
                               labelValue={t('Phone')}
                               {...field}
-                              labelRequired
+                              labelRequired={customerDetail?.verify === 'Unverified'}
+                              disabled={customerDetail?.verify === 'Verified'}
                               onChange={field.onChange}
                               errorMessage={errors.phone?.message}
                             />
@@ -327,6 +340,7 @@ const CustomerUpdateCompany = () => {
                           labelValue={t('Surrogate')}
                           type='text'
                           placeholder={t('Surrogate')}
+                          disabled={customerDetail?.verify === 'Verified'}
                           errorMessage={errors.surrogate?.message}
                         />
                       </div>
@@ -337,7 +351,8 @@ const CustomerUpdateCompany = () => {
                           labelValue={t('Email')}
                           type='email'
                           placeholder={t('Email')}
-                          labelRequired
+                          labelRequired={customerDetail?.verify === 'Unverified'}
+                          disabled={customerDetail?.verify === 'Verified'}
                           errorMessage={errors.email?.message}
                         />
                       </div>
@@ -359,9 +374,10 @@ const CustomerUpdateCompany = () => {
                         <InputMain
                           register={register}
                           name='address_company'
-                          labelRequired
                           labelValue={t('Address company')}
                           type='text'
+                          labelRequired={customerDetail?.verify === 'Unverified'}
+                          disabled={customerDetail?.verify === 'Verified'}
                           placeholder={t('Address company')}
                           errorMessage={errors.address_company?.message}
                         />
@@ -422,6 +438,67 @@ const CustomerUpdateCompany = () => {
                 </CardFooter>
               </Card>
             </form>
+            <Card className='mt-4'>
+              <TableMain
+                classNameWrapper='px-4'
+                headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
+                headers={ACTIVITY_HEADER_TABLE}
+                data={customers}
+                page={pagination?.page_activities.toString() || PAGE}
+                page_size={pagination?.totalPagesActivities.toString() || '0'}
+                renderRow={(item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.customer.name}</TableCell>
+                    <TableCell>{item.creator.fullname}</TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.created_at as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_start as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_end as string} />
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
+                          'text-(--color-green-custom)': item.status === 'Completed',
+                          '!text-red-500': item.status === 'Cancelled',
+                          '!text-yellow-500': item.status === 'New',
+                          '!text-orange-500': item.status === 'InProgress'
+                        })}
+                      >
+                        {item.status === 'New'
+                          ? t('New')
+                          : item.status === 'InProgress'
+                            ? t('InProgress')
+                            : item.status === 'Completed'
+                              ? t('Completed')
+                              : item.status === 'Cancelled'
+                                ? t('Cancelled')
+                                : ''}
+                      </span>
+                    </TableCell>
+                    <TableCell className='ml-auto text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                            <Ellipsis className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
+                            {t('Edit')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )}
+              />
+            </Card>
           </div>
         </div>
       </div>

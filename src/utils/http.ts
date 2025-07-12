@@ -62,7 +62,7 @@ class Http {
         }
         return response
       },
-      (error: AxiosError) => {
+      async (error: AxiosError) => {
         const status = error.response?.status
         const statusArr = [httpStatusCode.UnprocessableEntity, httpStatusCode.Unauthorized] as number[]
         if (!statusArr.includes(status as number)) {
@@ -100,7 +100,7 @@ class Http {
       }
     )
   }
-  private handleRefreshToken() {
+  private async handleRefreshToken() {
     return this.instance
       .post<RefreshTokenReponse>(URL_REFRESH_TOKEN, {
         refresh_token: this.refreshToken

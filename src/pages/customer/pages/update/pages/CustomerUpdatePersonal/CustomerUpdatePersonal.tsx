@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
 import { useContext, useEffect, useState } from 'react'
@@ -31,6 +31,14 @@ import { AppContext } from '@/contexts/app-context'
 import type { UserRole } from '@/types/user'
 import TextAreaMain from '@/components/textarea-main'
 import genders from '@/pages/customer/mocks/genders.mock'
+import TableMain from '@/components/table-main'
+import { ACTIVITY_HEADER_TABLE } from '@/constants/table'
+import { TableCell, TableRow } from '@/components/ui/table'
+import FormattedDate from '@/components/formatted-date'
+import clsx from 'clsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Ellipsis } from 'lucide-react'
+import { PAGE } from '@/constants/pagination'
 
 const formData = customerSchema.pick([
   'name',
@@ -54,6 +62,7 @@ const formData = customerSchema.pick([
 type FormData = yup.InferType<typeof formData>
 
 const CustomerUpdatePersonal = () => {
+  const navigate = useNavigate()
   const { profile } = useContext(AppContext)
   const queryClient = useQueryClient()
   const [resetFileUpload, setResetFileUpload] = useState(false)
@@ -101,7 +110,7 @@ const CustomerUpdatePersonal = () => {
   )
   const { data: customerData } = useQuery({
     queryKey: ['customerPersonalUpdate', customerId, customerQueryConfig],
-    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string })
+    queryFn: () => customerApi.getCustomerDetail({ id: customerId as string, params: customerQueryConfig })
   })
   const uploadFileAttachmentMutation = useMutation({
     mutationFn: customerApi.uploadFiles
@@ -110,7 +119,8 @@ const CustomerUpdatePersonal = () => {
     mutationFn: customerApi.updateCustomePersonal
   })
   const customerDetail = customerData?.data?.data.customer
-
+  const customers = customerDetail?.activityCustomers
+  const pagination = customerData?.data?.data
   useEffect(() => {
     if (customerDetail) {
       setValue('name', customerDetail.name || '')
@@ -238,6 +248,8 @@ const CustomerUpdatePersonal = () => {
                           placeholder={t('CCCD')}
                           labelValue={t('CCCD')}
                           {...field}
+                          labelRequired={customerDetail?.verify === 'Unverified'}
+                          disabled={customerDetail?.verify === 'Verified'}
                           onChange={field.onChange}
                           errorMessage={errors.cccd?.message}
                         />
@@ -277,10 +289,11 @@ const CustomerUpdatePersonal = () => {
                         <InputMain
                           register={register}
                           name='email'
-                          labelRequired
                           labelValue={t('Email')}
                           type='email'
                           placeholder={t('Email')}
+                          labelRequired={customerDetail?.verify === 'Unverified'}
+                          disabled={customerDetail?.verify === 'Verified'}
                           errorMessage={errors.email?.message}
                         />
                       </div>
@@ -291,10 +304,11 @@ const CustomerUpdatePersonal = () => {
                           render={({ field }) => (
                             <InputNumber
                               type='text'
-                              labelRequired
                               placeholder={t('Phone')}
                               labelValue={t('Phone')}
                               {...field}
+                              labelRequired={customerDetail?.verify === 'Unverified'}
+                              disabled={customerDetail?.verify === 'Verified'}
                               onChange={field.onChange}
                               errorMessage={errors.phone?.message}
                             />
@@ -324,9 +338,10 @@ const CustomerUpdatePersonal = () => {
                         <InputMain
                           register={register}
                           name='address_personal'
-                          labelRequired
                           labelValue={t('Address personal')}
                           type='text'
+                          labelRequired={customerDetail?.verify === 'Unverified'}
+                          disabled={customerDetail?.verify === 'Verified'}
                           placeholder={t('Address personal')}
                           errorMessage={errors.address_personal?.message}
                         />
@@ -401,6 +416,66 @@ const CustomerUpdatePersonal = () => {
                 </CardFooter>
               </Card>
             </form>
+            <Card className='mt-3 py-2'>
+              <TableMain
+                headerClassNames={['', '', '', '', '', '', '', '', 'text-right']}
+                headers={ACTIVITY_HEADER_TABLE}
+                data={customers}
+                page={pagination?.page_activities.toString() || PAGE}
+                page_size={pagination?.totalPagesActivities.toString() || '0'}
+                renderRow={(item, index) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.customer.name}</TableCell>
+                    <TableCell>{item.creator.fullname}</TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.created_at as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_start as string} />
+                    </TableCell>
+                    <TableCell>
+                      <FormattedDate isoDate={item.time_end as string} />
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={clsx('w-[150px] border-0 shadow-none focus:hidden ', {
+                          'text-(--color-green-custom)': item.status === 'Completed',
+                          '!text-red-500': item.status === 'Cancelled',
+                          '!text-yellow-500': item.status === 'New',
+                          '!text-orange-500': item.status === 'InProgress'
+                        })}
+                      >
+                        {item.status === 'New'
+                          ? t('New')
+                          : item.status === 'InProgress'
+                            ? t('InProgress')
+                            : item.status === 'Completed'
+                              ? t('Completed')
+                              : item.status === 'Cancelled'
+                                ? t('Cancelled')
+                                : ''}
+                      </span>
+                    </TableCell>
+                    <TableCell className='ml-auto text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button className='border-2 border-gray-200' variant='ghost' size='sm'>
+                            <Ellipsis className='w-4 h-4' />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem onClick={() => navigate(`/activities/update/${item.id}`)}>
+                            {t('Edit')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )}
+              />
+            </Card>
           </div>
         </div>
       </div>

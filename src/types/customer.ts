@@ -51,6 +51,9 @@ export interface Customer {
 }
 export interface GetCustomerDetail {
   customer: Customer
+  limit_activities: number
+  page_activities: number
+  totalPagesActivities: number
 }
 
 type Customers = Pick<

@@ -13,9 +13,17 @@ interface Props {
   errorMessage?: string
   labelRequired?: boolean
   labelValue?: string
+  isHourMinuteSecond?: boolean
 }
 
-const DateTimePicker = ({ errorMessage, labelRequired = false, onChange, value, labelValue }: Props) => {
+const DateTimePicker = ({
+  errorMessage,
+  labelRequired = false,
+  onChange,
+  value,
+  labelValue,
+  isHourMinuteSecond = false
+}: Props) => {
   const now = new Date()
   const initTimeString = '0'
   const initTimeNumber = 0
@@ -42,8 +50,11 @@ const DateTimePicker = ({ errorMessage, labelRequired = false, onChange, value, 
   }, [value])
 
   useEffect(() => {
-    if (date) setInitLabelTime(format(new Date(date), 'HH:mm:ss dd-MM-yyyy'))
-  }, [date])
+    if (date) {
+      const formatString = isHourMinuteSecond ? 'HH:mm:ss dd-MM-yyyy' : 'dd-MM-yyyy'
+      setInitLabelTime(format(new Date(date), formatString))
+    }
+  }, [date, isHourMinuteSecond])
 
   const handleTimeChange = (type: 'h' | 'm' | 's', value: string) => {
     const updatedDate = new Date(date)
@@ -66,9 +77,11 @@ const DateTimePicker = ({ errorMessage, labelRequired = false, onChange, value, 
   const handleDateChange = (d: Date) => {
     if (d) {
       const updated = new Date(d)
-      updated.setHours(+hours)
-      updated.setMinutes(+minutes)
-      updated.setSeconds(+seconds)
+      if (isHourMinuteSecond) {
+        updated.setHours(+hours)
+        updated.setMinutes(+minutes)
+        updated.setSeconds(+seconds)
+      }
       setDate(updated)
       onChange?.(updated)
     }
@@ -86,38 +99,49 @@ const DateTimePicker = ({ errorMessage, labelRequired = false, onChange, value, 
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-auto flex flex-col gap-4'>
-          <Calendar locale={vi} mode='single' required selected={date} onSelect={handleDateChange} />
-          <div className='flex gap-2 justify-center'>
-            <select
-              value={hours}
-              onChange={(e) => handleTimeChange('h', e.target.value)}
-              className='border px-2 py-1 rounded'
-            >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i}>{String(i).padStart(2, '0')}</option>
-              ))}
-            </select>
-            :
-            <select
-              value={minutes}
-              onChange={(e) => handleTimeChange('m', e.target.value)}
-              className='border px-2 py-1 rounded'
-            >
-              {Array.from({ length: 60 }, (_, i) => (
-                <option key={i}>{String(i).padStart(2, '0')}</option>
-              ))}
-            </select>
-            :
-            <select
-              value={seconds}
-              onChange={(e) => handleTimeChange('s', e.target.value)}
-              className='border px-2 py-1 rounded'
-            >
-              {Array.from({ length: 60 }, (_, i) => (
-                <option key={i}>{String(i).padStart(2, '0')}</option>
-              ))}
-            </select>
-          </div>
+          <Calendar
+            captionLayout='dropdown'
+            locale={vi}
+            mode='single'
+            required
+            selected={date}
+            onSelect={handleDateChange}
+            fromYear={1990}
+            toYear={new Date().getFullYear()}
+          />
+          {isHourMinuteSecond && (
+            <div className='flex gap-2 justify-center'>
+              <select
+                value={hours}
+                onChange={(e) => handleTimeChange('h', e.target.value)}
+                className='border px-2 py-1 rounded'
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i}>{String(i).padStart(2, '0')}</option>
+                ))}
+              </select>
+              :
+              <select
+                value={minutes}
+                onChange={(e) => handleTimeChange('m', e.target.value)}
+                className='border px-2 py-1 rounded'
+              >
+                {Array.from({ length: 60 }, (_, i) => (
+                  <option key={i}>{String(i).padStart(2, '0')}</option>
+                ))}
+              </select>
+              :
+              <select
+                value={seconds}
+                onChange={(e) => handleTimeChange('s', e.target.value)}
+                className='border px-2 py-1 rounded'
+              >
+                {Array.from({ length: 60 }, (_, i) => (
+                  <option key={i}>{String(i).padStart(2, '0')}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {errorMessage && <p className='text-red-500 text-sm'>{errorMessage}</p>}
         </PopoverContent>
       </Popover>

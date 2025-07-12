@@ -15,7 +15,7 @@ export interface UserCreateReqBody {
   address?: string
   phone?: string
   code?: string
-  date_of_birth?: string | Date
+  date_of_birth?: string
   role?: UserRole
 }
 

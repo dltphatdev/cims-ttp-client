@@ -1,6 +1,6 @@
 import userApi from '@/apis/user.api'
 import ButtonMain from '@/components/button-main'
-import DateSelect from '@/components/date-select'
+import DateTimePicker from '@/components/date-time-picker'
 import InputMain from '@/components/input-main/InputMain'
 import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
@@ -8,6 +8,7 @@ import httpStatusCode from '@/constants/httpStatusCode'
 import PATH from '@/constants/path'
 import { NONE } from '@/constants/role'
 import roles from '@/pages/user/mocks/roles.mock'
+import { isAxiosUnprocessableEntityError } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -21,7 +22,11 @@ import * as yup from 'yup'
 
 const formData = userSchema.pick(['email', 'fullname', 'address', 'phone', 'code', 'date_of_birth', 'password', 'role'])
 type FormData = yup.InferType<typeof formData>
-
+type FormErrorResponse = {
+  [key in keyof FormData]: {
+    msg: string
+  }
+}
 export default function UserCreate() {
   const { t } = useTranslation('admin')
   const navigate = useNavigate()
@@ -48,7 +53,7 @@ export default function UserCreate() {
   const createUserMutation = useMutation({
     mutationFn: userApi.createUser
   })
-  const handleSubmitForm = handleSubmit((data) => {
+  const handleSubmitForm = handleSubmit(async (data) => {
     try {
       const payload = {
         ...data,
@@ -60,27 +65,30 @@ export default function UserCreate() {
           delete payload[key as keyof typeof payload]
         }
       }
-      createUserMutation.mutateAsync(payload, {
-        onSuccess: (data) => {
-          toast.success(data.data.message)
-          navigate(PATH.USER)
-          reset()
-        },
+      try {
+        const res = await createUserMutation.mutateAsync(payload)
+        toast.success(res.data.message)
+        reset()
+        navigate(PATH.USER)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onError: (error: any) => {
+      } catch (error) {
+        if (isAxiosUnprocessableEntityError<{ errors?: FormErrorResponse }>(error)) {
           if (error.status === httpStatusCode.UnprocessableEntity) {
             const formError = error.response?.data?.errors
             if (formError) {
               Object.keys(formError).forEach((key) => {
-                setError(key as keyof FormData, {
-                  message: formError[key as keyof FormData]['msg'],
-                  type: 'Server'
-                })
+                const fieldError = formError[key as keyof FormData]
+                if (fieldError?.msg) {
+                  setError(key as keyof FormData, {
+                    message: fieldError.msg,
+                    type: 'Server'
+                  })
+                }
               })
             }
           }
         }
-      })
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const formError = error.response?.data?.errors
@@ -171,10 +179,11 @@ export default function UserCreate() {
                   control={control}
                   name='date_of_birth'
                   render={({ field }) => (
-                    <DateSelect
+                    <DateTimePicker
                       onChange={field.onChange}
                       value={field.value as Date}
                       labelValue={t('Date of birth')}
+                      labelRequired
                       errorMessage={errors.date_of_birth?.message}
                     />
                   )}

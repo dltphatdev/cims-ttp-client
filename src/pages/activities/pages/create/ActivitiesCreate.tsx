@@ -212,6 +212,7 @@ export default function ActivitiesCreate() {
                         name='time_start'
                         render={({ field }) => (
                           <DateTimePicker
+                            isHourMinuteSecond
                             onChange={field.onChange}
                             value={field.value as Date}
                             labelValue={t('Time start')}
@@ -227,6 +228,7 @@ export default function ActivitiesCreate() {
                         name='time_end'
                         render={({ field }) => (
                           <DateTimePicker
+                            isHourMinuteSecond
                             onChange={field.onChange}
                             value={field.value as Date}
                             labelValue={t('Time end')}
