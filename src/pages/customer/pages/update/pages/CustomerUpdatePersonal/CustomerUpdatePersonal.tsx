@@ -3,8 +3,6 @@ import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
@@ -14,7 +12,7 @@ import { useContext, useEffect, useState } from 'react'
 import { PERSONAL } from '@/constants/customerType'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { UNVERIFIED, VERIFIED } from '@/constants/customerVerify'
-import { FEMALE, MALE } from '@/constants/gender'
+import { MALE } from '@/constants/gender'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { customerSchema } from '@/utils/validation'
 import GenderSelect from '@/components/gender-select'
@@ -24,24 +22,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { TQueryConfig } from '@/types/query-config'
 import { useQueryParams } from '@/hooks/use-query-params'
 import { isUndefined, omit, omitBy } from 'lodash'
 import AddTags from '@/components/add-tags'
 import { AppContext } from '@/contexts/app-context'
 import type { UserRole } from '@/types/user'
-
-const genders = [
-  {
-    gender_type: MALE,
-    gender_value: 'Male'
-  },
-  {
-    gender_type: FEMALE,
-    gender_value: 'Female'
-  }
-]
+import TextAreaMain from '@/components/textarea-main'
+import genders from '@/pages/customer/mocks/genders.mock'
 
 const formData = customerSchema.pick([
   'name',
@@ -168,19 +157,10 @@ const CustomerUpdatePersonal = () => {
         consultantor_ids: consultantors.map((item) => item.id),
         id: Number(customerId)
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
+      const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await updateCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
+      const res = await updateCustomerPersonalMutation.mutateAsync(omit(payloadData, ['consultantors']))
       toast.success(res.data.message)
-
       queryClient.refetchQueries({
         queryKey: ['customerPersonalUpdate']
       })
@@ -358,11 +338,13 @@ const CustomerUpdatePersonal = () => {
                     />
                   </div>
                   <div className='grid gap-3'>
-                    <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                      {t('Note')}
-                    </Label>
-                    <Textarea {...register('note')} placeholder={t('Note')} />
-                    {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
+                    <TextAreaMain
+                      name='note'
+                      register={register}
+                      errorMessage={errors.note?.message}
+                      placeholder={t('Note')}
+                      labelValue={t('Note')}
+                    />
                   </div>
                   <div className='grid gap-3'>
                     <div className='grid grid-cols-12 gap-4'>

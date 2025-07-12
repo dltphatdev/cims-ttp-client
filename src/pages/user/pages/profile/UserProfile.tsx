@@ -7,7 +7,7 @@ import InputNumber from '@/components/input-number'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { AppContext } from '@/contexts/app-context'
 import { setProfileToLS } from '@/utils/auth'
-import { getAvatarUrl } from '@/utils/common'
+import { filterPayload, getAvatarUrl } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -83,16 +83,8 @@ export default function UserProfile() {
         date_of_birth: data.date_of_birth?.toISOString(),
         avatar: avatarName
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
-      const res = await updateProfileMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await updateProfileMutation.mutateAsync(payloadData)
       setProfile(res.data.data)
       setProfileToLS(res.data.data)
       toast.success(res.data.message)

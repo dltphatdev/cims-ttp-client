@@ -5,18 +5,19 @@ import FileUploadMultiple from '@/components/file-upload-multiple'
 import GenderSelect from '@/components/gender-select'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
+import TextAreaMain from '@/components/textarea-main'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { TabsContent } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
 import { DEACTIVATED } from '@/constants/customerStatus'
 import { PERSONAL } from '@/constants/customerType'
 import { UNVERIFIED } from '@/constants/customerVerify'
-import { FEMALE, MALE } from '@/constants/gender'
+import { MALE } from '@/constants/gender'
 import httpStatusCode from '@/constants/httpStatusCode'
 import PATH from '@/constants/path'
 import { AppContext } from '@/contexts/app-context'
+import genders from '@/pages/customer/mocks/genders.mock'
+import { filterPayload } from '@/utils/common'
 import { customerSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -27,17 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as yup from 'yup'
-
-const genders = [
-  {
-    gender_type: MALE,
-    gender_value: 'Male'
-  },
-  {
-    gender_type: FEMALE,
-    gender_value: 'Female'
-  }
-]
 
 const formData = customerSchema.pick([
   'name',
@@ -116,27 +106,18 @@ const FormCustomerPersonal = () => {
         attachments = uploadResponeArray.data.data?.map((file) => file.filename)
         setValue('attachments', attachments)
       }
-
       const payload = {
         ...data,
         date_of_birth: data.date_of_birth?.toISOString(),
         attachments: attachments as string[] | undefined,
         consultantor_ids: consultantors.map((item) => item.id)
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
+      const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await createCustomerPersonalMutation.mutateAsync(omit(payload, ['consultantors']))
+      const res = await createCustomerPersonalMutation.mutateAsync(omit(payloadData, ['consultantors']))
       toast.success(res.data.message)
-      navigate(PATH.CUSTOMER)
       reset()
+      navigate(PATH.CUSTOMER)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -290,15 +271,17 @@ const FormCustomerPersonal = () => {
               <FileUploadMultiple onChange={handleChangeFiles} />
             </div>
             <div className='grid gap-3'>
-              <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                {t('Note')}
-              </Label>
-              <Textarea {...register('note')} placeholder={t('Note')} />
-              {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
+              <TextAreaMain
+                name='note'
+                register={register}
+                errorMessage={errors.note?.message}
+                placeholder={t('Note')}
+                labelValue={t('Note')}
+              />
             </div>
           </CardContent>
           <CardFooter>
-            <Button>{t('Save')}</Button>
+            <Button disabled={createCustomerPersonalMutation.isPending}>{t('Save')}</Button>
           </CardFooter>
         </Card>
       </TabsContent>

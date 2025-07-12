@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
+import { NEW } from '@/constants/performanceStatus'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -17,8 +17,6 @@ import { LIMIT, PAGE } from '@/constants/pagination'
 import InputMain from '@/components/input-main'
 import AddTagCustomer from '@/components/add-tag-customer'
 import StatusSelect from '@/components/status-select'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useContext, useEffect, useMemo } from 'react'
 import { Ellipsis, Plus } from 'lucide-react'
@@ -27,7 +25,7 @@ import { REVENUE_INPUT_HEADER_TABLE, REVENUE_OUTPUT_HEADER_TABLE } from '@/const
 import { TableCell, TableRow } from '@/components/ui/table'
 import FormattedDate from '@/components/formatted-date'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { formatNumberCurrency, isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, formatNumberCurrency, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import InputNumber from '@/components/input-number'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
@@ -35,6 +33,8 @@ import RevenueTagsPrice from '@/pages/performance/components/revenue-tags-price'
 import PATH from '@/constants/path'
 import type { UserRole } from '@/types/user'
 import { AppContext } from '@/contexts/app-context'
+import statuses from '@/pages/performance/mocks/statuses.mock'
+import TextAreaMain from '@/components/textarea-main'
 
 const formData = performanceSchema.pick([
   'name',
@@ -50,28 +50,12 @@ const formData = performanceSchema.pick([
 ])
 type FormData = yup.InferType<typeof formData>
 
-const statuses = [
-  {
-    status_type: NEW,
-    status_value: 'New'
-  },
-  {
-    status_type: APPROVED,
-    status_value: 'Approved'
-  },
-  {
-    status_type: CANCELLED,
-    status_value: 'Cancelled'
-  }
-]
-
 export default function PerformanceUpdate() {
   const { profile } = useContext(AppContext)
   const { t } = useTranslation('admin')
   const translateToStr = (key: string, defaultText?: string) => t(key, { defaultValue: defaultText ?? key })
   const { performanceId } = useParams()
   const navigate = useNavigate()
-
   const {
     register,
     handleSubmit,
@@ -288,17 +272,8 @@ export default function PerformanceUpdate() {
         assign_at: new Date()?.toISOString(),
         id: Number(performanceId)
       }
-
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
-      const res = await updatePerformanceMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await updatePerformanceMutation.mutateAsync(payloadData)
       toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -384,11 +359,13 @@ export default function PerformanceUpdate() {
                     </div>
                   )}
                   <div className='grid gap-3'>
-                    <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                      {t('Note')}
-                    </Label>
-                    <Textarea {...register('note')} placeholder={t('Note')} />
-                    {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
+                    <TextAreaMain
+                      name='note'
+                      register={register}
+                      errorMessage={errors.note?.message}
+                      placeholder={t('Note')}
+                      labelValue={t('Note')}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -727,7 +704,6 @@ export default function PerformanceUpdate() {
                   </CardContent>
                 </Card>
               </div>
-
               <div>
                 <Card>
                   <CardContent className='grid gap-3'>

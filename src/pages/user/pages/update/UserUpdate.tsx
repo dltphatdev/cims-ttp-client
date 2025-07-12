@@ -6,8 +6,9 @@ import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
 import { Button } from '@/components/ui/button'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { ADMIN, NONE, SALE, TECHNICIAN } from '@/constants/role'
+import { NONE } from '@/constants/role'
 import { AppContext } from '@/contexts/app-context'
+import roles from '@/pages/user/mocks/roles.mock'
 import type { UserRole } from '@/types/user'
 import { formatedDate, formatedTime, isSuperAdminRole } from '@/utils/common'
 import { userSchema } from '@/utils/validation'
@@ -25,25 +26,6 @@ import * as yup from 'yup'
 const formData = userSchema.pick(['fullname', 'address', 'code', 'date_of_birth', 'phone', 'role'])
 
 type FormData = yup.InferType<typeof formData>
-
-const roles = [
-  {
-    role_type: ADMIN,
-    role_value: 'Sale Admin'
-  },
-  {
-    role_type: SALE,
-    role_value: 'Sale'
-  },
-  {
-    role_type: NONE,
-    role_value: 'None'
-  },
-  {
-    role_type: TECHNICIAN,
-    role_value: 'Technician'
-  }
-]
 
 export default function UserUpdate() {
   const { profile } = useContext(AppContext)

@@ -221,6 +221,7 @@ export default function CustomerRead() {
         delete payload[key as keyof typeof payload]
       }
     }
+
     if (type === 'Company') {
       if (saleIds.length > 0) {
         updateCustomerCompanyMutation.mutate(payload, {

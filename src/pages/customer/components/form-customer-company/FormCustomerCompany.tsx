@@ -11,8 +11,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useContext, useState } from 'react'
 import { AppContext } from '@/contexts/app-context'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import customerApi from '@/apis/customer.api'
@@ -24,6 +22,8 @@ import { omit } from 'lodash'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
+import { filterPayload } from '@/utils/common'
+import TextAreaMain from '@/components/textarea-main'
 
 const formData = customerSchema.pick([
   'name',
@@ -106,20 +106,12 @@ const FormCustomerCompany = () => {
         attachments: attachments as string[] | undefined,
         consultantor_ids: consultantors.map((item) => item.id)
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
+      const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await createCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
+      const res = await createCustomerCompanyMutation.mutateAsync(omit(payloadData, ['consultantors']))
       toast.success(res.data.message)
-      navigate(PATH.CUSTOMER)
       reset()
+      navigate(PATH.CUSTOMER)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -287,11 +279,13 @@ const FormCustomerCompany = () => {
               <FileUploadMultiple onChange={handleChangeFiles} />
             </div>
             <div className='grid gap-3'>
-              <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                {t('Note')}
-              </Label>
-              <Textarea {...register('note')} placeholder={t('Note')} />
-              {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
+              <TextAreaMain
+                name='note'
+                register={register}
+                errorMessage={errors.note?.message}
+                placeholder={t('Note')}
+                labelValue={t('Note')}
+              />
             </div>
           </CardContent>
           <CardFooter>

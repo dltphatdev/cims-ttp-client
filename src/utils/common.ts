@@ -59,3 +59,14 @@ export function isSuperAdminRole(role: UserRole) {
 export function isSupperAdminAndSaleAdmin(role: UserRole) {
   return role === 'SuperAdmin' || role === 'Admin' ? true : false
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function filterPayload<T extends Record<string, any>>(payload: T): T {
+  for (const key in payload) {
+    const value = payload[key]
+    if (value === undefined || value === null || value === '') {
+      delete payload[key]
+    }
+  }
+  return payload
+}

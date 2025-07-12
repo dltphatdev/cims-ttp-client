@@ -12,7 +12,7 @@ import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
 import { activitySchema } from '@/utils/validation'
-import { COMPLETED, IN_PROGRESS, NEW, CANCELLED } from '@/constants/activity'
+import { NEW } from '@/constants/activity'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -20,28 +20,10 @@ import activityApi from '@/apis/activity.api'
 import { useContext, useEffect } from 'react'
 import { toast } from 'sonner'
 import httpStatusCode from '@/constants/httpStatusCode'
-import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import { AppContext } from '@/contexts/app-context'
 import type { UserRole } from '@/types/user'
-
-const statuses = [
-  {
-    status_type: NEW,
-    status_value: 'New'
-  },
-  {
-    status_type: IN_PROGRESS,
-    status_value: 'InProgress'
-  },
-  {
-    status_type: COMPLETED,
-    status_value: 'Completed'
-  },
-  {
-    status_type: CANCELLED,
-    status_value: 'Cancelled'
-  }
-]
+import statuses from '@/pages/activities/mocks/status.mock'
 
 const formData = activitySchema.pick([
   'name',
@@ -114,16 +96,8 @@ export default function ActivitiesUpdate() {
         time_start: data.time_start.toISOString(),
         time_end: data.time_end.toISOString()
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
-      const res = await updateActivityMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await updateActivityMutation.mutateAsync(payloadData)
       toast.success(res.data.message)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -273,7 +247,7 @@ export default function ActivitiesUpdate() {
                 </CardContent>
               </Card>
               <CardFooter className='mt-6 p-0'>
-                <Button>{t('Save')}</Button>
+                <Button disabled={updateActivityMutation.isPending}>{t('Save')}</Button>
               </CardFooter>
             </form>
           </div>

@@ -22,7 +22,7 @@ import customerApi from '@/apis/customer.api'
 import FileUploadMultiple from '@/components/file-upload-multiple'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, formatedDate, formatedTime, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { TQueryConfig } from '@/types/query-config'
 import { isUndefined, omit, omitBy } from 'lodash'
 import { useQueryParams } from '@/hooks/use-query-params'
@@ -111,6 +111,7 @@ const CustomerUpdateCompany = () => {
     mutationFn: customerApi.updateCustomerCompany
   })
   const customerDetail = customerData?.data?.data.customer
+  console.log(customerDetail)
   useEffect(() => {
     if (customerDetail) {
       setValue('name', customerDetail.name || '')
@@ -154,23 +155,14 @@ const CustomerUpdateCompany = () => {
         consultantor_ids: consultantors.map((item) => item.id),
         id: Number(customerId)
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
+      const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await updateCustomerCompanyMutation.mutateAsync(omit(payload, ['consultantors']))
+      const res = await updateCustomerCompanyMutation.mutateAsync(omit(payloadData, ['consultantors']))
       toast.success(res.data.message)
       queryClient.refetchQueries({
         queryKey: ['customerCompanyUpdate']
       })
       setResetFileUpload((prev) => !prev)
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {

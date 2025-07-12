@@ -6,7 +6,8 @@ import InputNumber from '@/components/input-number'
 import SelectRole from '@/components/select-role'
 import httpStatusCode from '@/constants/httpStatusCode'
 import PATH from '@/constants/path'
-import { ADMIN, NONE, SALE, TECHNICIAN } from '@/constants/role'
+import { NONE } from '@/constants/role'
+import roles from '@/pages/user/mocks/roles.mock'
 import { userSchema } from '@/utils/validation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -17,25 +18,6 @@ import { useNavigate } from 'react-router-dom'
 import { Fragment } from 'react/jsx-runtime'
 import { toast } from 'sonner'
 import * as yup from 'yup'
-
-const roles = [
-  {
-    role_type: ADMIN,
-    role_value: 'Sale Admin'
-  },
-  {
-    role_type: SALE,
-    role_value: 'Sale'
-  },
-  {
-    role_type: NONE,
-    role_value: 'None'
-  },
-  {
-    role_type: TECHNICIAN,
-    role_value: 'Technician'
-  }
-]
 
 const formData = userSchema.pick(['email', 'fullname', 'address', 'phone', 'code', 'date_of_birth', 'password', 'role'])
 type FormData = yup.InferType<typeof formData>
@@ -59,6 +41,7 @@ export default function UserCreate() {
       address: '',
       phone: '',
       code: '',
+      role: NONE,
       date_of_birth: new Date(1990, 0, 1)
     }
   })

@@ -2,49 +2,39 @@ import * as yup from 'yup'
 import InputMain from '@/components/input-main'
 import InputNumber from '@/components/input-number'
 import SelectType from '@/components/select-type'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { EVERY_MONTH, ONE_TIME } from '@/constants/revenue'
 import { revenueSchema } from '@/utils/validation'
 import { Helmet } from 'react-helmet-async'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Fragment } from 'react/jsx-runtime'
-import { yupResolver } from '@hookform/resolvers/yup'
 import { useTranslation } from 'react-i18next'
-import { useMutation } from '@tanstack/react-query'
+import { useParams } from 'react-router-dom'
+import { Fragment } from 'react/jsx-runtime'
+import { ONE_TIME } from '@/constants/revenue'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import revenueApi from '@/apis/revenue.api'
+import type { GetDetailRevenueParams } from '@/types/revenue'
+import { useQueryParams } from '@/hooks/use-query-params'
+import { isUndefined, omitBy } from 'lodash'
+import { useEffect } from 'react'
 import httpStatusCode from '@/constants/httpStatusCode'
-import type { TypeRevenue } from '@/types/revenue'
-import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-
-const types = [
-  {
-    key_type: ONE_TIME,
-    key_value: 'Một lần'
-  },
-  {
-    key_type: EVERY_MONTH,
-    key_value: 'Hàng tháng'
-  }
-]
+import { filterPayload, formatedDate, formatedTime } from '@/utils/common'
+import types from '@/pages/revenue/mocks/types.mock'
+import TextAreaMain from '@/components/textarea-main'
 
 const formData = revenueSchema.pick(['name', 'description', 'price', 'quantity', 'type', 'unit_caculate'])
 type FormData = yup.InferType<typeof formData>
 
-const RevenueCreate = () => {
+export default function RevenueUpdate() {
   const { t } = useTranslation('admin')
-  const { state } = useLocation()
-  const performanceId = state.performanceId
-  const revenueDirection = state.revenueDirection
-  const navigate = useNavigate()
+  const { revenueId } = useParams()
   const {
     register,
     handleSubmit,
     setError,
-    reset,
+    setValue,
     control,
     formState: { errors }
   } = useForm<FormData>({
@@ -59,23 +49,45 @@ const RevenueCreate = () => {
     }
   })
 
-  const createRevenueMutation = useMutation({
-    mutationFn: revenueApi.createRevenue
+  const queryParams: GetDetailRevenueParams = useQueryParams()
+  const queryConfig: GetDetailRevenueParams = omitBy(
+    {
+      direction: queryParams.direction || 'In'
+    },
+    isUndefined
+  )
+
+  const { data: revenueData, refetch } = useQuery({
+    queryKey: ['revenue', queryConfig, revenueId],
+    queryFn: () => revenueApi.getDetailRevenue({ id: revenueId as string, params: queryConfig })
   })
+  const updateRevenueMutation = useMutation({
+    mutationFn: revenueApi.updateRevenue
+  })
+  const revenue = revenueData?.data.data
+  useEffect(() => {
+    if (revenue) {
+      setValue('name', revenue.name || '')
+      setValue('description', revenue.description || '')
+      setValue('price', revenue.price || '')
+      setValue('type', revenue.type || '')
+      setValue('unit_caculate', revenue.unit_caculate || '')
+      setValue('quantity', revenue.quantity.toString() || '')
+    }
+  }, [revenue, setValue])
+
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
       const payload = {
         ...data,
-        direction: revenueDirection,
-        performance_id: Number(performanceId),
+        id: Number(revenueId),
         quantity: Number(data.quantity),
-        price: Number(data.price),
-        type: data.type as TypeRevenue
+        price: Number(data.price)
       }
-      const res = await createRevenueMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await updateRevenueMutation.mutateAsync(payloadData)
       toast.success(res.data.message)
-      reset()
-      navigate(`/performance/update/${performanceId}`)
+      refetch()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -91,17 +103,18 @@ const RevenueCreate = () => {
       }
     }
   })
+
   return (
     <Fragment>
       <Helmet>
-        <title>Thêm mới chi phí - TTP Telecom</title>
-        <meta name='keywords' content='Thêm mới chi phí - TTP Telecom' />
-        <meta name='description' content='Thêm mới chi phí - TTP Telecom' />
+        <title>Cập nhật chi phí - TTP Telecom</title>
+        <meta name='keywords' content='Cập nhật chi phí - TTP Telecom' />
+        <meta name='description' content='Cập nhật chi phí - TTP Telecom' />
       </Helmet>
       <div className='@container/main'>
         <div className='py-4 md:gap-6 md:py-6'>
           <div className='px-4 lg:px-6'>
-            <h1 className='mb-4 font-bold text-2xl'>Thêm chi phí</h1>
+            <h1 className='mb-4 font-bold text-2xl'>Cập nhật chi phí</h1>
             <form onSubmit={handleSubmitForm} noValidate>
               <Card>
                 <CardContent className='grid gap-3'>
@@ -133,11 +146,14 @@ const RevenueCreate = () => {
                     />
                   </div>
                   <div className='grid gap-3'>
-                    <Label htmlFor='description' className='text-sm font-medium light:text-gray-700'>
-                      {t('Description')} <span className='text-red-500'>*</span>
-                    </Label>
-                    <Textarea {...register('description')} placeholder={t('Description')} />
-                    {errors?.description && <span className='text-red-600'>{errors?.description?.message}</span>}
+                    <TextAreaMain
+                      name='description'
+                      labelRequired
+                      register={register}
+                      errorMessage={errors.description?.message}
+                      placeholder={t('Description')}
+                      labelValue={t('Description')}
+                    />
                   </div>
                   <div className='grid gap-3'>
                     <InputMain
@@ -184,9 +200,33 @@ const RevenueCreate = () => {
                       )}
                     />
                   </div>
+                  <div className='grid gap-3'>
+                    <div className='grid grid-cols-12 gap-4'>
+                      <div className='mn:col-span-12 lg:col-span-6'>
+                        <div className='select-none'>
+                          <InputMain
+                            value={`${formatedTime(revenue?.created_at as string)} ${formatedDate(revenue?.created_at as string)}`}
+                            labelValue={t('Created at')}
+                            type='text'
+                            disabled={true}
+                          />
+                        </div>
+                      </div>
+                      <div className='mn:col-span-12 lg:col-span-6'>
+                        <div className='select-none'>
+                          <InputMain
+                            value={`${formatedTime(revenue?.updated_at as string)} ${formatedDate(revenue?.updated_at as string)}`}
+                            labelValue={t('Updated at')}
+                            type='text'
+                            disabled={true}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
                 <CardFooter>
-                  <Button>{t('Save')}</Button>
+                  <Button disabled={updateRevenueMutation.isPending}>{t('Save')}</Button>
                 </CardFooter>
               </Card>
             </form>
@@ -196,5 +236,3 @@ const RevenueCreate = () => {
     </Fragment>
   )
 }
-
-export default RevenueCreate

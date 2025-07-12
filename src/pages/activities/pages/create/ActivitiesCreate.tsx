@@ -5,7 +5,7 @@ import { activitySchema } from '@/utils/validation'
 import { useTranslation } from 'react-i18next'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { NEW, IN_PROGRESS, COMPLETED, CANCELLED } from '@/constants/activity'
+import { NEW } from '@/constants/activity'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import InputMain from '@/components/input-main'
 import { useContext } from 'react'
@@ -20,10 +20,11 @@ import { useMutation } from '@tanstack/react-query'
 import activityApi from '@/apis/activity.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { UserRole } from '@/types/user'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
+import statuses from '@/pages/activities/mocks/status.mock'
 
 const formData = activitySchema.pick([
   'name',
@@ -36,25 +37,6 @@ const formData = activitySchema.pick([
   'content'
 ])
 type FormData = yup.InferType<typeof formData>
-
-const statuses = [
-  {
-    status_type: NEW,
-    status_value: 'New'
-  },
-  {
-    status_type: IN_PROGRESS,
-    status_value: 'InProgress'
-  },
-  {
-    status_type: COMPLETED,
-    status_value: 'Completed'
-  },
-  {
-    status_type: CANCELLED,
-    status_value: 'Cancelled'
-  }
-]
 
 export default function ActivitiesCreate() {
   const navigate = useNavigate()
@@ -95,19 +77,11 @@ export default function ActivitiesCreate() {
         time_start: timeStart ? data.time_start.toISOString() : '',
         time_end: timeEnd ? data.time_end.toISOString() : ''
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
-      const res = await createActivityMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await createActivityMutation.mutateAsync(payloadData)
+      reset()
       toast.success(res.data.message)
       navigate(PATH.ACTIVITIES)
-      reset()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -257,7 +231,7 @@ export default function ActivitiesCreate() {
                 </CardContent>
               </Card>
               <CardFooter className='mt-6 p-0'>
-                <Button>{t('Save')}</Button>
+                <Button disabled={createActivityMutation.isPending}>{t('Save')}</Button>
               </CardFooter>
             </form>
           </div>

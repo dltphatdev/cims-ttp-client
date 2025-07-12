@@ -3,15 +3,13 @@ import { performanceSchema } from '@/utils/validation'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react/jsx-runtime'
-import { APPROVED, CANCELLED, NEW } from '@/constants/performanceStatus'
+import { NEW } from '@/constants/performanceStatus'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Controller, useForm, type Resolver } from 'react-hook-form'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import InputMain from '@/components/input-main'
 import { useContext } from 'react'
 import { AppContext } from '@/contexts/app-context'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import AddTagCustomer from '@/components/add-tag-customer'
 import StatusSelect from '@/components/status-select'
 import { Button } from '@/components/ui/button'
@@ -19,28 +17,15 @@ import { useMutation } from '@tanstack/react-query'
 import performanceApi from '@/apis/performance.api'
 import httpStatusCode from '@/constants/httpStatusCode'
 import { toast } from 'sonner'
-import { isSupperAdminAndSaleAdmin } from '@/utils/common'
+import { filterPayload, isSupperAdminAndSaleAdmin } from '@/utils/common'
 import type { UserRole } from '@/types/user'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
+import statuses from '@/pages/performance/mocks/statuses.mock'
+import TextAreaMain from '@/components/textarea-main'
 
 const formData = performanceSchema.pick(['name', 'customer_id', 'note', 'status'])
 type FormData = yup.InferType<typeof formData>
-
-const statuses = [
-  {
-    status_type: NEW,
-    status_value: 'New'
-  },
-  {
-    status_type: APPROVED,
-    status_value: 'Approved'
-  },
-  {
-    status_type: CANCELLED,
-    status_value: 'Cancelled'
-  }
-]
 
 export default function PerformanceCreate() {
   const navigate = useNavigate()
@@ -76,19 +61,11 @@ export default function PerformanceCreate() {
         customer_id: Number(customerId),
         assign_at: new Date()?.toISOString()
       }
-      for (const key in payload) {
-        if (
-          payload[key as keyof typeof payload] === undefined ||
-          payload[key as keyof typeof payload] === '' ||
-          payload[key as keyof typeof payload] === null
-        ) {
-          delete payload[key as keyof typeof payload]
-        }
-      }
-      const res = await createPerformanceMutation.mutateAsync(payload)
+      const payloadData = filterPayload(payload)
+      const res = await createPerformanceMutation.mutateAsync(payloadData)
       toast.success(res.data.message)
-      navigate(PATH.PERFORMANCE)
       reset()
+      navigate(PATH.PERFORMANCE)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -172,11 +149,13 @@ export default function PerformanceCreate() {
                     </div>
                   )}
                   <div className='grid gap-3'>
-                    <Label htmlFor='note' className='text-sm font-medium light:text-gray-700'>
-                      {t('Note')}
-                    </Label>
-                    <Textarea {...register('note')} placeholder={t('Note')} />
-                    {errors?.note && <span className='text-red-600'>{errors?.note?.message}</span>}
+                    <TextAreaMain
+                      name='note'
+                      register={register}
+                      errorMessage={errors.note?.message}
+                      placeholder={t('Note')}
+                      labelValue={t('Note')}
+                    />
                   </div>
                 </CardContent>
                 <CardFooter>

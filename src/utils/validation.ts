@@ -153,14 +153,17 @@ export const revenueSchema = yup.object({
     .required('Name is required')
     .min(3, 'Name min length is 3 characters')
     .max(160, 'Name maximum length is 160 characters'),
-  description: yup.string().required().max(2000, 'Description maximum length is 2000 characters'),
+  description: yup
+    .string()
+    .required('Description is required')
+    .max(2000, 'Description maximum length is 2000 characters'),
   unit_caculate: yup
     .string()
     .required('Unit caculate is required')
     .max(160, 'Unit caculate maximum length is 255 characters'),
-  type: yup.string().required().oneOf([ONE_TIME, EVERY_MONTH], 'Type invalid'),
-  price: yup.string().required(),
-  quantity: yup.string().required()
+  type: yup.string().required('Type is required').oneOf([ONE_TIME, EVERY_MONTH], 'Type invalid'),
+  price: yup.string().required('Price is required'),
+  quantity: yup.string().required('Quantity is required')
 })
 
 export const activitySchema = yup.object({
