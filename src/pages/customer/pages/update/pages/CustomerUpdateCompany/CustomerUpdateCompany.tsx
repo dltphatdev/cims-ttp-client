@@ -111,7 +111,6 @@ const CustomerUpdateCompany = () => {
     mutationFn: customerApi.updateCustomerCompany
   })
   const customerDetail = customerData?.data?.data.customer
-  console.log(customerDetail)
   useEffect(() => {
     if (customerDetail) {
       setValue('name', customerDetail.name || '')
@@ -157,12 +156,30 @@ const CustomerUpdateCompany = () => {
       }
       const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await updateCustomerCompanyMutation.mutateAsync(omit(payloadData, ['consultantors']))
-      toast.success(res.data.message)
-      queryClient.refetchQueries({
-        queryKey: ['customerCompanyUpdate']
-      })
-      setResetFileUpload((prev) => !prev)
+      try {
+        const res = await updateCustomerCompanyMutation.mutateAsync(omit(payloadData, ['consultantors']))
+        toast.success(res.data.message)
+        queryClient.refetchQueries({
+          queryKey: ['customerCompanyUpdate']
+        })
+        setResetFileUpload((prev) => !prev)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.status === httpStatusCode.UnprocessableEntity) {
+          const formError = error.response?.data?.errors
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              if (key === 'consultantor_ids') {
+                toast.error(formError['consultantor_ids']['msg'])
+              }
+              setError(key as keyof FormData, {
+                message: formError[key as keyof FormData]['msg'],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -224,7 +241,9 @@ const CustomerUpdateCompany = () => {
                           placeholder={t('CCCD')}
                           labelValue={t('CCCD')}
                           {...field}
+                          labelRequired={customerDetail?.verify === 'Unverified'}
                           onChange={field.onChange}
+                          disabled={customerDetail?.verify === 'Verified'}
                           errorMessage={errors.cccd?.message}
                         />
                       )}
@@ -272,7 +291,9 @@ const CustomerUpdateCompany = () => {
                               placeholder={t('Tax code')}
                               labelValue={t('Tax code')}
                               {...field}
+                              labelRequired={customerDetail?.verify === 'Unverified'}
                               onChange={field.onChange}
+                              disabled={customerDetail?.verify === 'Verified'}
                               errorMessage={errors.tax_code?.message}
                             />
                           )}

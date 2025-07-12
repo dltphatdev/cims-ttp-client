@@ -25,15 +25,18 @@ import type { UserRole } from '@/types/user'
 import { useNavigate } from 'react-router-dom'
 import PATH from '@/constants/path'
 import statuses from '@/pages/activities/mocks/status.mock'
+import AddTagCustomer from '@/components/add-tag-customer'
 
 const formData = activitySchema.pick([
   'name',
+  'customer_id',
   'contact_name',
   'address',
   'phone',
   'status',
   'time_start',
   'time_end',
+  'assign_at',
   'content'
 ])
 type FormData = yup.InferType<typeof formData>
@@ -54,15 +57,18 @@ export default function ActivitiesCreate() {
     resolver: yupResolver(formData) as Resolver<FormData>,
     defaultValues: {
       name: '',
+      customer_id: '',
       contact_name: '',
       address: '',
       phone: '',
       status: NEW,
       time_start: new Date(),
       time_end: new Date(),
+      assign_at: '',
       content: ''
     }
   })
+  const customerId = watch('customer_id')
   const timeStart = watch('time_start')
   const timeEnd = watch('time_end')
 
@@ -72,16 +78,39 @@ export default function ActivitiesCreate() {
 
   const handleSubmitForm = handleSubmit(async (data) => {
     try {
-      const payload = {
-        ...data,
-        time_start: timeStart ? data.time_start.toISOString() : '',
-        time_end: timeEnd ? data.time_end.toISOString() : ''
-      }
+      const payload = customerId
+        ? {
+            ...data,
+            customer_id: customerId ? Number(data.customer_id) : '',
+            assign_at: customerId ? new Date().toISOString() : '',
+            time_start: timeStart ? data.time_start.toISOString() : '',
+            time_end: timeEnd ? data.time_end.toISOString() : ''
+          }
+        : {
+            ...data,
+            time_start: timeStart ? data.time_start.toISOString() : '',
+            time_end: timeEnd ? data.time_end.toISOString() : ''
+          }
       const payloadData = filterPayload(payload)
-      const res = await createActivityMutation.mutateAsync(payloadData)
-      reset()
-      toast.success(res.data.message)
-      navigate(PATH.ACTIVITIES)
+      try {
+        const res = await createActivityMutation.mutateAsync(payloadData)
+        reset()
+        toast.success(res.data.message)
+        navigate(PATH.ACTIVITIES)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.status === httpStatusCode.UnprocessableEntity) {
+          const formError = error.response?.data?.errors
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof FormData, {
+                message: formError[key as keyof FormData]['msg'],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
@@ -120,6 +149,20 @@ export default function ActivitiesCreate() {
                       type='text'
                       placeholder={t('Title')}
                       errorMessage={errors.name?.message}
+                    />
+                  </div>
+                  <div className='grid gap-3'>
+                    <Controller
+                      control={control}
+                      name='customer_id'
+                      render={({ field }) => (
+                        <AddTagCustomer
+                          labelRequired={true}
+                          value={field.value}
+                          onChange={field.onChange}
+                          errorMessage={errors.customer_id?.message}
+                        />
+                      )}
                     />
                   </div>
 

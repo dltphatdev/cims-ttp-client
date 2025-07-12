@@ -6,6 +6,9 @@ const documentApi = {
   getListDocuments(params: GetDocumentsParams) {
     return http.get<SuccessResponseApi<ListDocumentRes>>('documents', { params })
   }
+  // upsertDocument() {
+  //   return http.put<{ message: string }>('document')
+  // }
 }
 
 export default documentApi

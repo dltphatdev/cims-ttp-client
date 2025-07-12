@@ -1,4 +1,5 @@
 import type { TQueryConfig } from '@/types/query-config'
+import type { UserRole } from '@/types/user'
 
 export type ActivityStatus = 'New' | 'InProgress' | 'Completed' | 'Cancelled'
 
@@ -8,18 +9,21 @@ export interface GetListActivityParams extends Pick<TQueryConfig, 'limit' | 'pag
 
 export interface CreateActivityReqBody {
   name: string
+  customer_id: number | string
   contact_name: string
   address: string
   phone: string
   status?: ActivityStatus
   time_start: string
   time_end: string
+  assign_at?: string
   content?: string
 }
 
 export interface UpdateActivityReqBody {
   id: number
   name?: string
+  customer_id?: number | string
   contact_name?: string
   address?: string
   phone?: string
@@ -27,11 +31,13 @@ export interface UpdateActivityReqBody {
   time_start?: string
   time_end?: string
   content?: string
+  assign_at?: string
 }
 
 export interface Activity {
   id: number
   name: string
+  customer_id: number
   address: string
   phone: string
   time_start: string
@@ -44,6 +50,17 @@ export interface Activity {
   updated_at: string
   creator: {
     fullname: string
+  }
+  customer: {
+    name: string
+    id: number
+    consultantor: {
+      user: {
+        fullname: string
+        id: number
+        role: UserRole
+      }
+    }[]
   }
 }
 

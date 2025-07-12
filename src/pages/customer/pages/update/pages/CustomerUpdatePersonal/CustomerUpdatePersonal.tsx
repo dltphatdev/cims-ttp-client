@@ -159,12 +159,28 @@ const CustomerUpdatePersonal = () => {
       }
       const payloadData = filterPayload(payload)
       if (consultantors.length === 0) return
-      const res = await updateCustomerPersonalMutation.mutateAsync(omit(payloadData, ['consultantors']))
-      toast.success(res.data.message)
-      queryClient.refetchQueries({
-        queryKey: ['customerPersonalUpdate']
-      })
-      setResetFileUpload((prev) => !prev)
+      try {
+        const res = await updateCustomerPersonalMutation.mutateAsync(omit(payloadData, ['consultantors']))
+        toast.success(res.data.message)
+        queryClient.refetchQueries({
+          queryKey: ['customerPersonalUpdate']
+        })
+        setResetFileUpload((prev) => !prev)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.status === httpStatusCode.UnprocessableEntity) {
+          const formError = error.response?.data?.errors
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof FormData, {
+                message: formError[key as keyof FormData]['msg'],
+                type: 'Server'
+              })
+            })
+          }
+        }
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.status === httpStatusCode.UnprocessableEntity) {
